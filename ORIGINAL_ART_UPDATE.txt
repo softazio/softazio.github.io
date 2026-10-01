@@ -1,0 +1,7 @@
+SOFTAZIO v1.5 — Original Art Sync
+
+- Uses the current five game PNG assets already in the project.
+- Homepage Product 001 visual now shows the actual game artwork.
+- Product page shows all five original blocks.
+- cat_yellow.png is used as the favicon.
+- GA4, CONTACT, PRIVACY and AdSense-readiness from v1.4 are preserved.

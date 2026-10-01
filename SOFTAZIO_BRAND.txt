@@ -1,0 +1,19 @@
+SOFTAZIO — Brand Draft v0.1
+
+Brand: SOFTAZIO
+Reading: ソフタジオ
+Meaning: SOFTware + A to Z
+Tagline: SOFTWARE FROM A TO Z
+
+Product structure:
+SOFTAZIO
+└─ PRODUCT 001 — COLOR BLOCKS DX
+
+Status:
+Working/provisional brand for test launch.
+
+Direction:
+- Software studio, not game-only.
+- Expandable to games, learning tools, care software, analytics and other products.
+- Keep studio identity separate from product identities.
+- Products should remain independently transferable if a future sale is considered.

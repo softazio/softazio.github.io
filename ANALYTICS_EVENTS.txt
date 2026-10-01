@@ -1,0 +1,30 @@
+SOFTAZIO / COLOR BLOCKS DX — GA4 Event Map
+
+Website:
+- page_view
+- play_now_click
+
+Game:
+- game_start
+- game_over
+  parameters: score, stage, clears, secret_mode
+- game_retry
+  parameters: stage, score
+- stage_reached
+  parameters: stage, score
+- combo_reached
+  parameters: combo, score, cleared_blocks
+- rescue_star_caught
+  parameters: stock
+- rescue_star_used
+  parameters: stock_after
+- pause_toggled
+  parameters: paused
+
+GA4で見る場所:
+1. リアルタイム
+2. 「イベント名別のイベント数」
+3. 後日: レポート > エンゲージメント > イベント
+
+最初はイベントを全部「キーイベント」にしないでください。
+まずはデータを集めて、後から重要指標を決めます。

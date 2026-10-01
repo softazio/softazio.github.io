@@ -1,0 +1,21 @@
+COLOR BLOCKS DX — 5.25 STABLE
+
+Purpose:
+This is the frozen baseline build for test launch.
+
+Do not add new gameplay features directly to this build.
+Future gameplay experiments should branch from this version.
+
+Release checklist:
+[OK] JavaScript syntax check
+[OK] Version/cache bumped
+[OK] SOFTAZIO branding retained
+[OK] Product 001 designation retained
+[OK] Current gameplay preserved without new logic changes
+
+Next phase:
+1. Public test launch
+2. Website pages
+3. Privacy policy / contact
+4. Analytics
+5. AdSense readiness

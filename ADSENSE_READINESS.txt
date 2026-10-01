@@ -1,0 +1,23 @@
+SOFTAZIO — AdSense readiness notes (v1.4)
+
+Completed:
+- Public contact email
+- Privacy policy updated for actual GA4 use
+- Cookie section
+- Future advertising disclosure
+- Consent-management section
+- ABOUT expanded with original studio philosophy
+- Product 001 page expanded with game concept and development purpose
+- NEWS expanded with actual development history
+- GA4 already installed and receiving data
+
+Next user-side steps:
+1. Create / sign in to Google AdSense.
+2. Add the SOFTAZIO site URL.
+3. Follow Google's site ownership / code connection instructions.
+4. In AdSense, configure Privacy & messaging / CMP for regions that require consent.
+5. Submit for review.
+6. Do not place ads until the site is approved and ad setup is ready.
+
+Important:
+Approval is not guaranteed. Google reviews the site and policies.

@@ -1,0 +1,22 @@
+SOFTAZIO Analytics Setup
+
+Google Analytics 4 Measurement ID:
+G-1FV0P774PM
+
+Installed on:
+- All HTML pages in this package
+- Including game.html
+
+Custom event:
+- play_now_click
+  Fires when a PLAY link to game.html is tapped.
+
+Next check:
+1. Upload all files to GitHub repository root.
+2. Open the public site yourself.
+3. In Google Analytics, open Realtime.
+4. You should see at least 1 active user / page_view after deployment.
+
+Note:
+Analytics may take time to appear in standard reports.
+Realtime usually appears sooner.

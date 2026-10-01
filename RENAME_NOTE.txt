@@ -1,0 +1,19 @@
+SOFTAZIO v1.6 — Product rename
+
+Official product name:
+COLOR BLOCKS DX
+
+Changed:
+- All visible references updated to COLOR BLOCKS DX
+- Japanese copy revised from "ネコブロック" to "カラーブロック"
+- Product page renamed:
+  product-neko-blocks.html -> product-color-blocks.html
+
+Compatibility:
+- Image filenames cat_white.png / cat_aqua.png / cat_yellow.png / cat_black.png / cat_red.png
+  are kept as internal asset filenames only, to avoid breaking the game.
+  They are not shown to users as the product concept.
+
+Analytics:
+- Existing GA4 event names are preserved.
+- Event labels/product values now use COLOR BLOCKS DX.

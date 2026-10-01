@@ -1,0 +1,11 @@
+SOFTAZIO public contact
+
+Email:
+softazio.contact@gmail.com
+
+Updated:
+- contact.html
+- privacy.html
+- site.css
+
+Upload all files from this package to keep the site version consistent.

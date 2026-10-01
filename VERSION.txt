@@ -1,0 +1,21 @@
+COLOR BLOCKS DX 5.25 — STABLE
+
+Status:
+Stable test-launch build.
+
+Policy:
+- No new gameplay features added in this release.
+- Based directly on 5.24 SOFTAZIO BRANDING.
+- Gameplay, scoring, combo, stock-star, AUTO DROP, pause, NEXT and touch controls are frozen.
+- This build is the baseline for the next phase: website / analytics / monetization preparation.
+
+Brand:
+SOFTAZIO
+SOFTWARE FROM A TO Z
+PRODUCT 001 — COLOR BLOCKS DX
+
+BUILD 5.25 • STABLE
+Cache: 5250
+
+
+SOFTAZIO Site v1.2: GA4 game event tracking added.
