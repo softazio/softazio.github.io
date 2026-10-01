@@ -1,0 +1,16 @@
+SOFTAZIO v1.8 — AdSense meta tag verification
+
+Added to every HTML page:
+<meta name="google-adsense-account" content="ca-pub-8163972323891550">
+
+Existing AdSense script and Google Analytics code are preserved.
+
+After upload:
+1. Extract this ZIP.
+2. Upload all extracted files to the root of softazio/softazio.github.io.
+3. Commit changes.
+4. Wait for GitHub Pages deployment.
+5. Open https://softazio.github.io/
+6. In AdSense, select the meta tag verification method.
+7. Check 「HTML <meta> タグを配置しました」.
+8. Click 「確認」.

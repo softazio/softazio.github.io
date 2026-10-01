@@ -1,0 +1,16 @@
+SOFTAZIO v1.7 — AdSense ownership code
+
+Publisher ID:
+ca-pub-8163972323891550
+
+AdSense code was added to all HTML pages before </head>.
+Google Analytics code remains in place.
+No visible ad unit has been inserted yet.
+
+After uploading this version to softazio/softazio.github.io:
+1. Commit changes
+2. Wait for GitHub Pages to deploy
+3. Open https://softazio.github.io/
+4. Return to AdSense
+5. Check 「コードを配置しました」
+6. Click 「確認」
