@@ -29,6 +29,12 @@ gtag('config', 'G-1FV0P774PM');
 <p class="page-lead">介護の現場や学びの中で見えてくることを、個人が特定されない形に整理した読みものです。試験対策の知識だけでは拾いきれない、介助の迷い、身体の使い方、待つことの意味、日々の小さな判断を扱います。</p>
 
 <section class="content-section">
+<div class="section-kicker">EDITOR'S PICKS</div>
+<h2>まず読んでほしい3本。</h2>
+<p>CARE NOTESの中心になる考え方を、短い文章でまとめています。</p>
+</section>
+
+<section class="content-section">
 <div class="section-kicker">NOTE 001</div>
 <h2>支える側のつもりが、学ばされている。</h2>
 <p>介護の仕事では、援助する側が一方的に何かを与えているように見える場面があります。しかし実際には、相手のペース、言葉、拒否、沈黙、生活歴に触れるたびに、こちらの考え方が試されます。</p>
@@ -50,6 +56,14 @@ gtag('config', 'G-1FV0P774PM');
 </section>
 
 <section class="content-section">
+<div class="section-kicker">LATEST READING</div>
+<h2>関連する介護記事</h2>
+<p>外部で公開されている介護関連の記事から、CARE NOTESのテーマに合うものを自動で取得して表示します。</p>
+<div id="note-feed"><p>記事一覧を読み込んでいます…</p></div>
+<noscript><p>記事一覧を表示するにはJavaScriptを有効にしてください。</p></noscript>
+</section>
+
+<section class="content-section">
 <div class="section-kicker">LEARNING LINK</div>
 <h2>読むことと、解くことをつなぐ。</h2>
 <p>CARE NOTESで扱うテーマは、介護福祉士国家試験の知識ともつながっています。制度、尊厳、自立支援、コミュニケーション、こころとからだのしくみ。問題を解いたあとに現場の意味を考え、現場の疑問からまた知識へ戻る。その往復を目指しています。</p>
@@ -67,5 +81,42 @@ gtag('config', 'G-1FV0P774PM');
 <div class="footer-links"><a href="privacy.html">PRIVACY</a><a href="contact.html">CONTACT</a></div>
 <div class="copyright">© 2026 SOFTAZIO</div>
 </footer>
+
+<script>
+(async function(){
+  const root = document.getElementById('note-feed');
+  try {
+    const res = await fetch('data/note-feed.json?ts=' + Date.now(), {cache:'no-store'});
+    if(!res.ok) throw new Error('feed load failed');
+    const data = await res.json();
+    const items = Array.isArray(data.items) ? data.items : [];
+    if(!items.length){
+      root.innerHTML = '<p>記事一覧は準備中です。</p>';
+      return;
+    }
+    root.innerHTML = '';
+    items.forEach((item) => {
+      const section = document.createElement('article');
+      section.className = 'content-section';
+      const date = item.date ? `<div class="section-kicker">${escapeHtml(item.date)}</div>` : '<div class="section-kicker">RELATED ARTICLE</div>';
+      const summary = item.summary ? `<p>${escapeHtml(item.summary)}</p>` : '';
+      section.innerHTML = `${date}<h2>${escapeHtml(item.title || '記事')}</h2>${summary}<div class="cta-row"><a class="btn secondary" href="${safeUrl(item.url)}" target="_blank" rel="noopener noreferrer" onclick="if(window.gtag){gtag('event','care_note_external_click',{event_category:'engagement',event_label:'CARE NOTES'});}">READ ARTICLE</a></div>`;
+      root.appendChild(section);
+    });
+  } catch(e) {
+    root.innerHTML = '<p>記事一覧は現在取得できません。しばらくしてから再度お試しください。</p>';
+  }
+
+  function escapeHtml(value){
+    return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  }
+  function safeUrl(value){
+    try {
+      const u = new URL(String(value ?? ''), location.href);
+      return /^https?:$/.test(u.protocol) ? u.href : '#';
+    } catch(e){ return '#'; }
+  }
+})();
+</script>
 </body>
 </html>
