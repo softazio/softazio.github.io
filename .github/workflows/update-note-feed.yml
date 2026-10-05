@@ -1,0 +1,95 @@
+name: Update CARE NOTES feed
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  update-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch and build feed JSON
+        env:
+          NOTE_RSS_URL: ${{ secrets.NOTE_RSS_URL }}
+        run: |
+          python - <<'PY'
+          import os, json, re, html, urllib.request, xml.etree.ElementTree as ET
+          from email.utils import parsedate_to_datetime
+          from datetime import timezone
+
+          rss_url = os.environ.get('NOTE_RSS_URL', '').strip()
+          if not rss_url:
+              raise SystemExit('NOTE_RSS_URL secret is not configured')
+
+          req = urllib.request.Request(rss_url, headers={'User-Agent':'Mozilla/5.0 SOFTAZIO feed updater'})
+          with urllib.request.urlopen(req, timeout=30) as r:
+              raw = r.read()
+
+          root = ET.fromstring(raw)
+          items = []
+          keywords = [
+              '介護','認知症','高齢','福祉','ケア','看取り','排泄','食事介助','移乗','入浴',
+              'ユマニチュード','自立支援','介助','施設','介護福祉士','尊厳','ケアマネ'
+          ]
+
+          def text_of(node, tag):
+              el = node.find(tag)
+              return (el.text or '').strip() if el is not None and el.text else ''
+
+          def strip_html(s):
+              s = re.sub(r'<script.*?</script>|<style.*?</style>', ' ', s or '', flags=re.I|re.S)
+              s = re.sub(r'<[^>]+>', ' ', s)
+              s = html.unescape(s)
+              s = re.sub(r'\s+', ' ', s).strip()
+              return s
+
+          for item in root.findall('.//item'):
+              title = text_of(item, 'title')
+              link = text_of(item, 'link')
+              pub = text_of(item, 'pubDate')
+              desc = strip_html(text_of(item, 'description'))
+              haystack = f'{title} {desc}'
+              if not any(k in haystack for k in keywords):
+                  continue
+              try:
+                  dt = parsedate_to_datetime(pub)
+                  if dt.tzinfo is None:
+                      dt = dt.replace(tzinfo=timezone.utc)
+                  date = dt.astimezone(timezone.utc).date().isoformat()
+              except Exception:
+                  date = ''
+              items.append({
+                  'title': title,
+                  'url': link,
+                  'date': date,
+                  'summary': desc[:220]
+              })
+
+          data = {
+              'updated_at': __import__('datetime').datetime.now(timezone.utc).isoformat(),
+              'items': items[:12]
+          }
+          os.makedirs('data', exist_ok=True)
+          with open('data/note-feed.json','w',encoding='utf-8') as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+          PY
+
+      - name: Commit feed if changed
+        run: |
+          if git diff --quiet -- data/note-feed.json; then
+            echo "No feed changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/note-feed.json
+          git commit -m "Update CARE NOTES feed"
+          git push
