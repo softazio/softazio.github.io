@@ -1,21 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 140" role="img" aria-labelledby="t d">
-<title id="t">SOFTAZIO coexistence symbol</title>
-<desc id="d">Two people connected by flowing orbital shapes, representing coexistence and future.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 170" role="img" aria-labelledby="t d">
+<title id="t">SOFTAZIO concept 08</title>
+<desc id="d">Coexistence and future symbol with two people and flowing orbital forms.</desc>
 <defs>
   <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#fff06a"/>
-    <stop offset="0.55" stop-color="#f6df36"/>
-    <stop offset="1" stop-color="#d6a900"/>
+    <stop offset="0" stop-color="#fff27a"/>
+    <stop offset="0.48" stop-color="#f6df36"/>
+    <stop offset="1" stop-color="#d39d00"/>
   </linearGradient>
   <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
     <stop offset="0" stop-color="#ffffff"/>
-    <stop offset="0.6" stop-color="#dce7ec"/>
-    <stop offset="1" stop-color="#90a6b1"/>
+    <stop offset="0.52" stop-color="#e5edf1"/>
+    <stop offset="1" stop-color="#8ca3ae"/>
   </linearGradient>
 </defs>
-<circle cx="114" cy="30" r="15" fill="url(#gold)"/>
-<circle cx="91" cy="67" r="10" fill="url(#silver)"/>
-<path d="M25 86c20-30 62-43 100-32 20 6 39 20 55 41" fill="none" stroke="url(#silver)" stroke-width="12" stroke-linecap="round"/>
-<path d="M37 102c31 19 77 23 112 3 17-10 31-24 42-42" fill="none" stroke="url(#gold)" stroke-width="14" stroke-linecap="round"/>
-<path d="M162 53c16 7 25 19 29 34" fill="none" stroke="url(#silver)" stroke-width="8" stroke-linecap="round"/>
+
+<!-- large gold person -->
+<circle cx="108" cy="34" r="18" fill="url(#gold)"/>
+<!-- small silver person -->
+<circle cx="92" cy="83" r="11" fill="url(#silver)"/>
+
+<!-- silver orbit, broad and rising -->
+<path d="M27 106
+         C53 73, 98 58, 142 67
+         C167 72, 188 87, 205 108"
+      fill="none" stroke="url(#silver)" stroke-width="14" stroke-linecap="round"/>
+
+<!-- gold orbit / crescent sweep -->
+<path d="M42 121
+         C76 143, 127 147, 166 124
+         C190 110, 204 89, 212 64"
+      fill="none" stroke="url(#gold)" stroke-width="17" stroke-linecap="round"/>
+
+<!-- upper right silver return stroke -->
+<path d="M166 64
+         C183 58, 199 63, 207 77"
+      fill="none" stroke="url(#silver)" stroke-width="9" stroke-linecap="round"/>
 </svg>
