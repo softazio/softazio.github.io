@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 140" role="img" aria-labelledby="t d">
+<title id="t">SOFTAZIO coexistence symbol</title>
+<desc id="d">Two people connected by flowing orbital shapes, representing coexistence and future.</desc>
+<defs>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff06a"/>
+    <stop offset="0.55" stop-color="#f6df36"/>
+    <stop offset="1" stop-color="#d6a900"/>
+  </linearGradient>
+  <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ffffff"/>
+    <stop offset="0.6" stop-color="#dce7ec"/>
+    <stop offset="1" stop-color="#90a6b1"/>
+  </linearGradient>
+</defs>
+<circle cx="114" cy="30" r="15" fill="url(#gold)"/>
+<circle cx="91" cy="67" r="10" fill="url(#silver)"/>
+<path d="M25 86c20-30 62-43 100-32 20 6 39 20 55 41" fill="none" stroke="url(#silver)" stroke-width="12" stroke-linecap="round"/>
+<path d="M37 102c31 19 77 23 112 3 17-10 31-24 42-42" fill="none" stroke="url(#gold)" stroke-width="14" stroke-linecap="round"/>
+<path d="M162 53c16 7 25 19 29 34" fill="none" stroke="url(#silver)" stroke-width="8" stroke-linecap="round"/>
+</svg>
