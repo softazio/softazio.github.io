@@ -84,6 +84,23 @@ gtag('config','G-1FV0P774PM');
  .search-result{padding:18px 14px}
  .search-result strong{font-size:17px}
 }
+
+.start-here{margin:18px 0 8px}
+.start-here-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:10px}
+.start-here-head h2{margin:0;font:900 clamp(20px,3vw,30px)/1.05 "Arial Black",Arial,sans-serif;color:#eef6f8}
+.start-here-head p{margin:0;color:#8199a3;font-size:12px}
+.start-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.start-card{display:block;position:relative;min-height:118px;padding:16px 16px 15px;border:1px solid #2a4c59;background:#0a1920;color:inherit;text-decoration:none}
+.start-card:hover,.start-card:focus{border-color:#f6df36;outline:none}
+.start-card .label{display:block;color:#f6df36;font-size:10px;font-weight:900;letter-spacing:1.3px;margin-bottom:14px}
+.start-card h3{margin:0 0 7px;font:900 clamp(19px,2.4vw,26px)/1.05 "Arial Black",Arial,sans-serif}
+.start-card p{margin:0;color:#95aab3;font-size:12px;line-height:1.5}
+.start-card .arrow{position:absolute;right:14px;top:13px;color:#f6df36;font-weight:900}
+@media(max-width:820px){
+ .start-here-head{align-items:start;flex-direction:column;gap:4px}
+ .start-grid{grid-template-columns:1fr}
+ .start-card{min-height:0;padding-right:42px}
+}
 </style>
 </head>
 <body>
@@ -120,6 +137,33 @@ gtag('config','G-1FV0P774PM');
 <a href="care-notes.html#future">介護AI</a>
 <a href="game.html">GAME</a>
 </nav>
+
+<section class="start-here" aria-label="まずここから">
+<div class="start-here-head">
+  <h2>まずここから</h2>
+  <p>よく使う3つの入口</p>
+</div>
+<div class="start-grid">
+  <a class="start-card" href="care-notes.html#dementia">
+    <span class="label">01 / 認知症</span>
+    <span class="arrow">→</span>
+    <h3>認知症を知る</h3>
+    <p>ケア、ユマニチュード、声かけ、動画、公的情報へ。</p>
+  </a>
+  <a class="start-card" href="product-care-worker-exam.html">
+    <span class="label">02 / 学習</span>
+    <span class="arrow">→</span>
+    <h3>介護福祉士を学ぶ</h3>
+    <p>国家試験対策、問題演習、資格学習の入口。</p>
+  </a>
+  <a class="start-card" href="care-notes.html#reset">
+    <span class="label">03 / こころ・仕事</span>
+    <span class="arrow">→</span>
+    <h3>仕事を整理する</h3>
+    <p>失敗、注意、モヤモヤを次の学びへつなげる。</p>
+  </a>
+</div>
+</section>
 
 <nav class="topic-strip" aria-label="CARE NOTES quick topics">
 <a href="care-notes.html#latest">note記事</a>
