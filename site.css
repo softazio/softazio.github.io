@@ -11,3 +11,8 @@
 .art-showcase img{width:100%;aspect-ratio:1/1;object-fit:contain;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35))}
 .art-showcase figcaption{margin-top:9px;font:900 9px "Arial Black",Arial,sans-serif;letter-spacing:1px;color:#9ab1bc}
 @media(max-width:560px){.original-block-grid{gap:6px}.art-showcase{grid-template-columns:repeat(3,1fr)}}
+
+
+/* care exam title spacing */
+.page-title{line-height:1.08;letter-spacing:.02em}
+@media(max-width:768px){.page-title{line-height:1.12;letter-spacing:.02em}}
