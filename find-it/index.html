@@ -46,12 +46,14 @@ svg.addEventListener('pointerdown',e=>{if(!portrait()&&zoom===1&&!wrap.classList
 svg.addEventListener('pointermove',e=>{if(!drag)return;const {w,H}=viewport();const rect=svg.getBoundingClientRect();const dx=(e.clientX-drag.x)*w/rect.width,dy=(e.clientY-drag.y)*H/rect.height;if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>9){moved=true;try{svg.setPointerCapture(e.pointerId)}catch(_){}}if(moved){cx=drag.cx-dx;cy=drag.cy-dy;applyZoom()}});
 svg.addEventListener('pointerup',()=>{drag=null});svg.addEventListener('pointercancel',()=>{drag=null});
 svg.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false}},true);
+svg.addEventListener('pointerleave',()=>{if(!drag) moved=false});
 cx=portrait()?270:450;applyZoom();
 const bunnies=[...document.querySelectorAll('.bunny')];let mode='normal';
 const baseTransforms=bunnies.map(b=>b.getAttribute('transform'));
 const hardTransforms=['translate(155 351) scale(.49)','translate(412 404) scale(.45)','translate(830 415) scale(.43)'];
 const spots=[[165,360],[265,385],[365,420],[490,475],[620,370],[760,455],[805,355],[570,505],[315,505]];
-function shufflePositions(){const pool=[...spots];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}bunnies.forEach((b,i)=>{const [x,y]=pool[i];const sc=mode==='hard'?.43+i*.02:.68+i*.03;b.setAttribute('transform','translate('+x+' '+y+') scale('+sc+')')})}
+let previousSpots=[];
+function shufflePositions(){const pool=[...spots];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}if(previousSpots.length===3 && pool.slice(0,3).every((p,i)=>p===previousSpots[i])){[pool[0],pool[3]]=[pool[3],pool[0]]}previousSpots=pool.slice(0,3);bunnies.forEach((b,i)=>{const [x,y]=pool[i];const sc=mode==='hard'?.43+i*.02:.68+i*.03;b.setAttribute('transform','translate('+x+' '+y+') scale('+sc+')')})}
 function changeMode(m){mode=m;wrap.classList.toggle('hard',m==='hard');bunnies.forEach((b,i)=>b.setAttribute('transform',m==='hard'?hardTransforms[i]:baseTransforms[i]));$('normal').setAttribute('aria-pressed',String(m==='normal'));$('hard').setAttribute('aria-pressed',String(m==='hard'));$('hint').style.display=m==='hard'?'none':'';reset()}
 $('normal').addEventListener('click',()=>changeMode('normal'));$('hard').addEventListener('click',()=>changeMode('hard'));
 let found=new Set(),hints=2,started=Date.now(),context=null,loop=null,beat=0,playing=false;const NOTES=[392,494,587,494,440,523,659,523,392,494,587,784,659,587,523,440];
