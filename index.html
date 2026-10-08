@@ -110,7 +110,7 @@ gtag('config','G-1FV0P774PM');
 .home-search{margin:16px 0 14px}
 .home-search .search-box input{background:#f4f7f8;color:#142129;border:0;padding:15px 16px;font-size:16px}
 .home-search .search-box button{min-width:76px}
-.service-grid{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid #244753;margin:0 0 14px;background:#08161c}
+.service-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #244753;margin:0 0 14px;background:#08161c}
 .service-grid a{min-width:0;padding:13px 8px 12px;text-align:center;text-decoration:none;color:#eef6f8;border-left:1px solid #244753}
 .service-grid a:first-child{border-left:0}
 .service-grid span{display:block;color:#f6df36;font-size:9px;font-weight:900;letter-spacing:1px;margin-bottom:6px}
@@ -137,10 +137,10 @@ gtag('config','G-1FV0P774PM');
  .brand-intro{padding-top:4px}
  .brand-message{font-size:25px}
  .brand-desc{font-size:12px}
- .service-grid{grid-template-columns:repeat(3,1fr)}
+ .service-grid{grid-template-columns:repeat(2,1fr)}
  .service-grid a{border-top:1px solid #244753}
- .service-grid a:nth-child(-n+3){border-top:0}
- .service-grid a:nth-child(4){border-left:0}
+ .service-grid a:nth-child(-n+2){border-top:0}
+ .service-grid a:nth-child(odd){border-left:0}
  .feed-row a{grid-template-columns:54px 1fr;padding:13px 4px;gap:10px}
  .feed-meta{grid-column:2;font-size:9px;margin-top:-5px}
 }
@@ -387,33 +387,6 @@ gtag('config','G-1FV0P774PM');
   padding-left:0 !important;
 }
 
-/* three-item top primary nav */
-.site-header .top-primary-nav{
-  width:100% !important;
-  max-width:none !important;
-  display:grid !important;
-  grid-template-columns:repeat(3,1fr) !important;
-  gap:0 !important;
-  justify-self:stretch !important;
-  overflow:visible !important;
-}
-.site-header .top-primary-nav a{
-  width:100% !important;
-  text-align:center !important;
-  justify-content:center !important;
-  font-size:clamp(22px,4vw,34px) !important;
-  line-height:1 !important;
-  padding:0 !important;
-  margin:0 !important;
-  white-space:nowrap !important;
-}
-.site-header .top-primary-nav a:first-child{text-align:left !important;justify-content:flex-start !important}
-.site-header .top-primary-nav a:last-child{text-align:right !important;justify-content:flex-end !important}
-@media(max-width:820px){
-  .site-header .top-primary-nav a{
-    font-size:clamp(20px,5.5vw,28px) !important;
-  }
-}
 </style>
 </head>
 <body>
@@ -425,7 +398,6 @@ gtag('config','G-1FV0P774PM');
   <span>使いながら、学びながら、少しずつ進化します。</span>
   <a href="about.html">SOFTAZIOを知る →</a>
 </div>
-<nav class="top-primary-nav"><a href="care-notes.html">CARE NOTES</a><a href="product-care-worker-exam.html">LEARN</a><a href="game.html">PLAY</a></nav>
 </header>
 
 <main class="portal compact-home">
@@ -449,6 +421,8 @@ gtag('config','G-1FV0P774PM');
   <a href="care-mind.html"><span>04</span><strong>こころ</strong><small>仕事を整理</small></a>
   <a href="care-videos.html"><span>05</span><strong>動画</strong><small>見て学ぶ</small></a>
   <a href="care-ai.html"><span>06</span><strong>介護AI</strong><small>未来を見る</small></a>
+  <a href="care-notes.html"><span>07</span><strong>CARE NOTES</strong><small>読みもの・新着</small></a>
+  <a href="game.html"><span>08</span><strong>PLAY</strong><small>ゲームで遊ぶ</small></a>
 </nav>
 
 <section class="home-feed" aria-label="新着・おすすめ">
