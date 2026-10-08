@@ -111,12 +111,15 @@ gtag('config','G-1FV0P774PM');
 .home-search .search-box input{background:#f4f7f8;color:#142129;border:0;padding:15px 16px;font-size:16px}
 .home-search .search-box button{min-width:76px}
 .service-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #244753;margin:0 0 14px;background:#08161c}
-.service-grid a{min-width:0;padding:13px 8px 12px;text-align:center;text-decoration:none;color:#eef6f8;border-left:1px solid #244753}
-.service-grid a:first-child{border-left:0}
-.service-grid span{display:block;color:#f6df36;font-size:9px;font-weight:900;letter-spacing:1px;margin-bottom:6px}
-.service-grid strong{display:block;font-size:13px;line-height:1.15}
-.service-grid small{display:block;color:#738b95;font-size:9px;margin-top:4px;white-space:nowrap}
+.service-grid a{position:relative;display:flex;min-width:0;min-height:94px;padding:19px 10px;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-decoration:none;color:#eef6f8;border-left:1px solid #244753;border-top:1px solid #244753;background:linear-gradient(180deg,rgba(255,255,255,.012),rgba(255,255,255,0));transition:.16s ease}
+.service-grid a:nth-child(-n+4){border-top:0}
+.service-grid a:nth-child(4n+1){border-left:0}
+.service-grid strong{display:block;font:900 clamp(17px,2vw,22px)/1.05 "Arial Black",Arial,sans-serif;letter-spacing:.01em}
+.service-grid small{display:block;color:#78909a;font-size:10px;font-weight:700;letter-spacing:.04em;margin-top:9px;white-space:nowrap}
+.service-grid a:after{content:"";position:absolute;left:18%;right:18%;bottom:0;height:2px;background:#f6df36;transform:scaleX(0);transition:.16s ease}
 .service-grid a:hover,.service-grid a:focus{background:#0d232d;outline:none}
+.service-grid a:hover strong,.service-grid a:focus strong{color:#f6df36}
+.service-grid a:hover:after,.service-grid a:focus:after{transform:scaleX(1)}
 .news-tabs{display:flex;overflow-x:auto;border-top:1px solid #244753;border-bottom:1px solid #244753;margin:0 0 16px;scrollbar-width:none}
 .news-tabs::-webkit-scrollbar{display:none}
 .news-tabs a{flex:0 0 auto;padding:11px 16px;text-decoration:none;color:#a9bcc4;font-size:12px;font-weight:900;border-right:1px solid #244753}
@@ -138,9 +141,12 @@ gtag('config','G-1FV0P774PM');
  .brand-message{font-size:25px}
  .brand-desc{font-size:12px}
  .service-grid{grid-template-columns:repeat(2,1fr)}
- .service-grid a{border-top:1px solid #244753}
+ .service-grid a{min-height:88px;padding:17px 8px;border-top:1px solid #244753}
  .service-grid a:nth-child(-n+2){border-top:0}
  .service-grid a:nth-child(odd){border-left:0}
+ .service-grid a:nth-child(even){border-left:1px solid #244753}
+ .service-grid strong{font-size:18px}
+ .service-grid small{font-size:9px;margin-top:8px}
  .feed-row a{grid-template-columns:54px 1fr;padding:13px 4px;gap:10px}
  .feed-meta{grid-column:2;font-size:9px;margin-top:-5px}
 }
@@ -415,14 +421,14 @@ gtag('config','G-1FV0P774PM');
 </section>
 
 <nav class="service-grid" aria-label="主要サービス">
-  <a href="care-dementia.html"><span>01</span><strong>認知症</strong><small>理解・予防・ケア</small></a>
-  <a href="care-technique.html"><span>02</span><strong>介護技術</strong><small>実践動画</small></a>
-  <a href="product-care-worker-exam.html"><span>03</span><strong>国家試験</strong><small>問題を解く</small></a>
-  <a href="care-mind.html"><span>04</span><strong>こころ</strong><small>仕事を整理</small></a>
-  <a href="care-videos.html"><span>05</span><strong>動画</strong><small>見て学ぶ</small></a>
-  <a href="care-ai.html"><span>06</span><strong>介護AI</strong><small>未来を見る</small></a>
-  <a href="care-notes.html"><span>07</span><strong>CARE NOTES</strong><small>読みもの・新着</small></a>
-  <a href="game.html"><span>08</span><strong>PLAY</strong><small>ゲームで遊ぶ</small></a>
+  <a href="care-dementia.html"><strong>認知症</strong><small>理解・予防・ケア</small></a>
+  <a href="care-technique.html"><strong>介護技術</strong><small>実践動画</small></a>
+  <a href="product-care-worker-exam.html"><strong>国家試験</strong><small>問題を解く</small></a>
+  <a href="care-mind.html"><strong>こころ</strong><small>仕事を整理</small></a>
+  <a href="care-videos.html"><strong>動画</strong><small>見て学ぶ</small></a>
+  <a href="care-ai.html"><strong>介護AI</strong><small>未来を見る</small></a>
+  <a href="care-notes.html"><strong>CARE NOTES</strong><small>読みもの・新着</small></a>
+  <a href="game.html"><strong>PLAY</strong><small>ゲームで遊ぶ</small></a>
 </nav>
 
 <section class="home-feed" aria-label="新着・おすすめ">
