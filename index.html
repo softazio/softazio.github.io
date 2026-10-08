@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#061018">
-<meta name="description" content="SOFTAZIO — CARE NOTESを軸に、介護の読みもの、学習Webアプリ、こころの整理、ゲーム、未来の介護テクノロジーをまとめるポータル。">
-<title>SOFTAZIO — CARE PORTAL</title>
+<meta name="description" content="SOFTAZIO — 介護、認知症、学習、こころ、仕事、動画、未来のテクノロジーへつながる情報とサービス。">
+<title>SOFTAZIO</title>
 <link rel="stylesheet" href="site.css?v=104">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-1FV0P774PM"></script>
 <script>
@@ -101,6 +101,49 @@ gtag('config','G-1FV0P774PM');
  .start-grid{grid-template-columns:1fr}
  .start-card{min-height:0;padding-right:42px}
 }
+
+.compact-home{max-width:980px}
+.brand-intro{padding:14px 0 18px;border-bottom:1px solid #244753}
+.brand-intro .eyebrow{color:#f6df36}
+.brand-message{margin:7px 0 5px;font:900 clamp(23px,4vw,38px)/1.15 "Arial Black",Arial,sans-serif;color:#eef6f8}
+.brand-desc{margin:0;max-width:760px;color:#91a8b1;font-size:13px;line-height:1.7}
+.home-search{margin:16px 0 14px}
+.home-search .search-box input{background:#f4f7f8;color:#142129;border:0;padding:15px 16px;font-size:16px}
+.home-search .search-box button{min-width:76px}
+.service-grid{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid #244753;margin:0 0 14px;background:#08161c}
+.service-grid a{min-width:0;padding:13px 8px 12px;text-align:center;text-decoration:none;color:#eef6f8;border-left:1px solid #244753}
+.service-grid a:first-child{border-left:0}
+.service-grid span{display:block;color:#f6df36;font-size:9px;font-weight:900;letter-spacing:1px;margin-bottom:6px}
+.service-grid strong{display:block;font-size:13px;line-height:1.15}
+.service-grid small{display:block;color:#738b95;font-size:9px;margin-top:4px;white-space:nowrap}
+.service-grid a:hover,.service-grid a:focus{background:#0d232d;outline:none}
+.news-tabs{display:flex;overflow-x:auto;border-top:1px solid #244753;border-bottom:1px solid #244753;margin:0 0 16px;scrollbar-width:none}
+.news-tabs::-webkit-scrollbar{display:none}
+.news-tabs a{flex:0 0 auto;padding:11px 16px;text-decoration:none;color:#a9bcc4;font-size:12px;font-weight:900;border-right:1px solid #244753}
+.news-tabs a.active{background:#f6df36;color:#071019}
+.home-feed{margin-top:4px}
+.feed-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:8px}
+.feed-head h2{margin:0;font:900 20px/1.2 "Arial Black",Arial,sans-serif}
+.feed-head a{color:#f6df36;text-decoration:none;font-size:11px;font-weight:900}
+.feed-list{border-top:1px solid #244753}
+.feed-row{border-bottom:1px solid #244753}
+.feed-row a{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:14px 6px;text-decoration:none;color:inherit}
+.feed-tag{display:inline-block;width:max-content;max-width:64px;padding:4px 7px;background:#16323d;color:#f6df36;font-size:9px;font-weight:900}
+.feed-title{font-size:15px;font-weight:900;color:#e8f0f2;line-height:1.35}
+.feed-meta{font-size:10px;color:#78909a;white-space:nowrap}
+.feed-row a:hover .feed-title,.feed-row a:focus .feed-title{color:#f6df36}
+@media(max-width:820px){
+ .compact-home{padding-top:14px}
+ .brand-intro{padding-top:4px}
+ .brand-message{font-size:25px}
+ .brand-desc{font-size:12px}
+ .service-grid{grid-template-columns:repeat(3,1fr)}
+ .service-grid a{border-top:1px solid #244753}
+ .service-grid a:nth-child(-n+3){border-top:0}
+ .service-grid a:nth-child(4){border-left:0}
+ .feed-row a{grid-template-columns:54px 1fr;padding:13px 4px;gap:10px}
+ .feed-meta{grid-column:2;font-size:9px;margin-top:-5px}
+}
 </style>
 </head>
 <body>
@@ -109,90 +152,80 @@ gtag('config','G-1FV0P774PM');
 <nav><a href="care-notes.html">CARE NOTES</a><a href="product-care-worker-exam.html">LEARN</a><a href="game.html">PLAY</a><a href="about.html">ABOUT</a></nav>
 </header>
 
-<main class="portal">
-<section class="hero">
-<div>
-<div class="eyebrow">CARE PORTAL / SOFTAZIO</div>
-<h1>介護ポータル</h1>
-<p class="sub">読む。学ぶ。探す。つながる。</p>
-</div>
-<p>介護の現場、認知症、国家試験、動画、こころの整理、介護AIまで。必要な情報へすぐ進める入口です。</p>
+<main class="portal compact-home">
+<section class="brand-intro" aria-label="SOFTAZIO">
+  <div class="eyebrow">SOFTAZIO</div>
+  <p class="brand-message">読む。学ぶ。探す。つながる。</p>
+  <p class="brand-desc">介護・認知症・学習・こころ・仕事・未来へ。必要な情報とサービスを、わかりやすくつなぎます。</p>
 </section>
 
-<section class="search-wrap" aria-label="サイト内検索">
-<div class="search-box">
-<input id="portal-search" type="search" placeholder="サイト内を検索（例：認知症、移乗、試験）" aria-label="SOFTAZIO内を検索">
-<button id="portal-search-btn" type="button">検索</button>
-</div>
-<div id="portal-search-results" class="search-results" aria-live="polite"></div>
+<section class="search-wrap home-search" aria-label="サイト内検索">
+  <div class="search-box">
+    <input id="portal-search" type="search" placeholder="知りたいことを検索" aria-label="SOFTAZIO内を検索">
+    <button id="portal-search-btn" type="button">検索</button>
+  </div>
+  <div id="portal-search-results" class="search-results" aria-live="polite"></div>
 </section>
 
-<nav class="category-tabs" aria-label="主要カテゴリ">
-<a href="care-notes.html#latest">新着</a>
-<a href="care-notes.html#field">介護の現場</a>
-<a href="care-notes.html#dementia">認知症</a>
-<a href="product-care-worker-exam.html">国家試験</a>
-<a href="care-notes.html#shorts">動画</a>
-<a href="care-notes.html#reset">こころ</a>
-<a href="care-notes.html#future">介護AI</a>
-<a href="game.html">GAME</a>
+<nav class="service-grid" aria-label="主要サービス">
+  <a href="care-notes.html#dementia"><span>01</span><strong>認知症</strong><small>ケア・声かけ</small></a>
+  <a href="care-notes.html#field"><span>02</span><strong>介護技術</strong><small>現場・実践</small></a>
+  <a href="product-care-worker-exam.html"><span>03</span><strong>国家試験</strong><small>介護福祉士</small></a>
+  <a href="care-notes.html#reset"><span>04</span><strong>こころ</strong><small>仕事を整理</small></a>
+  <a href="care-notes.html#shorts"><span>05</span><strong>動画</strong><small>見て学ぶ</small></a>
+  <a href="care-notes.html#future"><span>06</span><strong>介護AI</strong><small>未来・技術</small></a>
 </nav>
 
-<section class="start-here" aria-label="まずここから">
-<div class="start-here-head">
-  <h2>まずここから</h2>
-  <p>よく使う3つの入口</p>
-</div>
-<div class="start-grid">
-  <a class="start-card" href="care-notes.html#dementia">
-    <span class="label">01 / 認知症</span>
-    <span class="arrow">→</span>
-    <h3>認知症を知る</h3>
-    <p>ケア、ユマニチュード、声かけ、動画、公的情報へ。</p>
-  </a>
-  <a class="start-card" href="product-care-worker-exam.html">
-    <span class="label">02 / 学習</span>
-    <span class="arrow">→</span>
-    <h3>介護福祉士を学ぶ</h3>
-    <p>国家試験対策、問題演習、資格学習の入口。</p>
-  </a>
-  <a class="start-card" href="care-notes.html#reset">
-    <span class="label">03 / こころ・仕事</span>
-    <span class="arrow">→</span>
-    <h3>仕事を整理する</h3>
-    <p>失敗、注意、モヤモヤを次の学びへつなげる。</p>
-  </a>
-</div>
-</section>
-
-<nav class="topic-strip" aria-label="CARE NOTES quick topics">
-<a href="care-notes.html#latest">note記事</a>
-<a href="care-notes.html#field">介護の現場</a>
-<a href="care-notes.html#dementia">認知症</a>
-<a href="care-notes.html#learn">資格・学習</a>
-<a href="care-notes.html#picks">CARE PICKS</a>
-<a href="care-notes.html#reset">こころの整理室</a>
-<a href="care-notes.html#future">未来の介護AI</a>
+<nav class="news-tabs" aria-label="カテゴリ">
+  <a class="active" href="index.html">すべて</a>
+  <a href="care-notes.html#latest">新着</a>
+  <a href="care-notes.html">CARE NOTES</a>
+  <a href="care-notes.html#picks">外部情報</a>
+  <a href="game.html">GAME</a>
 </nav>
 
-<section class="quick" aria-label="主要コンテンツ">
-<a class="quick-card main" data-mark="C" href="care-notes.html"><span class="num">01 / MAIN</span><h2>CARE NOTES</h2><p>読みもの・認知症・現場の学び。</p></a>
-<a class="quick-card" data-mark="L" href="product-care-worker-exam.html"><span class="num">02 / LEARN</span><h2>国家試験対策</h2><p>介護福祉士の学習Webアプリ。</p></a>
-<a class="quick-card" data-mark="R" href="care-notes.html#reset"><span class="num">03 / RESET</span><h2>こころの整理室</h2><p>仕事の「負」を次の学びへ。</p></a>
-<a class="quick-card" data-mark="P" href="game.html"><span class="num">04 / PLAY</span><h2>GAME</h2><p>学習と介護の合間の息抜き。</p></a>
-<a class="quick-card" data-mark="P" href="care-notes.html#picks"><span class="num">05 / PICKS</span><h2>外部情報</h2><p>公的・専門的な情報への入口。</p></a>
-<a class="quick-card" data-mark="S" href="care-notes.html#shorts"><span class="num">06 / SHORTS</span><h2>人気ショート</h2><p>介護・福祉の注目ショート動画を紹介。</p></a>
-<a class="quick-card" data-mark="A" href="care-notes.html#future"><span class="num">07 / FUTURE</span><h2>介護AI</h2><p>対話型介護士という長期構想。</p></a>
-<a class="quick-card" data-mark="N" href="news.html"><span class="num">08 / NEWS</span><h2>更新情報</h2><p>SOFTAZIOの開発・公開情報。</p></a>
-<a class="quick-card" data-mark="M" href="sitemap.html"><span class="num">09 / MAP</span><h2>サイトマップ</h2><p>全ページを一覧から探す。</p></a>
-</section>
-
-<section>
-<div class="section-head"><div><div class="section-kicker">LATEST</div><h2>新着をすぐ読む</h2></div><a href="care-notes.html">すべて見る →</a></div>
-<div class="latest-grid">
-<div class="latest-main" id="home-latest-note"><a href="care-notes.html"><div class="section-kicker">CARE NOTES</div><h3>最新記事を読み込んでいます…</h3><p>新着の読みものを表示します。</p></a></div>
-<div class="side-box"><div class="section-kicker">PORTAL GUIDE</div><h3>迷ったらCARE NOTESへ</h3><p>記事、学習、外部情報、こころの整理、未来構想への入口をまとめています。</p></div>
-</div>
+<section class="home-feed" aria-label="新着・おすすめ">
+  <div class="feed-head">
+    <h2>新着・おすすめ</h2>
+    <a href="care-notes.html">一覧を見る →</a>
+  </div>
+  <div class="feed-list">
+    <div class="feed-row dynamic" id="home-latest-note">
+      <a href="care-notes.html">
+        <span class="feed-tag">NEW</span>
+        <span class="feed-title">最新情報を読み込んでいます…</span>
+        <span class="feed-meta">CARE NOTES</span>
+      </a>
+    </div>
+    <div class="feed-row">
+      <a href="product-care-worker-exam.html">
+        <span class="feed-tag">学習</span>
+        <span class="feed-title">介護福祉士 国家試験対策</span>
+        <span class="feed-meta">問題演習・復習</span>
+      </a>
+    </div>
+    <div class="feed-row">
+      <a href="care-notes.html#dementia">
+        <span class="feed-tag">認知症</span>
+        <span class="feed-title">認知症ケア・ユマニチュード・声かけ</span>
+        <span class="feed-meta">読む・見る・調べる</span>
+      </a>
+    </div>
+    <div class="feed-row">
+      <a href="care-notes.html#shorts">
+        <span class="feed-tag">動画</span>
+        <span class="feed-title">介護・福祉の動画をテーマ別に探す</span>
+        <span class="feed-meta">CARE PICKS</span>
+      </a>
+    </div>
+    <div class="feed-row">
+      <a href="care-notes.html#reset">
+        <span class="feed-tag">仕事</span>
+        <span class="feed-title">こころの整理室</span>
+        <span class="feed-meta">失敗・注意・モヤモヤを整理</span>
+      </a>
+    </div>
+  </div>
 </section>
 
 <section>
@@ -221,14 +254,14 @@ gtag('config','G-1FV0P774PM');
   const data=await res.json();
   const items=Array.isArray(data.items)?data.items:[];
   if(!items.length){
-    root.innerHTML='<a href="care-notes.html"><div class="section-kicker">CARE NOTES</div><h3>CARE NOTESを読む</h3><p>介護の読みものと各カテゴリを掲載しています。</p></a>';
+    root.innerHTML='<a href="care-notes.html"><span class="feed-tag">NEW</span><span class="feed-title">CARE NOTESを読む</span><span class="feed-meta">介護の読みもの</span></a>';
     return;
   }
   const item=items[0];
   const url=safeUrl(item.url);
-  root.innerHTML='<a href="'+url+'" target="_blank" rel="noopener noreferrer"><div class="section-kicker">LATEST'+(item.date?' / '+escapeHtml(item.date):'')+'</div><h3>'+escapeHtml(item.title||'CARE NOTES')+'</h3>'+(item.summary?'<p>'+escapeHtml(item.summary)+'</p>':'')+'</a>';
+  root.innerHTML='<a href="'+url+'" target="_blank" rel="noopener noreferrer"><span class="feed-tag">NEW</span><span class="feed-title">'+escapeHtml(item.title||'CARE NOTES')+'</span><span class="feed-meta">'+(item.date?escapeHtml(item.date):'CARE NOTES')+'</span></a>';
  }catch(e){
-  root.innerHTML='<a href="care-notes.html"><div class="section-kicker">CARE NOTES</div><h3>CARE NOTESを読む</h3><p>介護の読みものを掲載しています。</p></a>';
+  root.innerHTML='<a href="care-notes.html"><span class="feed-tag">NEW</span><span class="feed-title">CARE NOTESを読む</span><span class="feed-meta">介護の読みもの</span></a>';
  }
  function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
  function safeUrl(value){try{const u=new URL(String(value??''),location.href);return /^https?:$/.test(u.protocol)?u.href:'care-notes.html';}catch(e){return 'care-notes.html';}}
