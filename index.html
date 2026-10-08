@@ -435,10 +435,10 @@ gtag('config','G-1FV0P774PM');
     <a href="care-notes.html">一覧を見る →</a>
   </div>
   <div class="feed-list">
-    <div class="feed-row dynamic" id="home-latest-note">
-      <a href="care-notes.html">
+    <div class="feed-row" id="home-latest-note">
+      <a href="care-restart.html">
         <span class="feed-tag">NEW</span>
-        <span class="feed-title">最新情報を読み込んでいます…</span>
+        <span class="feed-title">48歳からの再出発。介護という選択</span>
         <span class="feed-meta">CARE NOTES</span>
       </a>
     </div>
@@ -490,28 +490,7 @@ gtag('config','G-1FV0P774PM');
 <div class="copyright">© 2026 SOFTAZIO</div>
 </footer>
 
-<script>
-(async function(){
- const root=document.getElementById('home-latest-note');
- try{
-  const res=await fetch('data/note-feed.json?ts='+Date.now(),{cache:'no-store'});
-  if(!res.ok) throw new Error('feed load failed');
-  const data=await res.json();
-  const items=Array.isArray(data.items)?data.items:[];
-  if(!items.length){
-    root.innerHTML='<a href="care-notes.html"><span class="feed-tag">NEW</span><span class="feed-title">CARE NOTESを読む</span><span class="feed-meta">介護の読みもの</span></a>';
-    return;
-  }
-  const item=items[0];
-  const url=safeUrl(item.url);
-  root.innerHTML='<a href="'+url+'" target="_blank" rel="noopener noreferrer"><span class="feed-tag">NEW</span><span class="feed-title">'+escapeHtml(item.title||'CARE NOTES')+'</span><span class="feed-meta">'+(item.date?escapeHtml(item.date):'CARE NOTES')+'</span></a>';
- }catch(e){
-  root.innerHTML='<a href="care-notes.html"><span class="feed-tag">NEW</span><span class="feed-title">CARE NOTESを読む</span><span class="feed-meta">介護の読みもの</span></a>';
- }
- function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
- function safeUrl(value){try{const u=new URL(String(value??''),location.href);return /^https?:$/.test(u.protocol)?u.href:'care-notes.html';}catch(e){return 'care-notes.html';}}
-})();
-</script>
+
 <script>
 (function(){
  const data=[
