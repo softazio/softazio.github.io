@@ -110,16 +110,15 @@ gtag('config','G-1FV0P774PM');
 .home-search{margin:16px 0 14px}
 .home-search .search-box input{background:#f4f7f8;color:#142129;border:0;padding:15px 16px;font-size:16px}
 .home-search .search-box button{min-width:76px}
-.service-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #244753;margin:0 0 14px;background:#08161c}
-.service-grid a{position:relative;display:flex;min-width:0;min-height:94px;padding:19px 10px;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-decoration:none;color:#eef6f8;border-left:1px solid #244753;border-top:1px solid #244753;background:linear-gradient(180deg,rgba(255,255,255,.012),rgba(255,255,255,0));transition:.16s ease}
-.service-grid a:nth-child(-n+4){border-top:0}
-.service-grid a:nth-child(4n+1){border-left:0}
-.service-grid strong{display:block;font:900 clamp(17px,2vw,22px)/1.05 "Arial Black",Arial,sans-serif;letter-spacing:.01em}
-.service-grid small{display:block;color:#78909a;font-size:10px;font-weight:700;letter-spacing:.04em;margin-top:9px;white-space:nowrap}
-.service-grid a:after{content:"";position:absolute;left:18%;right:18%;bottom:0;height:2px;background:#f6df36;transform:scaleX(0);transition:.16s ease}
-.service-grid a:hover,.service-grid a:focus{background:#0d232d;outline:none}
-.service-grid a:hover strong,.service-grid a:focus strong{color:#f6df36}
-.service-grid a:hover:after,.service-grid a:focus:after{transform:scaleX(1)}
+.service-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;margin:0 0 18px;background:#244753;border-top:1px solid #244753;border-bottom:1px solid #244753}
+.service-grid a{position:relative;display:flex;min-width:0;min-height:148px;padding:22px 48px 22px 22px;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;text-decoration:none;color:#eef6f8;background:#07151b;transition:background .18s ease,transform .18s ease}
+.service-grid .service-kicker{display:block;margin-bottom:10px;color:#f6df36;font-size:10px;font-weight:900;letter-spacing:.16em}
+.service-grid strong{display:block;font:900 clamp(28px,3.7vw,46px)/.98 "Arial Black",Arial,sans-serif;letter-spacing:-.035em}
+.service-grid small{display:block;margin-top:12px;color:#8299a2;font-size:11px;font-weight:700;line-height:1.5;letter-spacing:.02em}
+.service-grid a:after{content:"↗";position:absolute;right:18px;bottom:18px;color:#5e747d;font-size:18px;font-weight:900;transition:color .18s ease,transform .18s ease}
+.service-grid a:hover,.service-grid a:focus{background:#0c222b;outline:none}
+.service-grid a:hover strong,.service-grid a:focus strong{color:#ffffff}
+.service-grid a:hover:after,.service-grid a:focus:after{color:#f6df36;transform:translate(2px,-2px)}
 .news-tabs{display:flex;overflow-x:auto;border-top:1px solid #244753;border-bottom:1px solid #244753;margin:0 0 16px;scrollbar-width:none}
 .news-tabs::-webkit-scrollbar{display:none}
 .news-tabs a{flex:0 0 auto;padding:11px 16px;text-decoration:none;color:#a9bcc4;font-size:12px;font-weight:900;border-right:1px solid #244753}
@@ -140,13 +139,12 @@ gtag('config','G-1FV0P774PM');
  .brand-intro{padding-top:4px}
  .brand-message{font-size:25px}
  .brand-desc{font-size:12px}
- .service-grid{grid-template-columns:repeat(2,1fr)}
- .service-grid a{min-height:88px;padding:17px 8px;border-top:1px solid #244753}
- .service-grid a:nth-child(-n+2){border-top:0}
- .service-grid a:nth-child(odd){border-left:0}
- .service-grid a:nth-child(even){border-left:1px solid #244753}
- .service-grid strong{font-size:18px}
- .service-grid small{font-size:9px;margin-top:8px}
+ .service-grid{grid-template-columns:repeat(2,1fr);gap:1px}
+ .service-grid a{min-height:126px;padding:17px 34px 17px 14px}
+ .service-grid .service-kicker{font-size:8px;margin-bottom:8px;letter-spacing:.13em}
+ .service-grid strong{font-size:clamp(22px,6.2vw,29px)}
+ .service-grid small{font-size:9px;margin-top:9px;line-height:1.45}
+ .service-grid a:after{right:12px;bottom:12px;font-size:15px}
  .feed-row a{grid-template-columns:54px 1fr;padding:13px 4px;gap:10px}
  .feed-meta{grid-column:2;font-size:9px;margin-top:-5px}
 }
@@ -421,14 +419,14 @@ gtag('config','G-1FV0P774PM');
 </section>
 
 <nav class="service-grid" aria-label="主要サービス">
-  <a href="care-dementia.html"><strong>認知症</strong><small>理解・予防・ケア</small></a>
-  <a href="care-technique.html"><strong>介護技術</strong><small>実践動画</small></a>
-  <a href="product-care-worker-exam.html"><strong>国家試験</strong><small>問題を解く</small></a>
-  <a href="care-mind.html"><strong>こころ</strong><small>仕事を整理</small></a>
-  <a href="care-videos.html"><strong>動画</strong><small>見て学ぶ</small></a>
-  <a href="care-ai.html"><strong>介護AI</strong><small>未来を見る</small></a>
-  <a href="care-notes.html"><strong>CARE NOTES</strong><small>読みもの・新着</small></a>
-  <a href="game.html"><strong>PLAY</strong><small>ゲームで遊ぶ</small></a>
+  <a href="care-dementia.html"><span class="service-kicker">DEMENTIA</span><strong>認知症</strong><small>理解する。予防する。支える。</small></a>
+  <a href="care-technique.html"><span class="service-kicker">TECHNIQUE</span><strong>介護技術</strong><small>見る。覚える。実践につなぐ。</small></a>
+  <a href="product-care-worker-exam.html"><span class="service-kicker">EXAM</span><strong>国家試験</strong><small>解く。覚える。積み上げる。</small></a>
+  <a href="care-mind.html"><span class="service-kicker">MIND</span><strong>こころ</strong><small>立ち止まる。整理する。整える。</small></a>
+  <a href="care-videos.html"><span class="service-kicker">VIDEO</span><strong>動画</strong><small>見て、理解する。</small></a>
+  <a href="care-ai.html"><span class="service-kicker">CARE AI</span><strong>介護AI</strong><small>介護の未来を考える。</small></a>
+  <a href="care-notes.html"><span class="service-kicker">JOURNAL</span><strong>CARE NOTES</strong><small>読む。考える。残す。</small></a>
+  <a href="game.html"><span class="service-kicker">GAME</span><strong>PLAY</strong><small>遊ぶ。試す。つくる。</small></a>
 </nav>
 
 <section class="home-feed" aria-label="新着・おすすめ">
