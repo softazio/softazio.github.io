@@ -1,0 +1,23 @@
+{
+  "ages": {
+    "over65": 3622,
+    "over75": 2127,
+    "pct65": 29.4,
+    "pct75": 17.3,
+    "asOf": "2025年10月",
+    "source": "https://www8.cao.go.jp/kourei/whitepaper/w-2026/html/zenbun/s1_1_1.html",
+    "edition": 2026
+  },
+  "centenarians": {
+    "total": 107677,
+    "male": 13379,
+    "female": 94298,
+    "asOf": "2026年9月発表",
+    "source": "https://www.mhlw.go.jp/stf/houdou/newpage_002341.html"
+  },
+  "dementia": {
+    "estimate": 443.2,
+    "asOf": "2022年推計",
+    "source": "https://www8.cao.go.jp/kourei/whitepaper/w-2025/html/zenbun/s1_2_2.html"
+  }
+}
