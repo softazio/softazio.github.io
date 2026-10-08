@@ -50,6 +50,8 @@ cx=portrait()?270:450;applyZoom();
 const bunnies=[...document.querySelectorAll('.bunny')];let mode='normal';
 const baseTransforms=bunnies.map(b=>b.getAttribute('transform'));
 const hardTransforms=['translate(155 351) scale(.49)','translate(412 404) scale(.45)','translate(830 415) scale(.43)'];
+const spots=[[165,360],[265,385],[365,420],[490,475],[620,370],[760,455],[805,355],[570,505],[315,505]];
+function shufflePositions(){const pool=[...spots];for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}bunnies.forEach((b,i)=>{const [x,y]=pool[i];const sc=mode==='hard'?.43+i*.02:.68+i*.03;b.setAttribute('transform','translate('+x+' '+y+') scale('+sc+')')})}
 function changeMode(m){mode=m;wrap.classList.toggle('hard',m==='hard');bunnies.forEach((b,i)=>b.setAttribute('transform',m==='hard'?hardTransforms[i]:baseTransforms[i]));$('normal').setAttribute('aria-pressed',String(m==='normal'));$('hard').setAttribute('aria-pressed',String(m==='hard'));$('hint').style.display=m==='hard'?'none':'';reset()}
 $('normal').addEventListener('click',()=>changeMode('normal'));$('hard').addEventListener('click',()=>changeMode('hard'));
 let found=new Set(),hints=2,started=Date.now(),context=null,loop=null,beat=0,playing=false;const NOTES=[392,494,587,494,440,523,659,523,392,494,587,784,659,587,523,440];
@@ -66,7 +68,7 @@ $('music').addEventListener('click',()=>{initAudio();if(playing){stopMusic()}els
 function find(i){if(found.has(i))return;found.add(i);bunnies[i].classList.remove('hint');initAudio();tone(784,.12);setTimeout(()=>tone(988,.2),85);$('toast').textContent=['やったね！ 1匹発見！','すごい！ また見つけた！','見事！ 全員発見！'][found.size-1];render();if(found.size===3){stopMusic();setTimeout(()=>{tone(659,.18);setTimeout(()=>tone(880,.3),160);$('result').textContent='うさぎ3匹、全員発見！ 難易度 '+(mode==='hard'?'HARD':'NORMAL')+' ／ クリア時間 '+Math.round((Date.now()-started)/1000)+'秒';$('overlay').classList.add('open')},650)}}
 bunnies.forEach((b,i)=>{b.addEventListener('click',()=>find(i));b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();find(i)}})});
 $('hint').addEventListener('click',()=>{if(hints<=0||mode==='hard')return;let i=[0,1,2].find(i=>!found.has(i));if(i===undefined)return;hints--;bunnies[i].classList.add('hint');$('toast').textContent='光っている場所を見てみよう！';render();setTimeout(()=>bunnies[i].classList.remove('hint'),4500)});
-function reset(){found.clear();hints=mode==='hard'?0:2;started=Date.now();$('overlay').classList.remove('open');$('toast').textContent='さあ、3匹のうさぎを探そう！';bunnies.forEach(b=>b.classList.remove('hint'));render()}
-$('again').addEventListener('click',reset);$('reset').addEventListener('click',reset);render();
+function reset(){shufflePositions();found.clear();hints=mode==='hard'?0:2;started=Date.now();$('overlay').classList.remove('open');$('toast').textContent='さあ、3匹のうさぎを探そう！';bunnies.forEach(b=>b.classList.remove('hint'));render()}
+$('again').addEventListener('click',reset);$('reset').addEventListener('click',reset);reset();
 })();
 </script></body></html>
