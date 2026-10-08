@@ -386,6 +386,34 @@ gtag('config','G-1FV0P774PM');
   margin-left:0 !important;
   padding-left:0 !important;
 }
+
+/* three-item top primary nav */
+.site-header .top-primary-nav{
+  width:100% !important;
+  max-width:none !important;
+  display:grid !important;
+  grid-template-columns:repeat(3,1fr) !important;
+  gap:0 !important;
+  justify-self:stretch !important;
+  overflow:visible !important;
+}
+.site-header .top-primary-nav a{
+  width:100% !important;
+  text-align:center !important;
+  justify-content:center !important;
+  font-size:clamp(22px,4vw,34px) !important;
+  line-height:1 !important;
+  padding:0 !important;
+  margin:0 !important;
+  white-space:nowrap !important;
+}
+.site-header .top-primary-nav a:first-child{text-align:left !important;justify-content:flex-start !important}
+.site-header .top-primary-nav a:last-child{text-align:right !important;justify-content:flex-end !important}
+@media(max-width:820px){
+  .site-header .top-primary-nav a{
+    font-size:clamp(20px,5.5vw,28px) !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -397,7 +425,7 @@ gtag('config','G-1FV0P774PM');
   <span>使いながら、学びながら、少しずつ進化します。</span>
   <a href="about.html">SOFTAZIOを知る →</a>
 </div>
-<nav><a href="care-notes.html">CARE NOTES</a><a href="product-care-worker-exam.html">LEARN</a><a href="game.html">PLAY</a><a href="about.html">ABOUT</a></nav>
+<nav class="top-primary-nav"><a href="care-notes.html">CARE NOTES</a><a href="product-care-worker-exam.html">LEARN</a><a href="game.html">PLAY</a></nav>
 </header>
 
 <main class="portal compact-home">
