@@ -32,12 +32,12 @@ def extract(page: str, year: int):
         return int(matches[0].replace(",", ""))
     over65 = population(r"65歳以上人口は、?([0-9,]+)万人")
     over75 = population(r"75歳以上人口[」は、]*([0-9,]+)万人")
-    rates = re.findall(r"高齢化率[）)]?(?:も|は)?([0-9]+\.[0-9]+)％", plain)
+    rates = re.findall(r"高齢化率[^。]{0,100}?([0-9]+\.[0-9]+)％", plain)
     if not rates:
         raise ValueError("Cannot verify ageing rate")
     pct65 = float(rates[0])
     # For 75+, identify the rate explicitly in the same clause.
-    rate75 = re.findall(r"75歳以上人口[」]?は?[^。]{0,130}?総人口に占める割合は([0-9]+\.[0-9]+)％", plain)
+    rate75 = re.findall(r"75歳以上人口[^。]{0,180}?総人口に占める割合は([0-9]+\.[0-9]+)％", plain)
     if not rate75:
         raise ValueError("Cannot verify 75+ rate")
     pct75 = float(rate75[0])
