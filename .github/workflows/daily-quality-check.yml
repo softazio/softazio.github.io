@@ -1,0 +1,38 @@
+name: SOFTAZIO Daily Quality Check
+on:
+  schedule:
+    - cron: '15 21 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check website and pension calculator
+        id: audit
+        continue-on-error: true
+        run: python scripts/quality_check.py
+      - name: Report failures as a GitHub issue
+        if: steps.audit.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="SOFTAZIO 自動品質点検：要確認"
+          body="定期点検で問題が検出されました。実行ログ：${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n安全のため自動修正はしていません。"
+          existing=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body"
+          fi
+      - name: Fail workflow if audit failed
+        if: steps.audit.outcome == 'failure'
+        run: exit 1
