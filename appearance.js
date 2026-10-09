@@ -21,11 +21,13 @@
     const toggle=host.querySelector('.sz-toggle'),panel=host.querySelector('.sz-panel');
     function sync(){host.querySelectorAll('[data-theme]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===theme)));host.querySelectorAll('[data-font]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.font===size)))}
     function close(){panel.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.focus()}
-    toggle.addEventListener('click',()=>{panel.hidden=!panel.hidden;toggle.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)host.querySelector('[data-theme]').focus()});
+    function open(){panel.hidden=false;toggle.setAttribute('aria-expanded','true');host.querySelector('[data-theme]').focus()}
+    toggle.addEventListener('click',()=>{if(panel.hidden)open();else close()});
     host.querySelectorAll('[data-theme]').forEach(b=>b.addEventListener('click',()=>{theme=b.dataset.theme;try{localStorage.setItem(prefix+'theme',theme)}catch(e){}apply();sync()}));
     host.querySelectorAll('[data-font]').forEach(b=>b.addEventListener('click',()=>{size=b.dataset.font;try{localStorage.setItem(prefix+'font',size)}catch(e){}apply();sync()}));
     host.querySelector('.sz-close').addEventListener('click',close);
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)close()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)close();if(e.key==='Tab'&&!panel.hidden){const focusable=Array.from(panel.querySelectorAll('button'));const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+    document.addEventListener('pointerdown',e=>{if(!panel.hidden&&!host.contains(e.target)){panel.hidden=true;toggle.setAttribute('aria-expanded','false')}});
     sync();
   });
 })();
