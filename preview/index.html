@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<base href="/">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#061018">
+<meta name="description" content="SOFTAZIO — 介護、認知症、学習、こころ、仕事、動画、未来のテクノロジーへつながる情報とサービス。">
+<title>SOFTAZIO</title>
+<link rel="stylesheet" href="site.css?v=105">
+<link rel="stylesheet" href="appearance.css?v=1">
+<script defer src="preview/appearance.js?v=2"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1FV0P774PM"></script>
+<script>
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','G-1FV0P774PM');
+</script>
+<link rel="icon" type="image/png" href="cat_yellow.png">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8163972323891550" crossorigin="anonymous"></script>
+<meta name="google-adsense-account" content="ca-pub-8163972323891550">
+<style>
+.home-brand{flex-direction:row;align-items:center;gap:10px}
+.home-brand-logo{width:54px;height:auto;display:block;flex:0 0 auto}
+.home-brand-copy{display:flex;flex-direction:column;gap:3px}
+@media(max-width:820px){.home-brand-logo{width:48px}.home-brand .brand-name{font-size:23px}}
+.portal{max-width:1180px;margin:0 auto;padding:28px 5vw 72px}
+.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:20px;align-items:end;padding:0 0 18px;border-bottom:1px solid #244753}
+.hero h1{margin:8px 0 10px;font:900 clamp(34px,6vw,68px)/.95 "Arial Black",Arial,sans-serif;letter-spacing:-2px;color:#f6df36}
+.hero .sub{font:900 clamp(21px,3vw,34px)/1.15 "Arial Black",Arial,sans-serif;margin:0 0 12px;color:#eef6f8}
+.hero p{margin:0;color:#9fb5be;line-height:1.65}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 24px}
+.quick-card{position:relative;display:block;min-height:150px;border:1px solid #244753;background:#0a1920;padding:18px;text-decoration:none;color:inherit;overflow:hidden;transition:.16s ease}
+.quick-card:hover,.quick-card:focus{transform:translateY(-2px);border-color:#f6df36;outline:none}
+.quick-card .num{display:block;color:#f6df36;font-size:10px;font-weight:900;letter-spacing:1.6px;margin-bottom:26px}
+.quick-card h2{font:900 clamp(20px,2.4vw,28px)/1.06 "Arial Black",Arial,sans-serif;margin:0 0 8px}
+.quick-card p{margin:0;color:#91a8b1;font-size:13px;line-height:1.5}
+.quick-card:after{content:attr(data-mark);position:absolute;right:10px;top:6px;font:900 46px/1 Arial,sans-serif;color:rgba(246,223,54,.08)}
+.quick-card.main{background:linear-gradient(145deg,#14303a,#0a1920)}
+.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin:26px 0 12px}
+.section-head h2{margin:4px 0 0;font:900 clamp(26px,4vw,42px)/1 "Arial Black",Arial,sans-serif}
+.section-head a{color:#f6df36;text-decoration:none;font-size:12px;font-weight:900}
+.latest-grid{display:grid;grid-template-columns:1.4fr .6fr;gap:12px}
+.latest-main,.side-box{border:1px solid #244753;background:#091820;padding:20px}
+.latest-main h3{margin:6px 0 8px;font:900 clamp(22px,3vw,34px)/1.08 "Arial Black",Arial,sans-serif}
+.latest-main p,.side-box p{margin:0;color:#9fb5be;line-height:1.6;font-size:14px}
+.latest-main a{display:block;text-decoration:none;color:inherit}
+.link-list{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.link-list a{display:block;border:1px solid #244753;padding:12px 14px;text-decoration:none;color:#d8e5e9;font-size:12px;font-weight:900;text-align:center}
+.link-list a:hover,.link-list a:focus{border-color:#f6df36;color:#f6df36;outline:none}
+.topic-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 0 2px;scrollbar-width:none}
+.topic-strip::-webkit-scrollbar{display:none}
+.topic-strip a{white-space:nowrap;border:1px solid #244753;border-radius:999px;padding:9px 12px;color:#c8d6da;text-decoration:none;font-size:11px;font-weight:900}
+@media(max-width:820px){
+ .portal{padding:18px 16px 58px}
+ .hero{grid-template-columns:1fr;gap:12px;padding:0 0 16px}
+ .hero h1{letter-spacing:-2px}
+ .quick{grid-template-columns:repeat(2,1fr);gap:10px}
+ .quick-card{min-height:132px;padding:15px}
+ .quick-card .num{margin-bottom:18px}
+ .latest-grid{grid-template-columns:1fr}
+ .link-list{grid-template-columns:repeat(2,1fr)}
+ .section-head{align-items:center}
+}
+
+.search-wrap{margin:22px 0 16px}
+.search-box{display:flex;gap:8px}
+.search-box input{flex:1;min-width:0;background:#08161c;border:1px solid #244753;color:#eef6f8;padding:14px 15px;font-size:15px;outline:none}
+.search-box input:focus{border-color:#f6df36}
+.search-box button{border:0;background:#f6df36;color:#071019;padding:0 18px;font-weight:900;cursor:pointer}
+.search-results{display:none;margin-top:12px;border:1px solid #2b5666;background:#07151c;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.search-results.active{display:block}
+.search-result{display:block;padding:18px 16px;border-top:1px solid #16323d;text-decoration:none}
+.search-result:first-child{border-top:0}
+.search-result strong{display:block;font-size:18px;color:#eef6f8}
+.search-result span{display:block;margin-top:6px;font-size:13px;line-height:1.5;color:#91a8b1}
+.category-tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
+.category-tabs::-webkit-scrollbar{display:none}
+.category-tabs a{white-space:nowrap;border:1px solid #244753;padding:9px 12px;font-size:11px;font-weight:900;color:#c8d6da}
+.category-tabs a:hover,.category-tabs a:focus{border-color:#f6df36;color:#f6df36;outline:none}
+@media(max-width:820px){.search-box button{padding:0 15px}.search-box input{font-size:14px}}
+
+.search-results:before{content:"検索結果";display:block;padding:12px 16px;background:#0c2029;color:#f6df36;font-size:11px;font-weight:900;letter-spacing:1.4px;border-bottom:1px solid #244753}
+@media(max-width:820px){
+ .search-results{position:relative;z-index:20}
+ .search-result{padding:18px 14px}
+ .search-result strong{font-size:17px}
+}
+
+.start-here{margin:18px 0 8px}
+.start-here-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:10px}
+.start-here-head h2{margin:0;font:900 clamp(20px,3vw,30px)/1.05 "Arial Black",Arial,sans-serif;color:#eef6f8}
+.start-here-head p{margin:0;color:#8199a3;font-size:12px}
+.start-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.start-card{display:block;position:relative;min-height:118px;padding:16px 16px 15px;border:1px solid #2a4c59;background:#0a1920;color:inherit;text-decoration:none}
+.start-card:hover,.start-card:focus{border-color:#f6df36;outline:none}
+.start-card .label{display:block;color:#f6df36;font-size:10px;font-weight:900;letter-spacing:1.3px;margin-bottom:14px}
+.start-card h3{margin:0 0 7px;font:900 clamp(19px,2.4vw,26px)/1.05 "Arial Black",Arial,sans-serif}
+.start-card p{margin:0;color:#95aab3;font-size:12px;line-height:1.5}
+.start-card .arrow{position:absolute;right:14px;top:13px;color:#f6df36;font-weight:900}
+@media(max-width:820px){
+ .start-here-head{align-items:start;flex-direction:column;gap:4px}
+ .start-grid{grid-template-columns:1fr}
+ .start-card{min-height:0;padding-right:42px}
+}
+
+.compact-home{max-width:980px}
+.brand-intro{padding:14px 0 18px;border-bottom:1px solid #244753}
+.brand-intro .eyebrow{color:#f6df36}
+.brand-message{margin:7px 0 5px;font:900 clamp(23px,4vw,38px)/1.15 "Arial Black",Arial,sans-serif;color:#eef6f8}
+.brand-desc{margin:0;max-width:760px;color:#91a8b1;font-size:13px;line-height:1.7}
+.home-search{margin:16px 0 14px}
+.home-search .search-box input{background:#f4f7f8;color:#142129;border:0;padding:15px 16px;font-size:16px}
+.home-search .search-box button{min-width:76px}
+.service-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;margin:0 0 18px;background:#244753;border-top:1px solid #244753;border-bottom:1px solid #244753}
+.service-grid a{position:relative;display:flex;min-width:0;min-height:148px;padding:22px 48px 22px 22px;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;text-decoration:none;color:#eef6f8;background:#07151b;transition:background .18s ease,transform .18s ease}
+.service-grid .service-kicker{display:block;margin-bottom:10px;color:#f6df36;font-size:10px;font-weight:900;letter-spacing:.16em}
+.service-grid strong{display:block;font:900 clamp(28px,3.7vw,46px)/.98 "Arial Black",Arial,sans-serif;letter-spacing:-.035em}
+.service-grid small{display:block;margin-top:12px;color:#8299a2;font-size:11px;font-weight:700;line-height:1.5;letter-spacing:.02em}
+.service-grid a:after{content:"↗";position:absolute;right:18px;bottom:18px;color:#5e747d;font-size:18px;font-weight:900;transition:color .18s ease,transform .18s ease}
+.service-grid a:hover,.service-grid a:focus{background:#0c222b;outline:none}
+.service-grid a:hover strong,.service-grid a:focus strong{color:#ffffff}
+.service-grid a:hover:after,.service-grid a:focus:after{color:#f6df36;transform:translate(2px,-2px)}
+.news-tabs{display:flex;overflow-x:auto;border-top:1px solid #244753;border-bottom:1px solid #244753;margin:0 0 16px;scrollbar-width:none}
+.news-tabs::-webkit-scrollbar{display:none}
+.news-tabs a{flex:0 0 auto;padding:11px 16px;text-decoration:none;color:#a9bcc4;font-size:12px;font-weight:900;border-right:1px solid #244753}
+.news-tabs a.active{background:#f6df36;color:#071019}
+.home-feed{margin-top:4px}
+.feed-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:8px}
+.feed-head h2{margin:0;font:900 20px/1.2 "Arial Black",Arial,sans-serif}
+.feed-head a{color:#f6df36;text-decoration:none;font-size:11px;font-weight:900}
+.feed-list{border-top:1px solid #244753}
+.feed-row{border-bottom:1px solid #244753}
+.feed-row a{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:14px 6px;text-decoration:none;color:inherit}
+.feed-tag{display:inline-block;width:max-content;max-width:64px;padding:4px 7px;background:#16323d;color:#f6df36;font-size:9px;font-weight:900}
+.feed-title{font-size:15px;font-weight:900;color:#e8f0f2;line-height:1.35}
+.feed-meta{font-size:10px;color:#78909a;white-space:nowrap}
+.feed-row a:hover .feed-title,.feed-row a:focus .feed-title{color:#f6df36}
+@media(max-width:820px){
+ .compact-home{padding-top:14px}
+ .brand-intro{padding-top:4px}
+ .brand-message{font-size:25px}
+ .brand-desc{font-size:12px}
+ .service-grid{grid-template-columns:repeat(2,1fr);gap:1px}
+ .service-grid a{min-height:126px;padding:17px 34px 17px 14px}
+ .service-grid .service-kicker{font-size:8px;margin-bottom:8px;letter-spacing:.13em}
+ .service-grid strong{font-size:clamp(22px,6.2vw,29px)}
+ .service-grid small{font-size:9px;margin-top:9px;line-height:1.45}
+ .service-grid a:after{right:12px;bottom:12px;font-size:15px}
+ .feed-row a{grid-template-columns:54px 1fr;padding:13px 4px;gap:10px}
+ .feed-meta{grid-column:2;font-size:9px;margin-top:-5px}
+}
+
+.site-header{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:26px}
+.site-header nav{grid-column:1/-1}
+.header-story{justify-self:end;width:min(100%,330px);padding-left:18px;border-left:1px solid #244753}
+.header-story strong{display:block;color:#eef6f8;font-size:12px;line-height:1.25;margin-bottom:3px}
+.header-story span{display:block;color:#8399a2;font-size:9px;line-height:1.4}
+.header-story a{display:inline-block;margin-top:4px;color:#f6df36;font-size:8px;font-weight:900;text-decoration:none;letter-spacing:.3px}
+@media(max-width:820px){
+ .site-header{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);column-gap:10px;align-items:center}
+ .home-brand{min-width:0;gap:7px}
+ .home-brand-logo{width:40px}
+ .home-brand-copy{min-width:0}
+ .home-brand .brand-name{font-size:20px;letter-spacing:1px;white-space:nowrap}
+ .home-brand .brand-tag{font-size:7px;letter-spacing:2px;white-space:nowrap}
+ .header-story{justify-self:stretch;width:auto;max-width:none;padding-left:10px}
+ .header-story strong{font-size:9px;line-height:1.2;white-space:nowrap}
+ .header-story span{font-size:7px;line-height:1.35}
+ .header-story a{margin-top:3px;font-size:7px}
+ .site-header nav{margin-top:12px}
+}
+@media(max-width:380px){
+ .site-header{grid-template-columns:1.08fr .92fr;column-gap:7px}
+ .home-brand-logo{width:36px}
+ .home-brand .brand-name{font-size:18px}
+ .home-brand .brand-tag{font-size:6px;letter-spacing:1.6px}
+ .header-story{padding-left:8px}
+ .header-story strong{font-size:8px}
+ .header-story span,.header-story a{font-size:6.5px}
+}
+
+.site-header nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;gap:0}
+.site-header nav a{display:flex;align-items:center;justify-content:center;min-width:0;padding:14px 8px;text-align:center;white-space:nowrap;letter-spacing:.8px}
+@media(max-width:820px){
+ .site-header nav{grid-template-columns:repeat(4,minmax(0,1fr));width:100%}
+ .site-header nav a{padding:12px 4px;font-size:11px;letter-spacing:.5px}
+}
+@media(max-width:380px){
+ .site-header nav a{font-size:10px;letter-spacing:.2px;padding-left:2px;padding-right:2px}
+}
+
+/* full-width primary nav */
+.site-header nav{
+  grid-column:1/-1;
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  margin-top:12px;
+}
+.site-header nav a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  padding:14px 6px;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:.6px;
+  white-space:nowrap;
+  text-align:center;
+}
+@media(max-width:820px){
+  .site-header nav{margin-top:12px}
+  .site-header nav a{
+    font-size:14px;
+    padding:13px 2px;
+    letter-spacing:.35px;
+  }
+}
+@media(max-width:380px){
+  .site-header nav a{
+    font-size:13px;
+    letter-spacing:.2px;
+    padding-left:1px;
+    padding-right:1px;
+  }
+}
+
+/* larger primary nav labels */
+.site-header nav a{
+  font-size:16px;
+}
+@media(max-width:820px){
+  .site-header nav a{
+    font-size:16px;
+    letter-spacing:.25px;
+  }
+}
+@media(max-width:380px){
+  .site-header nav a{
+    font-size:15px;
+    letter-spacing:.1px;
+  }
+}
+
+/* weighted primary nav: CARE NOTES 40%, others 20% */
+.site-header nav{
+  grid-template-columns:2fr 1fr 1fr 1fr;
+}
+
+/* balance visible gaps between nav labels */
+.site-header nav{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(18px,5vw,42px);
+  width:100%;
+}
+.site-header nav a{
+  flex:0 0 auto;
+  width:auto;
+  padding:13px 0;
+}
+@media(max-width:820px){
+  .site-header nav{
+    gap:clamp(14px,4.5vw,26px);
+  }
+  .site-header nav a{
+    padding:12px 0;
+  }
+}
+@media(max-width:380px){
+  .site-header nav{
+    gap:12px;
+  }
+}
+
+/* larger nav labels with tighter left edge */
+.site-header nav{
+  justify-content:flex-start;
+  gap:clamp(14px,4vw,30px);
+  padding-left:4px;
+  box-sizing:border-box;
+}
+.site-header nav a{
+  font-size:18px;
+  padding:12px 0;
+}
+@media(max-width:820px){
+  .site-header nav{
+    gap:clamp(12px,3.8vw,22px);
+    padding-left:2px;
+  }
+  .site-header nav a{
+    font-size:17px;
+  }
+}
+@media(max-width:380px){
+  .site-header nav{
+    gap:10px;
+    padding-left:0;
+  }
+  .site-header nav a{
+    font-size:16px;
+  }
+}
+
+/* remove left gap before CARE NOTES */
+.site-header nav{
+  padding-left:0 !important;
+  margin-left:0 !important;
+}
+.site-header nav a:first-child{
+  margin-left:0 !important;
+  padding-left:0 !important;
+}
+
+/* tighten nav box while preserving label gaps */
+.site-header nav{
+  width:max-content !important;
+  max-width:100%;
+  padding:0 !important;
+  margin:0 !important;
+  gap:clamp(14px,4vw,30px) !important;
+  justify-content:flex-start !important;
+}
+.site-header nav a{
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-width:0 !important;
+  padding:3px 0 !important;
+  margin:0 !important;
+  font-size:20px !important;
+  line-height:1.05 !important;
+}
+@media(max-width:820px){
+  .site-header nav{
+    gap:clamp(12px,3.8vw,22px) !important;
+  }
+  .site-header nav a{
+    font-size:19px !important;
+    padding:2px 0 !important;
+  }
+}
+@media(max-width:380px){
+  .site-header nav{gap:10px !important}
+  .site-header nav a{font-size:18px !important}
+}
+
+/* make primary nav as prominent as the main message, without wrapping */
+.site-header nav{
+  flex-wrap:nowrap !important;
+  white-space:nowrap !important;
+  gap:clamp(10px,3vw,22px) !important;
+}
+.site-header nav a{
+  font-size:clamp(22px,4vw,34px) !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  padding:0 !important;
+  letter-spacing:-.02em !important;
+}
+@media(max-width:820px){
+  .site-header nav{
+    gap:clamp(8px,2.4vw,16px) !important;
+    overflow:hidden;
+  }
+  .site-header nav a{
+    font-size:clamp(20px,5.5vw,28px) !important;
+  }
+}
+@media(max-width:380px){
+  .site-header nav{
+    gap:7px !important;
+  }
+  .site-header nav a{
+    font-size:19px !important;
+  }
+}
+
+/* align primary nav flush with the page's left edge */
+.site-header nav{
+  justify-self:start !important;
+  margin-left:0 !important;
+  padding-left:0 !important;
+  transform:none !important;
+}
+.site-header nav a:first-child{
+  margin-left:0 !important;
+  padding-left:0 !important;
+}
+
+</style>
+</head>
+<body>
+<div style="position:relative;z-index:250;background:#f6df36;color:#111a22;text-align:center;font-weight:800;padding:12px">確認用プレビュー｜表示設定の操作改善テスト（本番未反映）</div>
+<!-- TOP DESIGN LOCK 2026-10-09: preserve established mobile layout -->
+<header class="site-header">
+<a class="brand home-brand" href="index.html" aria-label="SOFTAZIOトップへ"><img class="home-brand-logo" src="logo-08-original.webp" alt=""><span class="home-brand-copy"><span class="brand-name">SOFTAZIO</span><span class="brand-tag">SOFTWARE FROM A TO Z</span></span></a>
+<div class="header-story" aria-label="SOFTAZIOの考え方">
+  <strong>好奇心を、使えるかたちに。</strong>
+  <span>遊ぶ・学ぶ・考える。発見をソフトウェアと記事に。</span>
+  <a href="about.html">SOFTAZIOを知る →</a>
+</div>
+</header>
+
+<main class="portal compact-home">
+<section class="brand-intro" aria-label="SOFTAZIO">
+  <p class="brand-message">読む。見る。学ぶ。探す。つながる。</p>
+  <p class="brand-desc">介護・認知症・学習・こころ・仕事・未来へ。必要な情報とサービスを、わかりやすくつなぎます。</p>
+</section>
+
+<section class="search-wrap home-search" aria-label="サイト内検索">
+  <div class="search-box">
+    <input id="portal-search" type="search" placeholder="知りたいことを検索" aria-label="SOFTAZIO内を検索">
+    <button id="portal-search-btn" type="button">検索</button>
+  </div>
+  <div id="portal-search-results" class="search-results" aria-live="polite"></div>
+</section>
+
+<nav class="service-grid" aria-label="主要サービス">
+  <a href="care-dementia.html"><span class="service-kicker">DEMENTIA</span><strong>認知症</strong><small>理解する。予防する。支える。</small></a>
+  <a href="care-technique.html"><span class="service-kicker">TECHNIQUE</span><strong>介護技術</strong><small>見る。覚える。実践につなぐ。</small></a>
+  <a href="product-care-worker-exam.html"><span class="service-kicker">EXAM</span><strong>国家試験</strong><small>解く。覚える。積み上げる。</small></a>
+  <a href="care-mind.html"><span class="service-kicker">MIND</span><strong>こころ</strong><small>立ち止まる。整理する。整える。</small></a>
+  <a href="care-videos.html"><span class="service-kicker">VIDEO</span><strong>動画</strong><small>見て、理解する。</small></a>
+  <a href="care-ai.html"><span class="service-kicker">CARE AI</span><strong>介護AI</strong><small>介護の未来を考える。</small></a>
+  <a href="care-notes.html"><span class="service-kicker">JOURNAL</span><strong>CARE NOTES</strong><small>読む。考える。残す。</small></a>
+  <a href="play.html"><span class="service-kicker">GAME</span><strong>PLAY</strong><small>遊ぶ。試す。つくる。</small></a>
+  <a href="money.html"><span class="service-kicker">FINANCE</span><strong>お金の備え</strong><small>知る。整える。備える。</small></a>
+  <a href="population.html"><span class="service-kicker">DATA</span><strong>人口統計</strong><small>高齢社会を、数字で見る。</small></a>
+</nav>
+
+<section class="home-feed" aria-label="新着・おすすめ">
+  <div class="feed-head">
+    <h2>新着・おすすめ</h2>
+    <a href="care-notes.html">一覧を見る →</a>
+  </div>
+  <div class="feed-list">
+    <div class="feed-row" id="home-latest-note">
+      <a href="care-restart.html">
+        <span class="feed-tag">NEW</span>
+        <span class="feed-title">48歳からの再出発。介護という選択</span>
+        <span class="feed-meta">CARE NOTES</span>
+      </a>
+    </div>
+    <div class="feed-row">
+      <a href="product-care-worker-exam.html">
+        <span class="feed-tag">学習</span>
+        <span class="feed-title">介護福祉士 国家試験対策</span>
+        <span class="feed-meta">問題演習・復習</span>
+      </a>
+    </div>
+    <div class="feed-row">
+      <a href="care-dementia.html">
+        <span class="feed-tag">認知症</span>
+        <span class="feed-title">認知症ケア・ユマニチュード・声かけ</span>
+        <span class="feed-meta">読む・見る・調べる</span>
+      </a>
+    </div>
+    <div class="feed-row">
+      <a href="care-videos.html">
+        <span class="feed-tag">動画</span>
+        <span class="feed-title">介護・福祉の動画をテーマ別に探す</span>
+        <span class="feed-meta">動画・SNS</span>
+      </a>
+    </div>
+    <div class="feed-row">
+      <a href="care-mind.html">
+        <span class="feed-tag">仕事</span>
+        <span class="feed-title">こころの整理室</span>
+        <span class="feed-meta">失敗・注意・モヤモヤを整理</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section>
+<div class="section-head"><div><div class="section-kicker">MORE</div><h2>そのほか</h2></div></div>
+<div class="link-list">
+<a href="products.html">PRODUCTS</a>
+<a href="about.html">ABOUT</a>
+<a href="news.html">NEWS</a>
+<a href="contact.html">CONTACT</a>
+</div>
+</section>
+</main>
+
+<footer>
+<div><strong>SOFTAZIO</strong><small>SOFTWARE FROM A TO Z</small></div>
+<div class="footer-links"><a href="sitemap.html">SITEMAP</a><a href="privacy.html">PRIVACY</a><a href="contact.html">CONTACT</a></div>
+<div class="copyright">© 2026 SOFTAZIO</div>
+</footer>
+
+
+<script>
+(function(){
+ const data=[
+  {title:'48歳からの再出発。介護という選択',desc:'23年間の仕事を離れ、介護の世界へ。学び直しと再出発の記録',url:'care-restart.html',keys:'48歳 再出発 転職 人生 介護 選択 仕事 学び直し'},
+  {title:'徳と介護。見えない仕事について。',desc:'陰徳、陽徳、和顔施と介護現場の小さな配慮',url:'care-virtue.html',keys:'徳 陰徳 陽徳 和顔施 仏教 哲学 介護 排泄'},
+  {title:'待つことも、介護の技術である。',desc:'利用者の尊厳と介助時間の間で考える「待つ」技術',url:'care-waiting.html',keys:'待つ 時間 尊厳 排泄 介護 技術 自立'},
+  {title:'頑張るより、整える。',desc:'仕事の順序、姿勢、安全、声かけを整える働き方',url:'care-prepare.html',keys:'頑張る 整える 負担 安全 段取り 介護 身体'},
+  {title:'支える側のつもりが、学ばされている。',desc:'介護を通じて学ぶ、人との関わりと尊厳',url:'care-learning.html',keys:'支える 学ぶ 学ばされている 介護 尊厳 新人'},
+  {title:'CARE NOTES',desc:'介護の読みものをテーマ別に探す',url:'care-notes.html',keys:'介護 読みもの 記事 現場 note care notes'},
+  {title:'認知症',desc:'BPSD・予防・最新研究・認知症ケアの動画',url:'care-dementia.html',keys:'認知症 BPSD 予防 アルツハイマー 山田悠史 全国老施協 ケア dementia 動画'},
+  {title:'介護技術',desc:'移乗・排泄・食事・入浴などの実践動画を探す',url:'care-technique.html',keys:'介護技術 移乗 排泄 食事 入浴 介助 現場 実践 動画'},
+  {title:'排泄介助・リハパン交換',desc:'座ったまま行うリハビリパンツ交換の実践動画',url:'care-technique.html#tamotsu-video',keys:'排泄介助 リハパン オムツ交換 おむつ交換 便失禁 ズボン たもつ 動画'},
+  {title:'介護福祉士 国家試験対策',desc:'問題演習・学習Webアプリ',url:'product-care-worker-exam.html',keys:'介護福祉士 国家試験 問題 過去問 資格 勉強 学習 テスト'},
+  {title:'動画・SNS',desc:'介護技術・認知症ケアなどの動画',url:'care-videos.html',keys:'動画 shorts youtube SNS 移乗 介護技術'},
+  {title:'公的・専門情報',desc:'厚労省・自治体・学会など信頼できる情報源',url:'care-notes.html#picks',keys:'厚労省 自治体 外部情報 公的情報 専門情報 学会 care picks'},
+  {title:'こころ・仕事',desc:'失敗・注意・人間関係・モヤモヤを整理',url:'care-mind.html',keys:'メンタル 仕事 嫌 注意 失敗 モヤモヤ こころ 人間関係 ストレス 職場'},
+  {title:'未来の介護AI',desc:'対話型介護士・未来の介護テクノロジー',url:'care-ai.html',keys:'AI 人工生命体 対話型介護士 未来'},
+  {title:'GAME',desc:'介護と学習の合間のブラウザゲーム',url:'play.html',keys:'game ゲーム play 息抜き'},
+  {title:'お金の備え',desc:'年金 生活費 老後資金',url:'money.html',keys:'お金 備え 金融 年金 生活費 家計 老後 資金 finance'},
+  {title:'人口統計',desc:'65歳以上 75歳以上 認知症 100歳以上',url:'population.html',keys:'人口 統計 高齢者 認知症 100歳 data 高齢化'},
+  {title:'NEWS',desc:'SOFTAZIOの更新・開発情報',url:'news.html',keys:'news 更新 開発 お知らせ'},
+  {title:'SITEMAP',desc:'サイト全体から探す',url:'sitemap.html',keys:'サイトマップ sitemap 一覧'}
+ ];
+ const input=document.getElementById('portal-search');
+ const btn=document.getElementById('portal-search-btn');
+ const out=document.getElementById('portal-search-results');
+ function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+ function run(){
+   const q=input.value.trim().toLowerCase();
+   if(!q){out.className='search-results';out.innerHTML='';return;}
+   const qs=q.split(/\s+/).filter(Boolean);
+   const hits=data.filter(x=>{const hay=(x.title+' '+x.desc+' '+x.keys).toLowerCase();return qs.every(k=>hay.includes(k));}).slice(0,8);
+   out.innerHTML=hits.length?hits.map(x=>'<a class="search-result" href="'+x.url+'"><strong>'+esc(x.title)+'</strong><span>'+esc(x.desc)+'</span></a>').join(''):'<div class="search-result"><strong>見つかりませんでした</strong><span>別の言葉で検索してみてください。</span></div>';
+   out.className='search-results active'; setTimeout(()=>out.scrollIntoView({behavior:'smooth',block:'start'}),50);
+ }
+ btn.addEventListener('click',run);
+ input.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+ input.addEventListener('input',()=>{if(!input.value.trim()){out.className='search-results';out.innerHTML='';}});
+})();
+</script>
+</body>
+</html>
