@@ -67,8 +67,11 @@ else:
     script = js.read_text(encoding="utf-8")
     page = html.read_text(encoding="utf-8")
     for marker in ("pensionFactor", "spousePension", "spouseStart", "birthDate", "pensionGrowth"):
-        if marker not in script or marker not in page:
-            errors.append(f"Pension calculator marker missing: {marker}")
+        if marker not in script:
+            errors.append(f"Pension calculator code missing: {marker}")
+    for field in ("spousePension", "spouseStart", "birthDate", "spouseBirthDate", "pensionGrowth"):
+        if f'id="{field}"' not in page:
+            errors.append(f"Pension calculator input missing: {field}")
     if "birth<='1962-04-01'" not in script:
         errors.append("Pension birthdate boundary missing")
     if not re.search(r'src="finance-simulator\.js(?:\?[^"]*)?"', page):
