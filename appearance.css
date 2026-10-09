@@ -36,3 +36,12 @@ html[data-sz-font="large"] .service-grid a{min-height:170px}
 .sz-choice[data-theme="pink"]{background:#f2c9d7;color:#4b2536}
 .sz-close{width:100%;background:#29333c;color:#fff;border:0;border-radius:8px;min-height:44px;padding:9px}
 @media print{.sz-settings{display:none!important}}
+
+/* Mobile-safe spacing for the homepage settings and large navigation labels. */
+@media(max-width:420px){
+ .sz-settings{right:10px;bottom:calc(10px + env(safe-area-inset-bottom))}
+ .sz-panel{max-height:min(70dvh,520px);overflow-y:auto;overscroll-behavior:contain}
+ .site-header nav{display:flex!important;width:100%!important;max-width:100%!important;gap:clamp(8px,2.3vw,12px)!important;overflow-x:auto!important;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+ .site-header nav a{flex:0 0 auto!important;font-size:clamp(14px,4.2vw,18px)!important;line-height:1.3!important;padding:7px 0!important}
+}
+@media(prefers-reduced-motion:reduce){.sz-settings *{transition:none!important;animation:none!important}}
