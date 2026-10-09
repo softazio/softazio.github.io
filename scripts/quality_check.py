@@ -59,6 +59,16 @@ for path in ROOT.glob("*.html"):
         if not target_path.exists():
             errors.append(f"Broken local asset/link: {path.name} -> {link}")
 
+# Ensure public core pages remain discoverable in the XML sitemap.
+sitemap = ROOT / "sitemap.xml"
+if not sitemap.is_file():
+    errors.append("XML sitemap missing")
+else:
+    xml = sitemap.read_text(encoding="utf-8")
+    for page in ("finance-simulator.html", "money.html", "play.html", "population.html", "care-notes.html"):
+        if f"https://softazio.github.io/{page}" not in xml:
+            errors.append(f"Missing sitemap entry: {page}")
+
 js = ROOT / "finance-simulator.js"
 html = ROOT / "finance-simulator.html"
 if not js.is_file() or not html.is_file():
