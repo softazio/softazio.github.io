@@ -786,7 +786,7 @@ class TitleScene extends Phaser.Scene{
       color:'#7fa8ba'
     }).setOrigin(.5).setDepth(6);
 
-    this.add.text(w/2,558,'PRODUCT 001',{
+    this.add.text(w/2,558,'MIND PLAY EDITION',{
       fontFamily:'Arial Black, sans-serif',
       fontSize:'9px',fontStyle:'bold',
       color:'#f0e442'
@@ -1271,7 +1271,7 @@ class GameScene extends Phaser.Scene{
       onComplete:()=>this.scoreRuleHint.setVisible(false)
     });
 
-    this.studioBadge=this.add.text(18,this.scale.height-18,'SOFTAZIO  •  PRODUCT 001',{
+    this.studioBadge=this.add.text(18,this.scale.height-18,'SOFTAZIO  •  COLOR BLOCKS DX',{
       fontFamily:'Arial Black, sans-serif',
       fontSize:'8px',fontStyle:'bold',
       color:'#6f8c9b'
@@ -2854,7 +2854,7 @@ class GameScene extends Phaser.Scene{
       stroke:'#000000',strokeThickness:7
     }).setOrigin(.5).setDepth(161).setScale(.7).setAlpha(0);
 
-    const brand=this.add.text(w/2,h*.46,'SOFTAZIO  •  PRODUCT 001',{
+    const brand=this.add.text(w/2,h*.46,'SOFTAZIO  •  COLOR BLOCKS DX',{
       fontFamily:'Arial Black, sans-serif',
       fontSize:'10px',fontStyle:'bold',
       color:'#f0e442'
