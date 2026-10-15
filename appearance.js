@@ -1,9 +1,9 @@
-/* Appearance controls: homepage-only pilot; preserves game logic. */
+/* Appearance controls: site-wide preferences; preserves game logic. */
 (function(){
   const prefix='softazio-appearance-';
   const root=document.documentElement;
   function get(key,fallback,allowed){try{const v=localStorage.getItem(prefix+key);return allowed.includes(v)?v:fallback}catch(e){return fallback}}
-  let theme=get('theme','black',['white','black','forest','pink']);
+  let theme=get('theme','white',['white','black','forest','pink']);
   let size=get('font','normal',['normal','large']);
   function apply(){root.dataset.szTheme=theme;root.dataset.szFont=size}
   apply();
