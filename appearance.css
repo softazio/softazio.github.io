@@ -45,3 +45,13 @@ html[data-sz-font="large"] .service-grid a{min-height:170px}
  .site-header nav a{flex:0 0 auto!important;font-size:clamp(14px,4.2vw,18px)!important;line-height:1.3!important;padding:7px 0!important}
 }
 @media(prefers-reduced-motion:reduce){.sz-settings *{transition:none!important;animation:none!important}}
+
+/* Keep the brand and introduction legible against a consistent dark header. */
+html .site-header{background:#07151c!important;border-bottom-color:#355361!important;color:#f4f8fa!important}
+html .site-header .brand-name{color:#f4f8fa!important}
+html .site-header .brand-tag{color:#b9cbd3!important}
+html .site-header .header-story{border-left-color:#506a77!important}
+html .site-header .header-story strong{color:#f4f8fa!important}
+html .site-header .header-story span{color:#c1d1d9!important}
+html .site-header .header-story a{color:#f6df36!important}
+html .site-header .home-brand-logo{filter:drop-shadow(0 1px 2px #0008)}
