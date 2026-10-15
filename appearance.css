@@ -55,3 +55,22 @@ html .site-header .header-story strong{color:#f4f8fa!important}
 html .site-header .header-story span{color:#c1d1d9!important}
 html .site-header .header-story a{color:#f6df36!important}
 html .site-header .home-brand-logo{filter:drop-shadow(0 1px 2px #0008)}
+
+/* White theme: neutral surfaces and high-contrast text. */
+html[data-sz-theme="white"]{--bg:#ffffff;--panel:#f6f8fa;--text:#202c34;--muted:#4d606b;--line:#cbd5dc;color-scheme:light}
+html[data-sz-theme="white"] body{background:linear-gradient(165deg,#ffffff,#ffffff)!important}
+html[data-sz-theme="white"] :is(.service-grid a,.quick-card,.start-card,.latest-main,.side-box,.feed-row,.search-results,.search-result,.area-grid article,.principles article,.info-grid article,.catalog-card){background:#ffffff!important;border-color:#cbd5dc!important}
+html[data-sz-theme="white"] :is(.site-header,footer,.brand-intro,.hero,.service-grid,.news-tabs,.feed-list,.feed-row,.section-head,.start-card,.quick-card,.link-list a,.topic-strip a,.category-tabs a){border-color:#cbd5dc!important}
+html[data-sz-theme="white"] :is(.brand-message,.header-story strong,.service-grid strong,.feed-title,.start-here-head h2,.hero .sub,.hero h1,.latest-main h3,.search-result strong,.page-title,footer strong,.quick-card h2,.start-card h3){color:#172d3a!important}
+html[data-sz-theme="white"] :is(.brand-desc,.header-story span,.service-grid small,.latest-main p,.side-box p,.quick-card p,.start-card p,.search-result span,.feed-meta,.page-lead,.copyright,footer,.hero p){color:#455b69!important}
+html[data-sz-theme="white"] :is(.service-kicker,.section-kicker,.quick-card .num,.start-card .label,.feed-head a,.header-story a,.section-head a){color:#165e82!important}
+html[data-sz-theme="white"] :is(.link-list a,.topic-strip a,.category-tabs a,.news-tabs a,.feed-row a){color:#243c4a!important}
+html[data-sz-theme="white"] .service-grid{background:#cbd5dc!important}
+html[data-sz-theme="white"] .home-search .search-box input{background:#fff!important;color:#243c4a!important;border:1px solid #cbd5dc!important}
+html[data-sz-theme="white"] .feed-tag{background:#e4edf3!important;color:#254f68!important}
+html[data-sz-theme="white"] .news-tabs a.active{color:#172d3a!important}
+html[data-sz-theme="white"] :is(.feed-head h2,.sz-footer-brand strong){color:#172d3a!important}
+html[data-sz-theme="white"] .sz-footer-brand a{color:#165e82!important}
+html[data-sz-theme="white"] .search-box button{background:#165e82;color:#fff}
+html[data-sz-theme="white"] .service-grid a:hover,html[data-sz-theme="white"] .service-grid a:focus-visible{background:#edf4f8!important}
+.sz-choice[data-theme="white"]{background:#fff;color:#202c34}
