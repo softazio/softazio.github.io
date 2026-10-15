@@ -131,8 +131,9 @@ gtag('config', 'G-1FV0P774PM');
   const res=await fetch('data/note-feed.json?ts='+Date.now(),{cache:'no-store'});
   if(!res.ok) throw new Error('feed load failed');
   const data=await res.json();
-  const items=Array.isArray(data.items)?data.items:[];
-  if(!items.length){root.innerHTML='<div class="coming-card"><div class="section-kicker">LATEST READING</div><h3>新着記事は準備中です。</h3><p>公開済み記事は上のFEATURED ARTICLEから読むことができます。</p></div>';return;}
+  const fixed=Array.from(document.querySelectorAll('#latest a.feed-card[href]')).map(a=>({url:a.href,title:a.querySelector('h3')?.textContent||''}));
+  const items=uniqueNoteItems(Array.isArray(data.items)?data.items:[],fixed);
+  if(!items.length){root.innerHTML='<div class="coming-card"><div class="section-kicker">LATEST READING</div><h3>追加の新着記事はありません。</h3><p>公開済み記事は上の紹介欄から読むことができます。</p></div>';return;}
   root.innerHTML='';
   items.slice(0,8).forEach(item=>{
    const article=document.createElement('article');
@@ -142,6 +143,18 @@ gtag('config', 'G-1FV0P774PM');
   });
  }catch(e){
   root.innerHTML='<div class="coming-card"><div class="section-kicker">LATEST READING</div><h3>記事一覧を取得できませんでした。</h3><p>時間をおいて再度お試しください。</p></div>';
+ }
+ function uniqueNoteItems(items,fixed){
+  const urls=new Set(),titles=new Set();
+  function keyUrl(value){try{const u=new URL(String(value||''),location.href);if(!/^https?:$/.test(u.protocol))return '';return u.origin+u.pathname.replace(/\/+$/,'');}catch(e){return '';}}
+  function keyTitle(value){return String(value||'').normalize('NFKC').replace(/\s+/g,'').trim();}
+  fixed.forEach(item=>{const u=keyUrl(item.url),t=keyTitle(item.title);if(u)urls.add(u);if(t)titles.add(t);});
+  return items.filter(item=>{
+   if(!item||typeof item!=='object')return false;
+   const u=keyUrl(item.url),t=keyTitle(item.title);
+   if(!u||urls.has(u)||(t&&titles.has(t)))return false;
+   urls.add(u);if(t)titles.add(t);return true;
+  });
  }
  function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
  function safeUrl(value){try{const u=new URL(String(value??''),location.href);return /^https?:$/.test(u.protocol)?u.href:'#';}catch(e){return '#';}}
