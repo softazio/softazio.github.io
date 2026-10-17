@@ -5,6 +5,27 @@ main{padding-top:8px}.top h1{font-size:clamp(25px,6.5vw,38px);margin:3px 0}.mini
 @media(max-height:700px){main{padding-top:5px}.top .mini{display:none}.stage .syllable{font-size:68px}.stage .syllable.word{font-size:52px}.stage{padding-top:2px;padding-bottom:5px}.panel{padding:9px}.intro-copy{margin:3px 0 6px}.legend{margin:2px 0}}
 </style><link rel="stylesheet" href="../appearance.css?v=4">
 <script src="../appearance.js?v=3"></script>
+<style id="patacara-theme-colors">
+/* Keep game surfaces and controls in the same palette as the selected theme. */
+html[data-sz-theme="white"]{--pb-stage:#edf4f8;--pb-ink:#172d3a;--pb-active:#165e82;--pb-on-active:#fff;--pb-ring:#165e82}
+html[data-sz-theme="black"]{--pb-stage:#102630;--pb-ink:#eef6f8;--pb-active:#f6df36;--pb-on-active:#17202a;--pb-ring:#f6df36}
+html[data-sz-theme="forest"]{--pb-stage:#21473c;--pb-ink:#f7fff8;--pb-active:#ffe786;--pb-on-active:#17362b;--pb-ring:#ffe786}
+html[data-sz-theme="pink"]{--pb-stage:#fff8fb;--pb-ink:#4b2536;--pb-active:#8e2355;--pb-on-active:#fff;--pb-ring:#8e2355}
+html[data-sz-theme] body main .stage{background:var(--pb-stage)!important;border-color:var(--sz-line)!important;color:var(--pb-ink)!important}
+html[data-sz-theme] body main .stage :is(.beat,.legend,.legend span){color:var(--pb-ink)!important}
+html[data-sz-theme] body main .stage .syllable{background:transparent!important;color:var(--pb-ink)!important;text-shadow:none!important}
+html[data-sz-theme] body main .stage .letter-key{background:var(--sz-bg)!important;color:var(--sz-text)!important;border:2px solid var(--sz-line)!important}
+html[data-sz-theme] body main .stage .letter-key.active{background:var(--pb-active)!important;color:var(--pb-on-active)!important;border-color:var(--pb-on-active)!important;box-shadow:0 0 0 3px var(--pb-ring)!important;transform:scale(1.08)}
+html[data-sz-theme] body main :is(.scoreline,.scoreguide){background:var(--pb-stage)!important;border-color:var(--sz-line)!important}
+html[data-sz-theme] body main .scoreguide .goal{background:var(--sz-bg)!important}
+html[data-sz-theme] body main .scoreguide :is(th,td){border-color:var(--sz-line)!important}
+html[data-sz-theme] body main .progress{background:var(--sz-line)!important}
+html[data-sz-theme] body main .progress div{background:var(--pb-active)!important}
+html[data-sz-theme] body main .stage.flash{box-shadow:inset 0 0 0 5px var(--pb-ring)!important}
+html[data-sz-theme] body main .stage .dot{background:var(--sz-line)!important;border:1px solid var(--pb-ink)}
+html[data-sz-theme] body main .stage .dot.on{background:var(--pb-active)!important;box-shadow:0 0 0 3px var(--sz-line)!important}
+html[data-sz-theme] body main #tap.spoken{outline:3px solid var(--sz-text)!important;outline-offset:2px}
+</style>
 </head><body><main><div class="top"><div><div class="mini">SOFTAZIO ORIGINAL GAME 03</div><h1>PATACARA BEAT!</h1></div><button class="secondary" id="sound" aria-pressed="true">♫ 音 ON</button></div><p class="intro-copy">声に出して、光った文字をタップ！</p>
 <div class="panel"><div class="buttons"><button id="play">▶ スタート</button><button class="secondary" id="pause" disabled>一時停止</button><button class="secondary" id="restart">↺ リセット</button></div><div class="settings"><div><label for="speed">テンポ</label><select id="speed"><option value="105">ゆっくり</option><option value="140" selected>ふつう</option><option value="180">はやい</option></select></div><div><label for="course">コース</label><select id="course"><option value="basic">パ・タ・カ・ラ</option><option value="repeat">同じ音を3回</option><option value="mix">ランダムチャレンジ</option><option value="special">スペシャル：は・か・た・の・しお！</option></select></div></div>
 <div class="stage" aria-live="off"><div class="beat" id="beat">READY?</div><button type="button" class="syllable" id="syllable" aria-live="polite" aria-label="タップしてスタート。プレイ中はタップで発声を記録">♪</button><div class="queue" id="queue" aria-label="光った文字をタップ"><button type="button" class="letter-key">パ</button><button type="button" class="letter-key">タ</button><button type="button" class="letter-key">カ</button><button type="button" class="letter-key">ラ</button></div><div class="legend"><span class="dot" id="dot"></span><span id="hint">音符をタップ、または上のスタートで開始</span></div></div>
