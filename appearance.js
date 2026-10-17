@@ -9,13 +9,20 @@
   apply();
   document.addEventListener('DOMContentLoaded',function(){
     const host=document.createElement('div');
-    host.className='sz-settings';
-    host.innerHTML='<button class="sz-toggle" type="button" aria-expanded="false" aria-controls="sz-settings-panel">⚙ 表示設定</button>'+
+    host.className='sz-settings sz-footer-settings';
+    host.innerHTML='<button class="sz-toggle" type="button" aria-expanded="false" aria-controls="sz-settings-panel">表示設定</button>'+
       '<div class="sz-panel" id="sz-settings-panel" hidden role="group" aria-label="表示設定">'+
       '<strong>表示設定</strong><fieldset><legend>背景色</legend><div class="sz-choices">'+
       '<button type="button" class="sz-choice" data-theme="white">白</button><button type="button" class="sz-choice" data-theme="black">黒</button>'+
       '</div></fieldset><button type="button" class="sz-close">閉じる</button></div>';
-    document.body.appendChild(host);
+    let footer=document.querySelector('footer');
+    if(!footer){footer=document.createElement('footer');footer.className='sz-utility-footer';document.body.appendChild(footer)}
+    const footerLinks=footer.querySelector('.footer-links');
+    if(footerLinks){
+      const contact=Array.from(footerLinks.querySelectorAll('a')).find(a=>/contact/i.test(a.textContent)||/contact\.html/.test(a.getAttribute('href')||''));
+      if(contact)contact.insertAdjacentElement('afterend',host);else footerLinks.appendChild(host);
+    }else{footer.appendChild(host)}
+
     const toggle=host.querySelector('.sz-toggle'),panel=host.querySelector('.sz-panel');
     function sync(){host.querySelectorAll('[data-theme]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.theme===theme)))}
     function close(){panel.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.focus()}
