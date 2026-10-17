@@ -18,11 +18,6 @@ html[data-sz-theme] body svg#plot circle{fill:var(--sz-text)!important}
 html[data-sz-theme] body svg#plot line{stroke:var(--sz-line)!important}
 html[data-sz-theme] body svg#plot line[stroke-dasharray]{stroke:var(--sz-text)!important}
 html[data-sz-theme] body :is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid var(--sz-accent)!important;outline-offset:4px}
-/* Increase readable copy, without zooming the game canvas or changing fixed layout widths. */
-html[data-sz-font="large"] :is(p,small,.brand-desc,.service-grid small,.feed-title,.feed-meta,.link-list a,.topic-strip a,.news-tabs a,.search-result span,.search-result strong,.header-story span,.header-story strong,.footer-links a){font-size:clamp(13px,1.1em,20px)!important;line-height:1.65!important}
-html[data-sz-font="large"] :is(.service-grid strong,.start-card h3,.quick-card h2){font-size:clamp(24px,3.9vw,49px)!important;line-height:1.12!important}
-html[data-sz-font="large"] .service-grid a{min-height:170px}
-@media(max-width:820px){html[data-sz-font="large"] .service-grid a{min-height:165px;padding-right:24px}html[data-sz-font="large"] .service-grid strong{font-size:clamp(20px,5.7vw,30px)!important}}
 .sz-settings{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:200;font:600 14px/1.4 Arial,"Noto Sans JP",sans-serif}
 .sz-settings button{cursor:pointer;font:inherit}
 .sz-toggle{background:#f6df36;color:#17202a;border:2px solid #17202a;border-radius:999px;padding:11px 17px;box-shadow:0 3px 18px #0005;min-height:44px}
@@ -50,12 +45,12 @@ html[data-sz-font="large"] .service-grid a{min-height:170px}
 
 
 /* Paired interactive colors, after copy and surface rules. The same pair applies in every state. */
-html[data-sz-theme] body :is(main,header,footer,.sz-settings) :is(button,.btn,.action,.sz-back-home,.sz-item-link,.link,.arrow,.trial,.news-tabs a.active):not(.art *, .scene-wrap *, .stage *),
+html[data-sz-theme] body :is(main,header,footer) :is(button,.btn,.action,.sz-back-home,.sz-item-link,.link,.arrow,.trial,.news-tabs a.active):not(.art *, .scene-wrap *, .stage *),
 html[data-sz-theme] body > .sz-settings .sz-toggle{
  background:var(--sz-button)!important;color:var(--sz-button-text)!important;border:2px solid var(--sz-button)!important;
  text-shadow:none!important;opacity:1!important;filter:none!important;box-shadow:none!important;
 }
-html[data-sz-theme] body :is(main,header,footer,.sz-settings) :is(button,.btn,.action,.sz-back-home,.sz-item-link,.link,.arrow,.trial,.news-tabs a.active):not(.art *, .scene-wrap *, .stage *) :is(span,strong,b,small,em,i){color:inherit!important}
+html[data-sz-theme] body :is(main,header,footer) :is(button,.btn,.action,.sz-back-home,.sz-item-link,.link,.arrow,.trial,.news-tabs a.active):not(.art *, .scene-wrap *, .stage *) :is(span,strong,b,small,em,i){color:inherit!important}
 html[data-sz-theme] body :is(main,header,footer) :is(.action,.btn,.sz-back-home,.sz-item-link){min-height:48px}
 html[data-sz-theme] body .simulator-first .action{font-size:18px;font-weight:800;line-height:1.5;padding:16px 20px}
 html[data-sz-theme] body .sz-settings{z-index:10000}
@@ -74,3 +69,14 @@ html[data-sz-theme] body main .scoreguide .goal{background:var(--sz-bg)!importan
 html[data-sz-theme] body div[style*="background:#f6df36"]{background:var(--sz-panel)!important;color:var(--sz-text)!important}
 
 html[data-sz-theme] body .scene-wrap .modal :is(h1,h2,h3,p,span,strong,small){color:var(--sz-text)!important}
+
+/* Header-right theme controls; color swatches never invert on selection. */
+html[data-sz-theme] body{padding-top:64px!important}
+html[data-sz-theme] body .site-header{top:64px!important}
+html[data-sz-theme] body > .sz-settings{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;bottom:auto!important;z-index:10000}
+html[data-sz-theme] body > .sz-settings::before{content:"";position:fixed;inset:0 0 auto;height:calc(64px + env(safe-area-inset-top));background:var(--sz-bg);border-bottom:1px solid var(--sz-line);z-index:-1}
+html[data-sz-theme] body > .sz-settings .sz-panel{top:54px;bottom:auto!important;max-height:calc(100dvh - 90px);overflow-y:auto}
+html[data-sz-theme] body > .sz-settings .sz-choice[data-theme="white"]{background:#fff!important;color:#111!important;border:2px solid #111!important}
+html[data-sz-theme] body > .sz-settings .sz-choice[data-theme="black"]{background:#111!important;color:#fff!important;border:2px solid #777!important}
+html[data-sz-theme] body > .sz-settings .sz-choice[aria-pressed="true"]{outline:3px solid var(--sz-text)!important;outline-offset:3px;box-shadow:none!important}
+html[data-sz-theme] body > .sz-settings .sz-choices{gap:16px;padding:5px}
