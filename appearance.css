@@ -106,3 +106,28 @@ html[data-sz-theme] body :is(.feed-tag,.news-tabs a.active,.service-grid a:hover
 html[data-sz-theme] .sz-toggle{background:var(--sz-button)!important;color:var(--sz-button-text)!important;border-color:var(--sz-line)!important}
 html[data-sz-theme] .sz-choice[aria-pressed="true"]{border-color:#111;outline-color:#111}
 html[data-sz-theme] .sz-choice[data-theme="black"]{background:#111;color:#fff}
+
+/* Complete paired surfaces for category pages and utility panels. */
+html[data-sz-theme] body :is(.simulator-first,.item-card,.item-compare thead,.tech-usecase,.sz-orbit-core,.sz-orbit-node,.sz-finder,.sz-find-item,.sz-equipment-card,.category-card,.product-hero-card,.big,.history-scroll,.history-reading,.modal,.scoreline,.scoreguide,.scoreguide .goal,.art-showcase figure,.search-results::before){
+ background:var(--sz-panel)!important;color:var(--sz-text)!important;border-color:var(--sz-line)!important;
+}
+html[data-sz-theme] body :is(.action,.sz-item-link,.link,.arrow,.trial){
+ background:var(--sz-button)!important;color:var(--sz-button-text)!important;border:1px solid var(--sz-line)!important;
+}
+html[data-sz-theme] body :is(.action,.sz-item-link,.link,.arrow,.trial,button,.btn) :is(span,strong,b,small,em){
+ color:var(--sz-button-text)!important;
+}
+html[data-sz-theme] body :is(b,em,time,figcaption,dt,dd,caption,code,output){color:var(--sz-text)!important}
+html[data-sz-theme] body :is(.section,.tech-intro,.tech-card,.item-card,.item-compare th,.item-compare td,.sz-breadcrumb,.product-meta span,.contact-types span,header){border-color:var(--sz-line)!important}
+html[data-sz-theme] body .action:hover,html[data-sz-theme] body .action:focus-visible{outline:3px solid var(--sz-accent)!important;outline-offset:3px}
+html[data-sz-theme] body :is(.simulator-first,.item-card,.tech-usecase,.history-reading,.sz-finder,.modal) :is(p,li,span,strong,b,small,a:not(.action,.sz-item-link,.btn)){color:var(--sz-text)!important}
+html[data-sz-theme] body .search-results::before{background:var(--sz-panel)!important;color:var(--sz-text)!important;border-color:var(--sz-line)!important}
+html[data-sz-theme] body .news-tabs a.active{background:var(--sz-button)!important;color:var(--sz-button-text)!important}
+html[data-sz-theme] body .formula{color:var(--sz-text)!important}
+html[data-sz-theme] body .home-search .search-box input{background:var(--sz-panel)!important;color:var(--sz-text)!important;border:1px solid var(--sz-line)!important}
+html[data-sz-theme] body svg#plot{background:var(--sz-bg)!important;border-color:var(--sz-line)!important}
+html[data-sz-theme] body svg#plot text{fill:var(--sz-text)!important}
+html[data-sz-theme] body svg#plot polyline{stroke:var(--sz-accent)!important}
+html[data-sz-theme] body svg#plot circle{fill:var(--sz-accent)!important}
+html[data-sz-theme] body svg#plot line{stroke:var(--sz-line)!important}
+html[data-sz-theme] body svg#plot line[stroke-dasharray]{stroke:var(--sz-text)!important}
