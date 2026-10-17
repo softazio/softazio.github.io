@@ -75,10 +75,10 @@ html[data-sz-theme] body .sz-settings .sz-choice[data-theme="black"]{background:
 html[data-sz-theme] body .sz-settings .sz-choice[aria-pressed="true"]{outline:3px solid var(--sz-text)!important;outline-offset:3px;box-shadow:none!important}
 html[data-sz-theme] body .sz-settings .sz-choices{gap:16px;padding:5px}
 /* Quiet, in-flow footer control next to CONTACT. */
-html[data-sz-theme] body .sz-footer-settings{position:relative!important;inset:auto!important;display:inline-block;flex:0 0 auto;justify-self:end;align-self:center;margin:0;font:inherit;color:var(--sz-text)!important;z-index:10000}
-html[data-sz-theme] body .sz-footer-settings::before{display:none!important}
-html[data-sz-theme] body .sz-footer-settings .sz-toggle{display:inline-block;background:transparent!important;color:var(--sz-text)!important;border:0!important;border-radius:0;padding:8px 0;min-height:44px;font:600 12px/1.5 Arial,"Noto Sans JP",sans-serif;letter-spacing:0;box-shadow:none!important}
-html[data-sz-theme] body .sz-footer-settings .sz-toggle:hover{text-decoration:underline}
-html[data-sz-theme] body .sz-footer-settings .sz-panel{position:absolute;top:auto!important;bottom:calc(100% + 8px)!important;right:0;max-height:min(60dvh,360px);width:min(280px,calc(100vw - 32px));overflow-y:auto;font:600 14px/1.5 Arial,"Noto Sans JP",sans-serif;box-sizing:border-box}
+html[data-sz-theme] body .sz-settings.sz-footer-settings{position:relative!important;inset:auto!important;display:inline-block;flex:0 0 auto;justify-self:end;align-self:center;margin:0;font:inherit;color:var(--sz-text)!important;z-index:10000}
+html[data-sz-theme] body .sz-settings.sz-footer-settings::before{display:none!important}
+html[data-sz-theme] body .sz-settings.sz-footer-settings .sz-toggle{display:inline-block;background:transparent!important;color:var(--sz-text)!important;border:0!important;border-radius:0;padding:8px 0;min-height:44px;font:600 12px/1.5 Arial,"Noto Sans JP",sans-serif;letter-spacing:0;box-shadow:none!important}
+html[data-sz-theme] body .sz-settings.sz-footer-settings .sz-toggle:hover{text-decoration:underline}
+html[data-sz-theme] body .sz-settings.sz-footer-settings .sz-panel{position:absolute;top:auto!important;bottom:calc(100% + 8px)!important;right:0;max-height:min(60dvh,360px);width:min(280px,calc(100vw - 32px));overflow-y:auto;font:600 14px/1.5 Arial,"Noto Sans JP",sans-serif;box-sizing:border-box}
 html[data-sz-theme] body footer .footer-links{align-items:center;flex-wrap:wrap}
 html[data-sz-theme] body .sz-utility-footer{display:flex;justify-content:flex-end;padding:12px 20px;border-top:1px solid var(--sz-line);margin-top:24px}
