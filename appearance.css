@@ -72,3 +72,5 @@ html[data-sz-theme] body main :is(.scoreline,.scoreguide){background:var(--sz-pa
 html[data-sz-theme] body main :is(.scoreline,.scoreguide) :is(span,strong,summary,p,th,td,li,b){color:var(--sz-text)!important}
 html[data-sz-theme] body main .scoreguide .goal{background:var(--sz-bg)!important;color:var(--sz-text)!important}
 html[data-sz-theme] body div[style*="background:#f6df36"]{background:var(--sz-panel)!important;color:var(--sz-text)!important}
+
+html[data-sz-theme] body .scene-wrap .modal :is(h1,h2,h3,p,span,strong,small){color:var(--sz-text)!important}
