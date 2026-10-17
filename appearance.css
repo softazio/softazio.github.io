@@ -82,3 +82,14 @@ html[data-sz-theme] body .sz-settings.sz-footer-settings .sz-toggle:hover{text-d
 html[data-sz-theme] body .sz-settings.sz-footer-settings .sz-panel{position:absolute;top:auto!important;bottom:calc(100% + 8px)!important;right:0;max-height:min(60dvh,360px);width:min(280px,calc(100vw - 32px));overflow-y:auto;font:600 14px/1.5 Arial,"Noto Sans JP",sans-serif;box-sizing:border-box}
 html[data-sz-theme] body footer .footer-links{align-items:center;flex-wrap:wrap}
 html[data-sz-theme] body .sz-utility-footer{display:flex;justify-content:flex-end;padding:12px 20px;border-top:1px solid var(--sz-line);margin-top:24px}
+
+/* Footer trigger is plain text in every state, including keyboard focus. */
+html[data-sz-theme] body footer .sz-settings.sz-footer-settings button.sz-toggle,
+html[data-sz-theme] body footer .sz-settings.sz-footer-settings button.sz-toggle:is(:hover,:active,:focus,:focus-visible){
+ background:none!important;background-image:none!important;color:var(--sz-text)!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;filter:none!important;
+ outline:none!important;padding:0!important;min-height:44px!important;font:inherit!important;
+ font-size:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important;
+ text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;
+}
+html[data-sz-theme] body footer .sz-settings.sz-footer-settings button.sz-toggle:is(:hover,:focus-visible){text-decoration-color:currentColor!important}
