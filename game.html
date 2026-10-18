@@ -22,8 +22,13 @@
 <meta name="google-adsense-account" content="ca-pub-8163972323891550">
 <link rel="stylesheet" href="appearance.css?v=14">
 <script src="appearance.js?v=6"></script>
-</head>
-<body>
+<style>
+/* Reserve a visible footer below the fixed game canvas. */
+html body.sz-fullscreen-game #game{bottom:calc(48px + env(safe-area-inset-bottom))!important}
+html body.sz-fullscreen-game footer.sz-utility-footer{position:fixed!important;left:0;right:0;bottom:0;z-index:10001;box-sizing:border-box;height:calc(48px + env(safe-area-inset-bottom));margin:0!important;padding:0 16px env(safe-area-inset-bottom)!important;display:flex!important;align-items:center;justify-content:flex-end;gap:18px;touch-action:manipulation}
+html body.sz-fullscreen-game footer.sz-utility-footer .footer-links{display:flex;gap:18px;align-items:center}
+</style></head>
+<body class="sz-fullscreen-game">
   <div id="game"></div>
 
   <div id="controls" aria-label="game controls">
