@@ -108,3 +108,15 @@ html[data-sz-theme] body footer .sz-settings.sz-footer-settings .sz-panel :is(st
 html[data-sz-theme] body footer .sz-settings.sz-footer-settings .sz-panel button.sz-choice[data-theme="white"]{background:#fff!important;color:#111!important;border:2px solid #111!important}
 html[data-sz-theme] body footer .sz-settings.sz-footer-settings .sz-panel button.sz-choice[data-theme="black"]{background:#111!important;color:#fff!important;border:2px solid #777!important}
 html[data-sz-theme] body footer .sz-settings.sz-footer-settings .sz-panel button.sz-close{background:var(--sz-button)!important;color:var(--sz-button-text)!important}
+
+/* One small home link in every footer, matching the quiet footer controls. */
+html[data-sz-theme] body footer a.sz-footer-home,
+html[data-sz-theme] body footer a.sz-footer-home:is(:hover,:active,:focus-visible){
+ display:inline-flex!important;align-items:center!important;min-height:44px!important;
+ padding:0!important;margin:0!important;background:none!important;color:var(--sz-text)!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;text-shadow:none!important;
+ font:600 12px/1.5 Arial,"Noto Sans JP",sans-serif!important;letter-spacing:0!important;
+ text-decoration:none!important;white-space:nowrap;
+}
+html[data-sz-theme] body footer a.sz-footer-home:is(:hover,:focus-visible){text-decoration:underline!important;text-underline-offset:4px}
+html[data-sz-theme] body footer .sz-footer-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:18px;grid-column:1/-1}
