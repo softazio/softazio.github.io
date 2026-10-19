@@ -10,12 +10,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CATEGORIES = {
     "care-dementia.html": "認知症",
     "care-technique.html": "介護技術",
-    "product-care-worker-exam.html": "国家試験",
-    "care-mind.html": "こころ",
-    "care-videos.html": "動画",
-    "care-ai.html": "介護AI",
+    "product-care-worker-exam.html": "介護福祉士国家試験",
+    "care-mind.html": "メンタルケア",
+    "care-equipment.html": "福祉用具ガイド",
+    "care-ai.html": "介護とAI",
     "care-notes.html": "CARE NOTES",
-    "play.html": "PLAY",
+    "play.html": "脳トレゲーム",
     "money.html": "お金の備え",
     "population.html": "人口統計",
 }
@@ -39,10 +39,16 @@ for filename, label in CATEGORIES.items():
     html = path.read_text(encoding="utf-8")
     if html.count('class="sz-breadcrumb"') != 1:
         errors.append(f"Breadcrumb count: {filename}")
-    if html.count("← トップへ戻る") != 1:
-        errors.append(f"Back-link count: {filename}")
     if not re.search(r'href="index\.html"[^>]*>TOP</a>', html):
         errors.append(f"Home breadcrumb missing: {filename}")
+    footer_home = re.findall(
+        r'<a\b(?=[^>]*\bclass="[^"]*\bsz-footer-home\b[^"]*")'
+        r'(?=[^>]*\bhref="/?index\.html(?:[?#][^"]*)?")[^>]*>'
+        r'\s*トップへ\s*</a>',
+        html,
+    )
+    if len(footer_home) != 1:
+        errors.append(f"Footer home-link count: {filename}")
 
 for path in ROOT.glob("*.html"):
     parser = LocalLinks()
