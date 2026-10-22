@@ -72,12 +72,24 @@ jobs:
                   'summary': desc[:220]
               })
 
+          items = items[:12]
+          feed_path = 'data/note-feed.json'
+          try:
+              with open(feed_path, encoding='utf-8') as f:
+                  current = json.load(f)
+          except (FileNotFoundError, json.JSONDecodeError, OSError):
+              current = {}
+
+          if current.get('items') == items:
+              print('No CARE NOTES item changes')
+              raise SystemExit(0)
+
           data = {
               'updated_at': __import__('datetime').datetime.now(timezone.utc).isoformat(),
-              'items': items[:12]
+              'items': items
           }
           os.makedirs('data', exist_ok=True)
-          with open('data/note-feed.json','w',encoding='utf-8') as f:
+          with open(feed_path,'w',encoding='utf-8') as f:
               json.dump(data, f, ensure_ascii=False, indent=2)
               f.write('\n')
           PY
