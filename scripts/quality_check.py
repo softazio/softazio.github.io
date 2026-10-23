@@ -19,6 +19,7 @@ CATEGORIES = {
     "money.html": "お金の備え",
     "population.html": "人口統計",
 }
+CORE_PAGES = {"index.html": "トップ", **CATEGORIES}
 errors = []
 class LocalLinks(HTMLParser):
     def __init__(self):
@@ -30,6 +31,34 @@ class LocalLinks(HTMLParser):
             url = a.get("href") if tag in ("a", "link") else a.get("src")
             if url:
                 self.links.append(url)
+
+for filename, label in CORE_PAGES.items():
+    path = ROOT / filename
+    if not path.is_file():
+        errors.append(f"Missing core page: {filename}")
+        continue
+    html = path.read_text(encoding="utf-8")
+    titles = re.findall(r"<title>(.*?)</title>", html, flags=re.I | re.S)
+    descriptions = re.findall(
+        r'<meta\b(?=[^>]*\bname=["\']description["\'])'
+        r'(?=[^>]*\bcontent=["\']([^"\']+)["\'])[^>]*>',
+        html,
+        flags=re.I,
+    )
+    viewports = re.findall(
+        r'<meta\b(?=[^>]*\bname=["\']viewport["\'])'
+        r'(?=[^>]*\bcontent=["\']([^"\']+)["\'])[^>]*>',
+        html,
+        flags=re.I,
+    )
+    if len(titles) != 1 or not titles[0].strip():
+        errors.append(f"Title count/content: {filename}")
+    if len(descriptions) != 1 or not descriptions[0].strip():
+        errors.append(f"Meta description count/content: {filename}")
+    if len(viewports) != 1 or "width=device-width" not in viewports[0].replace(" ", ""):
+        errors.append(f"Mobile viewport missing/invalid: {filename}")
+    if not re.search(r'<html\b[^>]*\blang=["\']ja["\']', html, flags=re.I):
+        errors.append(f"Japanese language declaration missing: {filename}")
 
 for filename, label in CATEGORIES.items():
     path = ROOT / filename
@@ -100,4 +129,7 @@ if errors:
     for issue in errors[:100]:
         print(" -", issue)
     sys.exit(1)
-print(f"SOFTAZIO quality check PASSED: {len(CATEGORIES)} categories, local links and pension code")
+print(
+    f"SOFTAZIO quality check PASSED: {len(CATEGORIES)} categories, "
+    "core metadata, local links and pension code"
+)
