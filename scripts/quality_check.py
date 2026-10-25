@@ -51,6 +51,7 @@ for filename, label in CORE_PAGES.items():
         html,
         flags=re.I,
     )
+    headings = re.findall(r"<h1\b[^>]*>(.*?)</h1>", html, flags=re.I | re.S)
     if len(titles) != 1 or not titles[0].strip():
         errors.append(f"Title count/content: {filename}")
     if len(descriptions) != 1 or not descriptions[0].strip():
@@ -59,6 +60,8 @@ for filename, label in CORE_PAGES.items():
         errors.append(f"Mobile viewport missing/invalid: {filename}")
     if not re.search(r'<html\b[^>]*\blang=["\']ja["\']', html, flags=re.I):
         errors.append(f"Japanese language declaration missing: {filename}")
+    if len(headings) != 1 or not re.sub(r"<[^>]+>", " ", headings[0]).strip():
+        errors.append(f"Primary heading count/content: {filename}")
 
 for filename, label in CATEGORIES.items():
     path = ROOT / filename
@@ -131,5 +134,5 @@ if errors:
     sys.exit(1)
 print(
     f"SOFTAZIO quality check PASSED: {len(CATEGORIES)} categories, "
-    "core metadata, local links and pension code"
+    "core metadata/headings, local links and pension code"
 )
