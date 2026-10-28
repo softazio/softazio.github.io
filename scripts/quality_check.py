@@ -122,6 +122,18 @@ else:
             errors.append(f"Pension calculator input missing: {field}")
     if "birth<='1962-04-01'" not in script:
         errors.append("Pension birthdate boundary missing")
+    for field in ("birthDate", "spouseBirthDate"):
+        if not re.search(
+            rf"\b{field}\s*:\s*['\"]1976-01-01['\"]",
+            script,
+        ):
+            errors.append(f"Pension reset default missing: {field}")
+    if not re.search(
+        r"Object\.entries\(defaults\).*?\$\(k\)\.value\s*=\s*v",
+        script,
+        flags=re.S,
+    ):
+        errors.append("Pension reset does not restore all defaults")
     if not re.search(r'src="finance-simulator\.js(?:\?[^"]*)?"', page):
         errors.append("Pension JS link missing")
     if subprocess.run(["node", "--check", str(js)], capture_output=True).returncode:
