@@ -31,9 +31,18 @@ function restore(s){
   if(!e||typeof e!=='object'||typeof e.title!=='string'||!e.title.trim()||e.title.length>100||!validBackupDate(e.date)||!['future','past'].includes(e.type)||!['once','annual'].includes(e.repeat)||typeof e.amount!=='number'||!Number.isFinite(e.amount))throw Error('イベントデータが不正です');
   return {date:e.date,title:e.title,type:e.type,amount:e.amount,repeat:e.repeat};
  });
- // 全件検証後に一括反映。失敗したバックアップは既存の入力を変更しない。
- for(const k of fields)$(k).value=nextFields[k];
- families=nextFamilies;events=nextEvents;renderLists();calculate();
+ // 入力形式の検証に加え、計算が成立する場合だけ復元を確定する。
+ // 計算が失敗した場合は、元の入力・登録データ・表示を戻す。
+ const previous=snapshot();
+ try{
+  for(const k of fields)$(k).value=nextFields[k];
+  families=nextFamilies;events=nextEvents;renderLists();
+  if(!calculate())throw Error('復元データの試算条件が不正です');
+ }catch(error){
+  for(const k of fields)$(k).value=previous.fields[k];
+  families=previous.families;events=previous.events;renderLists();calculate();
+  throw error;
+ }
 }
 function renderLists(){$('familyList').innerHTML=families.map((f,i)=>`<p>${safe(f.name)}（${safe(f.role)}・${safe(f.birth)}） <button class="secondary" data-family="${i}">削除</button></p>`).join('');$('eventRows').innerHTML=events.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<tr><td>${safe(e.date)}</td><td>${safe(e.title)}${e.repeat==='annual'?'（毎年）':''}</td><td>${Number(e.amount).toFixed(1)}</td><td>${e.type==='past'?'過去':'将来'}</td><td><button class="secondary" data-event="${events.indexOf(e)}">削除</button></td></tr>`).join('')}
 $('addFamily').onclick=()=>{
