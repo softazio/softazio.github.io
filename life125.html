@@ -4,7 +4,37 @@ const fields=['name','birth','endAge','cash','salary','expense','retireAge','pen
 let families=[],events=[];const $=id=>document.getElementById(id);const num=id=>Number($(id).value);const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const msg=s=>$('message').textContent=s;
 function ageAt(birth,year,month){const b=new Date(birth+'T00:00:00');return year-b.getFullYear()-(month<b.getMonth()+1?1:0)}
 function snapshot(){return {version:1,fields:Object.fromEntries(fields.map(k=>[k,$(k).value])),families,events}}
-function restore(s){if(!s||s.version!==1||!s.fields||!Array.isArray(s.families)||!Array.isArray(s.events))throw Error('対応していないデータ形式です');for(const k of fields)if(Object.hasOwn(s.fields,k))$(k).value=String(s.fields[k]).slice(0,100);families=s.families.filter(x=>x&&typeof x.name==='string'&&/^\d{4}-\d\d-\d\d$/.test(x.birth)).slice(0,100);events=s.events.filter(x=>x&&typeof x.title==='string'&&/^\d{4}-\d\d-\d\d$/.test(x.date)).slice(0,2000);renderLists();calculate()}
+function validBackupDate(value){
+ if(typeof value!=='string'||!/^\d{4}-\d\d-\d\d$/.test(value))return false;
+ const d=new Date(value+'T00:00:00');
+ return Number.isFinite(d.getTime())&&d.getFullYear()===Number(value.slice(0,4))&&d.getMonth()+1===Number(value.slice(5,7))&&d.getDate()===Number(value.slice(8,10));
+}
+function restore(s){
+ if(!s||typeof s!=='object'||Array.isArray(s)||s.version!==1||!s.fields||typeof s.fields!=='object'||Array.isArray(s.fields)||!Array.isArray(s.families)||!Array.isArray(s.events))throw Error('対応していないデータ形式です');
+ if(s.families.length>100||s.events.length>2000)throw Error('登録件数が多すぎます');
+ const nextFields={};
+ for(const k of fields){
+  const value=s.fields[k];
+  if(!Object.hasOwn(s.fields,k)||typeof value!=='string'||value.length>100)throw Error('設定項目が不正です');
+  if(k==='birth'){if(!validBackupDate(value)||new Date(value+'T00:00:00')>new Date())throw Error('生年月日が不正です')}
+  else if(k!=='name'&&(!value.trim()||!Number.isFinite(Number(value))))throw Error('数値項目が不正です');
+  nextFields[k]=value;
+ }
+ const age=ageAt(nextFields.birth,new Date().getFullYear(),new Date().getMonth()+1);
+ const endAge=Number(nextFields.endAge);
+ if(!Number.isInteger(endAge)||endAge<age||endAge>125||Number(nextFields.inflation)<=-100||Number(nextFields.returnRate)<=-100||Number(nextFields.debtRate)<0)throw Error('試算条件が不正です');
+ const nextFamilies=s.families.map(f=>{
+  if(!f||typeof f!=='object'||typeof f.name!=='string'||!f.name.trim()||f.name.length>60||typeof f.role!=='string'||f.role.length>40||!validBackupDate(f.birth))throw Error('家族データが不正です');
+  return {name:f.name,role:f.role,birth:f.birth};
+ });
+ const nextEvents=s.events.map(e=>{
+  if(!e||typeof e!=='object'||typeof e.title!=='string'||!e.title.trim()||e.title.length>100||!validBackupDate(e.date)||!['future','past'].includes(e.type)||!['once','annual'].includes(e.repeat)||typeof e.amount!=='number'||!Number.isFinite(e.amount))throw Error('イベントデータが不正です');
+  return {date:e.date,title:e.title,type:e.type,amount:e.amount,repeat:e.repeat};
+ });
+ // 全件検証後に一括反映。失敗したバックアップは既存の入力を変更しない。
+ for(const k of fields)$(k).value=nextFields[k];
+ families=nextFamilies;events=nextEvents;renderLists();calculate();
+}
 function renderLists(){$('familyList').innerHTML=families.map((f,i)=>`<p>${safe(f.name)}（${safe(f.role)}・${safe(f.birth)}） <button class="secondary" data-family="${i}">削除</button></p>`).join('');$('eventRows').innerHTML=events.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<tr><td>${safe(e.date)}</td><td>${safe(e.title)}${e.repeat==='annual'?'（毎年）':''}</td><td>${Number(e.amount).toFixed(1)}</td><td>${e.type==='past'?'過去':'将来'}</td><td><button class="secondary" data-event="${events.indexOf(e)}">削除</button></td></tr>`).join('')}
 $('addFamily').onclick=()=>{if(!$('familyName').value.trim()||!$('familyBirth').value)return alert('呼び名と生年月日を入力してください');families.push({name:$('familyName').value.trim(),role:$('familyRole').value.trim(),birth:$('familyBirth').value});renderLists()};$('familyList').onclick=e=>{if(e.target.dataset.family!==undefined){families.splice(Number(e.target.dataset.family),1);renderLists()}};
 $('addEvent').onclick=()=>{if(!$('eventDate').value||!$('eventTitle').value.trim())return alert('日付とイベント名を入力してください');events.push({date:$('eventDate').value,title:$('eventTitle').value.trim(),type:$('eventType').value,amount:num('eventAmount'),repeat:$('eventRepeat').value});renderLists();calculate()};$('eventRows').onclick=e=>{if(e.target.dataset.event!==undefined){events.splice(Number(e.target.dataset.event),1);renderLists();calculate()}};
