@@ -117,3 +117,32 @@ test('over-limit backup and unsupported event type are rejected', () => {
   assert.throws(()=>restore(wrongType),/イベントデータ/);
   assert.deepEqual(snapshot(),before);
 });
+
+test('unbounded investment growth invalidates rather than displaying Infinity', () => {
+  const {get,calculate}=app();
+  get('returnRate').value='1e308';
+  calculate();
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('chart').innerHTML,'');
+  assert.match(get('message').textContent,/範囲/);
+  get('returnRate').value='3';
+  calculate();
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('negative wage growth below minus 100 percent is rejected', () => {
+  const {get,calculate}=app();
+  get('wageGrowth').value='-200';
+  calculate();
+  assert.equal(get('stats').innerHTML,'');
+  assert.match(get('message').textContent,/範囲/);
+});
+
+test('overflow of combined cash and investments does not render invalid totals', () => {
+  const {get,calculate}=app();
+  get('cash').value='1e308';
+  get('invest').value='1e308';
+  calculate();
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.match(get('message').textContent,/範囲/);
+});
