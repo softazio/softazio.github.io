@@ -23,9 +23,10 @@ function app() {
   };
   let canClear = true;
   const storage = {removeItem:()=>{}};
-  const context = vm.createContext({document:{getElementById:get},localStorage:storage,confirm:()=>canClear});
+  const alerts=[];
+  const context = vm.createContext({document:{getElementById:get},localStorage:storage,confirm:()=>canClear,alert:message=>alerts.push(message)});
   vm.runInContext(script, context, {timeout:3000});
-  return {get, storage, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
+  return {get, alerts, storage, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -205,4 +206,60 @@ test('overflowing simulation does not overwrite saved data', () => {
   get('save').onclick();
   assert.equal(writes,0);
   assert.match(get('message').textContent,/範囲/);
+});
+
+test('event creation rejects blank amount without altering existing events', () => {
+  const {get,snapshot,alerts}=app();
+  get('eventDate').value='2030-04-01';
+  get('eventTitle').value='進学';
+  get('eventAmount').value='';
+  const before=snapshot().events;
+  get('addEvent').onclick();
+  assert.deepEqual(snapshot().events,before);
+  assert.match(alerts.at(-1),/収支額/);
+});
+
+test('event creation rejects impossible date and non-finite amount', () => {
+  const {get,snapshot,alerts}=app();
+  get('eventTitle').value='進学';
+  get('eventAmount').value='-10';
+  get('eventDate').value='2030-02-30';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.length,0);
+  assert.match(alerts.at(-1),/正しい日付/);
+  get('eventDate').value='2030-03-01';
+  get('eventAmount').value='1e309';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.length,0);
+  assert.match(alerts.at(-1),/収支額/);
+});
+
+test('event creation preserves valid zero and negative amounts', () => {
+  const {get,snapshot}=app();
+  get('eventDate').value='2030-04-01';
+  get('eventTitle').value='進学';
+  get('eventAmount').value='0';
+  get('eventType').value='future';
+  get('eventRepeat').value='once';
+  get('addEvent').onclick();
+  assert.deepEqual(snapshot().events[0],{date:'2030-04-01',title:'進学',type:'future',amount:0,repeat:'once'});
+  get('eventAmount').value='-12.5';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[1].amount,-12.5);
+});
+
+test('event creation rejects unsupported event category and repetition', () => {
+  const {get,snapshot,alerts}=app();
+  get('eventDate').value='2030-04-01';
+  get('eventTitle').value='進学';
+  get('eventAmount').value='-10';
+  get('eventType').value='unknown';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.length,0);
+  assert.match(alerts.at(-1),/種類/);
+  get('eventType').value='future';
+  get('eventRepeat').value='monthly';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.length,0);
+  assert.match(alerts.at(-1),/繰り返し/);
 });
