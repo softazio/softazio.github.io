@@ -263,3 +263,54 @@ test('event creation rejects unsupported event category and repetition', () => {
   assert.equal(snapshot().events.length,0);
   assert.match(alerts.at(-1),/繰り返し/);
 });
+
+test('family creation rejects invalid and future birthdates without mutation', () => {
+  const {get,snapshot,alerts}=app();
+  get('familyName').value='家族';
+  for(const birth of ['2026-02-30','2999-01-01','']) {
+    get('familyBirth').value=birth;
+    get('addFamily').onclick();
+    assert.equal(snapshot().families.length,0);
+    assert.match(alerts.at(-1),/生年月日/);
+  }
+});
+
+test('family creation accepts a valid leap day and preserves nickname', () => {
+  const {get,snapshot}=app();
+  get('familyName').value=' 家族 ';
+  get('familyRole').value='配偶者';
+  get('familyBirth').value='2000-02-29';
+  get('addFamily').onclick();
+  assert.deepEqual(snapshot().families,[{name:'家族',role:'配偶者',birth:'2000-02-29'}]);
+});
+
+test('family creation enforces name and role lengths', () => {
+  const {get,snapshot,alerts}=app();
+  get('familyBirth').value='2000-01-01';
+  get('familyName').value='x'.repeat(61);
+  get('addFamily').onclick();
+  assert.equal(snapshot().families.length,0);
+  get('familyName').value='家族';
+  get('familyRole').value='x'.repeat(41);
+  get('addFamily').onclick();
+  assert.equal(snapshot().families.length,0);
+  assert.match(alerts.at(-1),/続柄/);
+});
+
+test('family creation stops at the 100-person backup limit', () => {
+  const {get,snapshot,alerts}=app();
+  get('familyName').value='家族';
+  get('familyBirth').value='2000-01-01';
+  for(let i=0;i<101;i++)get('addFamily').onclick();
+  assert.equal(snapshot().families.length,100);
+  assert.match(alerts.at(-1),/100人/);
+});
+
+test('backup restoration rejects future family birthdate atomically', () => {
+  const {restore,snapshot}=app();
+  const before=snapshot();
+  const invalid=structuredClone(before);
+  invalid.families=[{name:'家族',role:'家族',birth:'2999-01-01'}];
+  assert.throws(()=>restore(invalid),/家族データ/);
+  assert.deepEqual(snapshot(),before);
+});
