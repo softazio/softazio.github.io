@@ -23,7 +23,7 @@ function app() {
   };
   const context = vm.createContext({document:{getElementById:get}});
   vm.runInContext(script, context, {timeout:3000});
-  return {get, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000})};
+  return {get, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -72,4 +72,48 @@ test('valid leap-day birthdate remains accepted', () => {
   const {get,calculate}=app();
   get('birth').value='1992-02-29'; calculate();
   assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('valid JSON backup restores family and event', () => {
+  const {restore,snapshot}=app();
+  const backup=snapshot();
+  backup.families=[{name:'家族',role:'配偶者',birth:'1988-04-01'}];
+  backup.events=[{date:'2030-03-01',title:'進学',type:'future',amount:-10,repeat:'once'}];
+  restore(backup);
+  assert.deepEqual(snapshot().families,backup.families);
+  assert.deepEqual(snapshot().events,backup.events);
+});
+
+test('invalid JSON backup does not partially overwrite existing settings', () => {
+  const {restore,snapshot}=app();
+  const before=snapshot();
+  const bad=structuredClone(before);
+  bad.fields.salary='100';
+  bad.events=[{date:'2030-01-01',title:'不正',type:'future',amount:'Infinity',repeat:'once'}];
+  assert.throws(()=>restore(bad),/イベントデータ/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('invalid family date and missing field reject without mutation', () => {
+  const {restore,snapshot}=app();
+  const before=snapshot();
+  const invalidDate=structuredClone(before);
+  invalidDate.families=[{name:'家族',role:'家族',birth:'2026-02-30'}];
+  assert.throws(()=>restore(invalidDate),/家族データ/);
+  const missing=structuredClone(before);
+  delete missing.fields.salary;
+  assert.throws(()=>restore(missing),/設定項目/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('over-limit backup and unsupported event type are rejected', () => {
+  const {restore,snapshot}=app();
+  const before=snapshot();
+  const tooMany=structuredClone(before);
+  tooMany.events=Array.from({length:2001},()=>({date:'2030-01-01',title:'予定',type:'future',amount:0,repeat:'once'}));
+  assert.throws(()=>restore(tooMany),/登録件数/);
+  const wrongType=structuredClone(before);
+  wrongType.events=[{date:'2030-01-01',title:'予定',type:'unexpected',amount:0,repeat:'once'}];
+  assert.throws(()=>restore(wrongType),/イベントデータ/);
+  assert.deepEqual(snapshot(),before);
 });
