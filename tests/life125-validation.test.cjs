@@ -21,9 +21,11 @@ function app() {
     if (!elements.has(id)) elements.set(id, {value:defaults[id]??'',innerHTML:'',textContent:'',dataset:{}});
     return elements.get(id);
   };
-  const context = vm.createContext({document:{getElementById:get}});
+  let canClear = true;
+  const storage = {removeItem:()=>{}};
+  const context = vm.createContext({document:{getElementById:get},localStorage:storage,confirm:()=>canClear});
   vm.runInContext(script, context, {timeout:3000});
-  return {get, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
+  return {get, storage, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -145,4 +147,31 @@ test('overflow of combined cash and investments does not render invalid totals',
   calculate();
   assert.equal(get('yearRows').innerHTML,'');
   assert.match(get('message').textContent,/範囲/);
+});
+
+
+test('local storage deletion reports success only after removeItem succeeds', () => {
+  const {get,storage,clear}=app();
+  let deletedKey;
+  storage.removeItem=key=>{deletedKey=key};
+  clear();
+  assert.equal(deletedKey,'softazio-life125-v1');
+  assert.match(get('message').textContent,/削除しました/);
+});
+
+test('blocked local storage deletion is caught without a false success message', () => {
+  const {get,storage,clear}=app();
+  storage.removeItem=()=>{throw new Error('SecurityError')};
+  assert.doesNotThrow(clear);
+  assert.match(get('message').textContent,/削除できませんでした/);
+  assert.doesNotMatch(get('message').textContent,/削除しました/);
+});
+
+test('cancelled deletion leaves local storage untouched', () => {
+  const {storage,clear,setCanClear}=app();
+  let calls=0;
+  storage.removeItem=()=>{calls++};
+  setCanClear(false);
+  clear();
+  assert.equal(calls,0);
 });
