@@ -24,7 +24,7 @@ function restore(s){
  const endAge=Number(nextFields.endAge);
  if(!Number.isInteger(endAge)||endAge<age||endAge>125||Number(nextFields.inflation)<=-100||Number(nextFields.returnRate)<=-100||Number(nextFields.debtRate)<0)throw Error('試算条件が不正です');
  const nextFamilies=s.families.map(f=>{
-  if(!f||typeof f!=='object'||typeof f.name!=='string'||!f.name.trim()||f.name.length>60||typeof f.role!=='string'||f.role.length>40||!validBackupDate(f.birth))throw Error('家族データが不正です');
+  if(!f||typeof f!=='object'||typeof f.name!=='string'||!f.name.trim()||f.name.length>60||typeof f.role!=='string'||f.role.length>40||(!validBackupDate(f.birth)||new Date(f.birth+'T00:00:00')>new Date()))throw Error('家族データが不正です');
   return {name:f.name,role:f.role,birth:f.birth};
  });
  const nextEvents=s.events.map(e=>{
@@ -36,7 +36,13 @@ function restore(s){
  families=nextFamilies;events=nextEvents;renderLists();calculate();
 }
 function renderLists(){$('familyList').innerHTML=families.map((f,i)=>`<p>${safe(f.name)}（${safe(f.role)}・${safe(f.birth)}） <button class="secondary" data-family="${i}">削除</button></p>`).join('');$('eventRows').innerHTML=events.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<tr><td>${safe(e.date)}</td><td>${safe(e.title)}${e.repeat==='annual'?'（毎年）':''}</td><td>${Number(e.amount).toFixed(1)}</td><td>${e.type==='past'?'過去':'将来'}</td><td><button class="secondary" data-event="${events.indexOf(e)}">削除</button></td></tr>`).join('')}
-$('addFamily').onclick=()=>{if(!$('familyName').value.trim()||!$('familyBirth').value)return alert('呼び名と生年月日を入力してください');families.push({name:$('familyName').value.trim(),role:$('familyRole').value.trim(),birth:$('familyBirth').value});renderLists()};$('familyList').onclick=e=>{if(e.target.dataset.family!==undefined){families.splice(Number(e.target.dataset.family),1);renderLists()}};
+$('addFamily').onclick=()=>{
+ const name=$('familyName').value.trim(),role=$('familyRole').value.trim(),birth=$('familyBirth').value;
+ if(!name||name.length>60||role.length>40)return alert('呼び名（60文字以内）と続柄（40文字以内）を確認してください');
+ if(!validBackupDate(birth)||new Date(birth+'T00:00:00')>new Date())return alert('生年月日は今日以前の正しい日付を入力してください');
+ if(families.length>=100)return alert('家族は100人まで登録できます');
+ families.push({name,role,birth});renderLists()
+};$('familyList').onclick=e=>{if(e.target.dataset.family!==undefined){families.splice(Number(e.target.dataset.family),1);renderLists()}};
 $('addEvent').onclick=()=>{
  const date=$('eventDate').value,title=$('eventTitle').value.trim(),amountRaw=$('eventAmount').value;
  const type=$('eventType').value,repeat=$('eventRepeat').value;
