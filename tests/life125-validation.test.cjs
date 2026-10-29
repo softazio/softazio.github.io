@@ -60,3 +60,16 @@ test('invalid inflation clears results and explains the problem', () => {
   assert.equal(get('chart').innerHTML,'');
   assert.match(get('message').textContent,/物価/);
 });
+
+test('future birthdate is rejected', () => {
+  const {get,calculate}=app();
+  get('birth').value='2999-01-01'; calculate();
+  assert.equal(get('stats').innerHTML,'');
+  assert.match(get('message').textContent,/今日以前/);
+});
+
+test('valid leap-day birthdate remains accepted', () => {
+  const {get,calculate}=app();
+  get('birth').value='1992-02-29'; calculate();
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
