@@ -314,3 +314,26 @@ test('backup restoration rejects future family birthdate atomically', () => {
   assert.throws(()=>restore(invalid),/家族データ/);
   assert.deepEqual(snapshot(),before);
 });
+
+
+test('restoration rolls back when wage growth makes projection invalid', () => {
+  const {get,restore,snapshot}=app();
+  const before=snapshot();
+  const invalid=structuredClone(before);
+  invalid.fields.wageGrowth='-200';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+  assert.match(get('chart').innerHTML,/<svg/);
+});
+
+test('restoration rolls back when extreme returns overflow projection', () => {
+  const {get,restore,snapshot}=app();
+  const before=snapshot();
+  const invalid=structuredClone(before);
+  invalid.fields.returnRate='1e308';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+  assert.match(get('chart').innerHTML,/<svg/);
+});
