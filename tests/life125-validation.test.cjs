@@ -175,3 +175,34 @@ test('cancelled deletion leaves local storage untouched', () => {
   clear();
   assert.equal(calls,0);
 });
+
+test('invalid input does not overwrite a previously saved backup', () => {
+  const {get,storage}=app();
+  let writes=0;
+  storage.setItem=()=>{writes++};
+  get('salary').value='';
+  get('save').onclick();
+  assert.equal(writes,0);
+  assert.match(get('message').textContent,/数値入力/);
+});
+
+test('valid input saves a complete backup after validation', () => {
+  const {get,storage}=app();
+  let key, saved;
+  storage.setItem=(k,v)=>{key=k;saved=JSON.parse(v)};
+  get('save').onclick();
+  assert.equal(key,'softazio-life125-v1');
+  assert.equal(saved.version,1);
+  assert.equal(saved.fields.salary,'20');
+  assert.match(get('message').textContent,/保存しました/);
+});
+
+test('overflowing simulation does not overwrite saved data', () => {
+  const {get,storage}=app();
+  let writes=0;
+  storage.setItem=()=>{writes++};
+  get('returnRate').value='1e308';
+  get('save').onclick();
+  assert.equal(writes,0);
+  assert.match(get('message').textContent,/範囲/);
+});
