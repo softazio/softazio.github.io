@@ -24,10 +24,22 @@ function app() {
   let canClear = true;
   const storage = {removeItem:()=>{}};
   const alerts=[];
-  const context = vm.createContext({document:{getElementById:get},localStorage:storage,confirm:()=>canClear,alert:message=>alerts.push(message)});
+  const downloads=[], revoked=[], exportBlobs=[];
+  let exportFailure=null;
+  const context = vm.createContext({
+    document:{getElementById:get,createElement:()=>({click(){
+      if(exportFailure==='click')throw Error('download blocked');
+      downloads.push({href:this.href,filename:this.download});
+    }})},
+    localStorage:storage,confirm:()=>canClear,alert:message=>alerts.push(message),
+    Blob:class {constructor(parts,options){this.content=parts.join('');this.options=options;exportBlobs.push(this)}},
+    URL:{createObjectURL:()=>{if(exportFailure==='url')throw Error('object URL blocked');return 'blob:life125-test'},
+         revokeObjectURL:url=>revoked.push(url)},
+    setTimeout:callback=>callback()
+  });
   vm.runInContext(script, context, {timeout:3000});
   const importFile=async file=>{const input=get('import');input.files=file?[file]:[];input.value='life125-backup.json';await input.onchange({target:input});return input};
-  return {importFile,get, alerts, storage, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
+  return {importFile,get, alerts, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -403,4 +415,41 @@ test('valid local backup restores inputs and reports success', () => {
   get('load').onclick();
   assert.equal(snapshot().fields.salary,'35');
   assert.match(get('message').textContent,/保存データを読み込みました/);
+});
+
+test('JSON export creates a backup and releases its object URL', () => {
+  const {get,exports}=app();
+  get('export').onclick();
+  assert.equal(exports.downloads.length,1);
+  assert.equal(exports.downloads[0].filename,'life125-backup.json');
+  assert.equal(JSON.parse(exports.exportBlobs[0].content).fields.salary,'20');
+  assert.deepEqual(exports.revoked,['blob:life125-test']);
+  assert.match(get('message').textContent,/出力を開始しました/);
+});
+
+test('blocked object URL creation reports failure instead of throwing', () => {
+  const {get,exports}=app();
+  exports.setFailure('url');
+  assert.doesNotThrow(()=>get('export').onclick());
+  assert.equal(exports.downloads.length,0);
+  assert.deepEqual(exports.revoked,[]);
+  assert.match(get('message').textContent,/出力できませんでした/);
+});
+
+test('failed download click reports failure and still releases object URL', () => {
+  const {get,exports}=app();
+  exports.setFailure('click');
+  assert.doesNotThrow(()=>get('export').onclick());
+  assert.equal(exports.downloads.length,0);
+  assert.deepEqual(exports.revoked,['blob:life125-test']);
+  assert.match(get('message').textContent,/出力できませんでした/);
+});
+
+test('invalid projection does not start JSON download', () => {
+  const {get,exports}=app();
+  get('salary').value='';
+  get('export').onclick();
+  assert.equal(exports.downloads.length,0);
+  assert.equal(exports.exportBlobs.length,0);
+  assert.match(get('message').textContent,/数値入力/);
 });
