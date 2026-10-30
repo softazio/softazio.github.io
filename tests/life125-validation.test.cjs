@@ -498,3 +498,42 @@ test('timeline keeps selected year within the current plan range', () => {
   get('timelineYear').oninput();
   assert.equal(get('timelineYear').value,get('timelineYear').max);
 });
+
+test('timeline starts at the user birth year and can show early life', () => {
+  const {get}=app();
+  assert.equal(get('timelineYear').min,'1990');
+  get('timelineYear').value='1990';
+  get('timelineYear').oninput();
+  assert.equal(get('timelineYearLabel').textContent,'1990年');
+  assert.match(get('timelineAges').innerHTML,/本人：0歳/);
+});
+
+test('older family member expands timeline into the past', () => {
+  const {get}=app();
+  get('familyName').value='祖父';
+  get('familyRole').value='家族';
+  get('familyBirth').value='1950-06-01';
+  get('addFamily').onclick();
+  assert.equal(get('timelineYear').min,'1950');
+  get('timelineYear').value='1955';
+  get('timelineYear').oninput();
+  assert.match(get('timelineAges').innerHTML,/祖父：5歳/);
+  assert.match(get('timelineAges').innerHTML,/本人：誕生前/);
+});
+
+test('past chronicle extends timeline and deleting it clamps selected year', () => {
+  const {get}=app();
+  get('eventDate').value='1960-04-01';
+  get('eventTitle').value='家族の思い出';
+  get('eventType').value='past';
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  assert.equal(get('timelineYear').min,'1960');
+  get('timelineYear').value='1960';
+  get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/家族の思い出/);
+  assert.match(get('timelineEvents').innerHTML,/記録/);
+  get('eventRows').onclick({target:{dataset:{event:'0'}}});
+  assert.equal(get('timelineYear').min,'1990');
+  assert.equal(get('timelineYear').value,'1990');
+});
