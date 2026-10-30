@@ -631,3 +631,29 @@ test('legacy backup without note remains compatible', () => {
   restore(old);
   assert.deepEqual(snapshot().events,old.events);
 });
+
+test('linked pet memory appears on trail and survives backup safely', () => {
+ const {get,snapshot,restore}=app();
+ get('familyName').value='<ロッキー>';get('familyRole').value='ペット';get('familyBirth').value='2018-05-03';get('addFamily').onclick();
+ get('eventDate').value='2020-05-03';get('eventTitle').value='<出会い>';get('eventType').value='past';get('eventAmount').value='0';get('eventPerson').value='legacy:0';get('eventNote').value='幸せ';get('addEvent').onclick();
+ const backup=snapshot();assert.equal(backup.families[0].id,'f1');assert.equal(backup.events[0].personId,'f1');
+ get('timelineYear').value='2020';get('timelineYear').oninput();
+ assert.match(get('timelineTrails').innerHTML,/life-event-marker/);assert.match(get('timelineTrails').innerHTML,/&lt;出会い&gt;/);
+ assert.match(get('timelineEvents').innerHTML,/&lt;ロッキー&gt;/);
+ restore(backup);assert.equal(snapshot().events[0].personId,'f1');
+});
+test('self-linked event needs no family registration', () => {
+ const {get,snapshot}=app();get('eventDate').value='2020-01-01';get('eventTitle').value='節目';get('eventAmount').value='0';get('eventPerson').value='self';get('addEvent').onclick();
+ assert.equal(snapshot().events[0].personId,'self');get('timelineYear').value='2020';get('timelineYear').oninput();assert.match(get('timelineEvents').innerHTML,/関連：本人/);
+});
+test('invalid event person reference and duplicate family IDs reject backup', () => {
+ const {restore,snapshot}=app(),before=snapshot(),bad=structuredClone(before);
+ bad.events=[{date:'2020-05-03',title:'記録',type:'past',amount:0,repeat:'once',personId:'f99'}];assert.throws(()=>restore(bad),/イベントデータ/);
+ const dup=structuredClone(before);dup.families=[{id:'f1',name:'A',role:'家族',birth:'1990-01-01'},{id:'f1',name:'B',role:'家族',birth:'1990-01-01'}];assert.throws(()=>restore(dup),/家族ID/);
+ assert.deepEqual(snapshot(),before);
+});
+test('deleting family unlinks memory without deleting note', () => {
+ const {get,snapshot}=app();get('familyName').value='ロッキー';get('familyRole').value='ペット';get('familyBirth').value='2018-05-03';get('addFamily').onclick();
+ get('eventDate').value='2020-05-03';get('eventTitle').value='出会い';get('eventType').value='past';get('eventAmount').value='0';get('eventNote').value='大切';get('eventPerson').value='legacy:0';get('addEvent').onclick();
+ get('familyList').onclick({target:{dataset:{family:'0'}}});assert.equal(snapshot().families.length,0);assert.equal(snapshot().events[0].personId,undefined);assert.equal(snapshot().events[0].note,'大切');
+});
