@@ -526,6 +526,7 @@ test('past chronicle extends timeline and deleting it clamps selected year', () 
   get('eventDate').value='1960-04-01';
   get('eventTitle').value='家族の思い出';
   get('eventType').value='past';
+  get('eventRepeat').value='once';
   get('eventAmount').value='0';
   get('addEvent').onclick();
   assert.equal(get('timelineYear').min,'1960');
