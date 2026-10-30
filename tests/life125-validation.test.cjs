@@ -909,3 +909,35 @@ test('invalid direct year restores the current year and slider stays synchronize
     assert.match(get('message').textContent,/整数/);
   }
 });
+
+test('annual timeline events are ordered by occurrence month, not original registration year', () => {
+ const {get,snapshot}=app();
+ for(const [date,title,repeat] of [
+  ['2020-12-01','冬の再会','annual'],
+  ['2024-02-02','春の約束','annual'],
+  ['2030-06-15','一度きりの旅','once']
+ ]){
+  get('eventDate').value=date;get('eventTitle').value=title;
+  get('eventAmount').value='0';get('eventRepeat').value=repeat;
+  get('addEvent').onclick();
+ }
+ const before=snapshot();
+ get('timelineYear').value='2030';get('timelineYear').oninput();
+ const shown=get('timelineEvents').innerHTML;
+ assert.ok(shown.indexOf('春の約束')<shown.indexOf('一度きりの旅'));
+ assert.ok(shown.indexOf('一度きりの旅')<shown.indexOf('冬の再会'));
+ assert.match(shown,/2030年02月02日：春の約束（毎年）/);
+ assert.match(shown,/2030年06月15日：一度きりの旅/);
+ assert.match(shown,/2030年12月01日：冬の再会（毎年）/);
+ assert.deepEqual(snapshot(),before);
+});
+
+test('annual occurrence date follows the selected year and excludes future-starting events', () => {
+ const {get}=app();
+ get('eventDate').value='2040-05-03';get('eventTitle').value='毎年の記念日';
+ get('eventAmount').value='0';get('eventRepeat').value='annual';get('addEvent').onclick();
+ get('timelineYear').value='2039';get('timelineYear').oninput();
+ assert.doesNotMatch(get('timelineEvents').innerHTML,/毎年の記念日/);
+ get('timelineYear').value='2041';get('timelineYear').oninput();
+ assert.match(get('timelineEvents').innerHTML,/2041年05月03日：毎年の記念日（毎年）/);
+});
