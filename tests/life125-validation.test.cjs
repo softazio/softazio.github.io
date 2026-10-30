@@ -697,3 +697,46 @@ test('deleting first linked person preserves memory and promotes second person',
  assert.equal(snapshot().events[0].personId,'f2');assert.equal(snapshot().events[0].secondPersonId,undefined);
  assert.equal(snapshot().events[0].note,'大切な日');
 });
+
+
+test('timeline year step buttons move exactly one year without changing saved data', () => {
+ const {get,snapshot}=app(),before=snapshot();
+ get('timelineYear').value='2030';get('timelineYear').oninput();
+ get('timelinePrev').onclick();
+ assert.equal(get('timelineYear').value,'2029');
+ assert.equal(get('timelineYearLabel').textContent,'2029年');
+ get('timelineNext').onclick();
+ assert.equal(get('timelineYear').value,'2030');
+ assert.deepEqual(snapshot(),before);
+});
+
+test('timeline year step buttons respect minimum and maximum years', () => {
+ const {get}=app(),slider=get('timelineYear');
+ slider.value=slider.min;slider.oninput();
+ assert.equal(get('timelinePrev').disabled,true);
+ get('timelinePrev').onclick();assert.equal(slider.value,slider.min);
+ slider.value=slider.max;slider.oninput();
+ assert.equal(get('timelineNext').disabled,true);
+ get('timelineNext').onclick();assert.equal(slider.value,slider.max);
+ get('timelinePrev').onclick();assert.equal(get('timelineNext').disabled,false);
+});
+
+test('timeline step controls stay usable after adding and deleting older events', () => {
+ const {get}=app();
+ get('eventDate').value='1960-04-01';get('eventTitle').value='昔の思い出';
+ get('eventType').value='past';get('eventAmount').value='0';get('addEvent').onclick();
+ assert.equal(get('timelineYear').min,'1960');
+ get('timelineYear').value='1960';get('timelineYear').oninput();
+ get('timelineNext').onclick();assert.equal(get('timelineYear').value,'1961');
+ get('eventRows').onclick({target:{dataset:{event:'0'}}});
+ assert.equal(get('timelineYear').min,'1990');
+ assert.equal(get('timelineYear').value,'1990');
+ assert.equal(get('timelinePrev').disabled,true);
+});
+
+test('timeline year buttons are explicitly accessible and never submit forms', () => {
+ assert.match(html,/id="timelinePrev" aria-controls="timelineYear">← 前年<\/button>/);
+ assert.match(html,/id="timelineNext" aria-controls="timelineYear">翌年 →<\/button>/);
+ assert.match(html,/type="button" class="secondary" id="timelinePrev"/);
+ assert.match(html,/type="button" class="secondary" id="timelineNext"/);
+});
