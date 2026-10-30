@@ -414,7 +414,7 @@ test('valid local backup restores inputs and reports success', () => {
   storage.getItem=()=>JSON.stringify(backup);
   get('load').onclick();
   assert.equal(snapshot().fields.salary,'35');
-  assert.match(get('message').textContent,/保存データを読み込みました/);
+  assert.match(get('message').textContent,/端末の保存を復元しました/);
 });
 
 test('JSON export creates a backup and releases its object URL', () => {
@@ -424,7 +424,7 @@ test('JSON export creates a backup and releases its object URL', () => {
   assert.equal(exports.downloads[0].filename,'life125-backup.json');
   assert.equal(JSON.parse(exports.exportBlobs[0].content).fields.salary,'20');
   assert.deepEqual(exports.revoked,['blob:life125-test']);
-  assert.match(get('message').textContent,/出力を開始しました/);
+  assert.match(get('message').textContent,/バックアップのダウンロードを開始しました/);
 });
 
 test('blocked object URL creation reports failure instead of throwing', () => {
@@ -433,7 +433,7 @@ test('blocked object URL creation reports failure instead of throwing', () => {
   assert.doesNotThrow(()=>get('export').onclick());
   assert.equal(exports.downloads.length,0);
   assert.deepEqual(exports.revoked,[]);
-  assert.match(get('message').textContent,/出力できませんでした/);
+  assert.match(get('message').textContent,/バックアップを保存できませんでした/);
 });
 
 test('failed download click reports failure and still releases object URL', () => {
@@ -442,7 +442,7 @@ test('failed download click reports failure and still releases object URL', () =
   assert.doesNotThrow(()=>get('export').onclick());
   assert.equal(exports.downloads.length,0);
   assert.deepEqual(exports.revoked,['blob:life125-test']);
-  assert.match(get('message').textContent,/出力できませんでした/);
+  assert.match(get('message').textContent,/バックアップを保存できませんでした/);
 });
 
 test('invalid projection does not start JSON download', () => {
@@ -464,4 +464,37 @@ test('backup controls use understandable labels while preserving JSON file forma
   get('export').onclick();
   assert.equal(exports.downloads[0].filename,'life125-backup.json');
   assert.match(get('message').textContent,/バックアップのダウンロードを開始しました/);
+});
+
+test('family timeline shows a named pet and changes ages when the year slider moves', () => {
+  const {get}=app();
+  get('familyName').value='ロッキー';
+  get('familyRole').value='ペット';
+  get('familyBirth').value='2018-05-03';
+  get('addFamily').onclick();
+  get('timelineYear').value='2030';
+  get('timelineYear').oninput();
+  assert.equal(get('timelineYearLabel').textContent,'2030年');
+  assert.match(get('timelineAges').innerHTML,/ロッキー：12歳/);
+  assert.match(get('timelineAges').innerHTML,/本人：40歳/);
+});
+test('family timeline shows matching events and escapes untrusted text', () => {
+  const {get}=app();
+  get('eventDate').value='2030-04-01';
+  get('eventTitle').value='<img src=x>';
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  get('timelineYear').value='2030';
+  get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/&lt;img src=x&gt;/);
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/<img/);
+  get('timelineYear').value='2031';
+  get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/登録イベントはありません/);
+});
+test('timeline keeps selected year within the current plan range', () => {
+  const {get}=app();
+  get('timelineYear').value='9999';
+  get('timelineYear').oninput();
+  assert.equal(get('timelineYear').value,get('timelineYear').max);
 });
