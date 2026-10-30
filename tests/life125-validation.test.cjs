@@ -989,3 +989,25 @@ test('confirmed device save still preserves the version 1 backup format', () => 
   assert.equal(data.fields.salary,'20');
   assert.match(get('message').textContent,/保存しました/);
 });
+
+test('family deletion control identifies the person and escapes markup in its accessible name', () => {
+  const {get}=app();
+  get('familyName').value='ロッキー " <友>';
+  get('familyRole').value='ペット';
+  get('familyBirth').value='2018-05-03';
+  get('addFamily').onclick();
+  const markup=get('familyList').innerHTML;
+  assert.match(markup,/data-family="0" aria-label="「ロッキー &quot; &lt;友&gt;」を削除"/);
+  assert.doesNotMatch(markup,/aria-label="[^"]*<友>/);
+});
+
+test('event deletion control identifies title and date without unsafe HTML attributes', () => {
+  const {get}=app();
+  get('eventDate').value='2030-04-01';
+  get('eventTitle').value='旅行 " <同行>';
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  const markup=get('eventRows').innerHTML;
+  assert.match(markup,/data-event="0" aria-label="「旅行 &quot; &lt;同行&gt;」（2030-04-01）を削除"/);
+  assert.doesNotMatch(markup,/aria-label="[^"]*<同行>/);
+});
