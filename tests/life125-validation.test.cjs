@@ -363,3 +363,44 @@ test('oversized JSON import clears file input before rejecting it', async () => 
   assert.deepEqual(snapshot(),before);
   assert.match(get('message').textContent,/1MB以下/);
 });
+
+
+test('blocked local backup read reports storage error without changing current inputs', () => {
+  const {get,storage,snapshot}=app();
+  const before=snapshot();
+  storage.getItem=()=>{throw Error('SecurityError')};
+  get('load').onclick();
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('message').textContent,/保存領域を読み取れません/);
+});
+
+test('malformed local backup is not deleted and does not replace current inputs', () => {
+  const {get,storage,snapshot}=app();
+  const before=snapshot();
+  let deletions=0;
+  storage.getItem=()=>'{broken';
+  storage.removeItem=()=>{deletions++};
+  get('load').onclick();
+  assert.deepEqual(snapshot(),before);
+  assert.equal(deletions,0);
+  assert.match(get('message').textContent,/読み込めませんでした/);
+  assert.match(get('message').textContent,/削除していません/);
+});
+
+test('empty stored backup is treated as corrupted rather than missing', () => {
+  const {get,storage}=app();
+  storage.getItem=()=>'';
+  get('load').onclick();
+  assert.match(get('message').textContent,/読み込めませんでした/);
+  assert.doesNotMatch(get('message').textContent,/保存データはありません/);
+});
+
+test('valid local backup restores inputs and reports success', () => {
+  const {get,storage,snapshot}=app();
+  const backup=snapshot();
+  backup.fields.salary='35';
+  storage.getItem=()=>JSON.stringify(backup);
+  get('load').onclick();
+  assert.equal(snapshot().fields.salary,'35');
+  assert.match(get('message').textContent,/保存データを読み込みました/);
+});
