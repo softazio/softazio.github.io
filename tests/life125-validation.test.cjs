@@ -460,7 +460,8 @@ test('backup controls use understandable labels while preserving JSON file forma
   assert.match(html, /id="save">この端末に保存<\/button>/);
   assert.match(html, /id="load">端末の保存を復元<\/button>/);
   assert.match(html, /id="export">バックアップを保存<\/button>/);
-  assert.match(html, /バックアップから復元<input type="file" id="import"/);
+  assert.match(html, /id="importButton" aria-controls="import">バックアップから復元<\/button>/);
+  assert.match(html, /<input type="file" id="import" accept="application\/json,\.json"/);
   const {get,exports}=app();
   get('export').onclick();
   assert.equal(exports.downloads[0].filename,'life125-backup.json');
@@ -849,4 +850,21 @@ test('invalid deletion indices cannot remove people or memories', () => {
   get('eventRows').onclick({target:{dataset:{event:index}}});
  }
  assert.deepEqual(snapshot(),before);
+});
+
+test('JSON restore is a keyboard-focusable native button, not a hidden-label-only control', () => {
+  assert.match(html, /<button type="button" class="secondary" id="importButton"/);
+  assert.match(html, /id="importButton" aria-controls="import"/);
+  assert.match(html, /<input type="file" id="import"[^>]*aria-label="復元するJSONバックアップを選択"/);
+  assert.doesNotMatch(html, /<label class="button"[^>]*>バックアップから復元/);
+});
+
+test('restore button opens the file picker without changing personal data until selection', () => {
+  const {get,snapshot}=app();
+  const before=snapshot();
+  let opened=0;
+  get('import').click=()=>{opened++};
+  get('importButton').onclick();
+  assert.equal(opened,1);
+  assert.deepEqual(snapshot(),before);
 });
