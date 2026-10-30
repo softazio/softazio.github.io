@@ -36,14 +36,15 @@ function restore(s){
  });
  // 入力形式の検証に加え、計算が成立する場合だけ復元を確定する。
  // 計算が失敗した場合は、元の入力・登録データ・表示を戻す。
- const previous=snapshot();
+ const previous=snapshot(),previousTimelineYear=$('timelineYear').value;
  try{
   for(const k of fields)$(k).value=nextFields[k];
   families=nextFamilies;events=nextEvents;renderLists();
   if(!calculate())throw Error('復元データの試算条件が不正です');
  }catch(error){
   for(const k of fields)$(k).value=previous.fields[k];
-  families=previous.families;events=previous.events;renderLists();calculate();
+  families=previous.families;events=previous.events;renderLists();
+  $('timelineYear').value=previousTimelineYear;renderTimeline();calculate();
   throw error;
  }
 }
