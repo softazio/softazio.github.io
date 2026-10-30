@@ -104,8 +104,8 @@ function renderTimeline(){
  const yearEvents=events.filter(e=>{
   const eventYear=Number(e.date.slice(0,4));
   return eventYear===year||(e.repeat==='annual'&&year>=eventYear);
- }).sort((a,b)=>a.date.localeCompare(b.date));
- $('timelineEvents').innerHTML=yearEvents.length?yearEvents.map(e=>'<li>'+safe(e.title)+(e.repeat==='annual'?'（毎年）':'')+' — '+(e.type==='past'?'記録':'予定')+(e.personId?'（関連：'+safe(eventPeopleNames(e,people))+'）':'')+(e.note?' — '+safe(e.note):'')+'</li>').join(''):'<li>この年の登録イベントはありません</li>';
+ }).sort((a,b)=>a.date.slice(5).localeCompare(b.date.slice(5))||a.date.localeCompare(b.date));
+ $('timelineEvents').innerHTML=yearEvents.length?yearEvents.map(e=>'<li>'+year+'年'+e.date.slice(5,7)+'月'+e.date.slice(8,10)+'日：'+safe(e.title)+(e.repeat==='annual'?'（毎年）':'')+' — '+(e.type==='past'?'記録':'予定')+(e.personId?'（関連：'+safe(eventPeopleNames(e,people))+'）':'')+(e.note?' — '+safe(e.note):'')+'</li>').join(''):'<li>この年の登録イベントはありません</li>';
 }
 function moveTimelineYear(delta){
  const slider=$('timelineYear'),min=Number(slider.min),max=Number(slider.max),selected=Number(slider.value);
