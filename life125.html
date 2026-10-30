@@ -55,7 +55,7 @@ function renderTimeline(){
  const end=Math.max(currentYear,candidate);
  const slider=$('timelineYear');
  slider.min=String(start);slider.max=String(end);slider.step='1';
- const selected=Number(slider.value),year=Number.isInteger(selected)&&selected>=start&&selected<=end?selected:start;
+ const selected=Number(slider.value),year=Number.isInteger(selected)?Math.min(end,Math.max(start,selected)):start;
  slider.value=String(year);
  $('timelineYearLabel').textContent=year+'年';
  const people=[{name:$('name').value.trim()||'本人',birth},...families];
