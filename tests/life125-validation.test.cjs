@@ -868,3 +868,44 @@ test('restore button opens the file picker without changing personal data until 
   assert.equal(opened,1);
   assert.deepEqual(snapshot(),before);
 });
+
+
+test('direct year input is a labelled native number field', () => {
+  assert.match(html, /<label for="timelineJump">表示年を直接指定（年）<\/label>/);
+  assert.match(html, /id="timelineJump" type="number" step="1" inputmode="numeric" aria-controls="timelineYear"/);
+});
+
+test('direct year jump updates slider and family timeline without changing saved data', () => {
+  const {get,snapshot}=app();
+  const before=snapshot();
+  get('timelineJump').value='2050';
+  get('timelineJump').onchange();
+  assert.equal(get('timelineYear').value,'2050');
+  assert.equal(get('timelineYearLabel').textContent,'2050年');
+  assert.equal(get('timelineJump').value,'2050');
+  assert.deepEqual(snapshot(),before);
+});
+
+test('direct year jump clamps both ends of the timeline', () => {
+  const {get}=app();
+  const slider=get('timelineYear'),jump=get('timelineJump');
+  jump.value='1800';jump.onchange();
+  assert.equal(slider.value,slider.min);
+  assert.equal(jump.value,slider.min);
+  jump.value='9999';jump.onchange();
+  assert.equal(slider.value,slider.max);
+  assert.equal(jump.value,slider.max);
+});
+
+test('invalid direct year restores the current year and slider stays synchronized', () => {
+  const {get}=app();
+  const slider=get('timelineYear'),jump=get('timelineJump');
+  slider.value='2044';slider.oninput();
+  assert.equal(jump.value,'2044');
+  for(const invalid of ['', '2040.5', 'abc']){
+    jump.value=invalid;jump.onchange();
+    assert.equal(slider.value,'2044');
+    assert.equal(jump.value,'2044');
+    assert.match(get('message').textContent,/整数/);
+  }
+});
