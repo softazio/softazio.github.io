@@ -657,3 +657,43 @@ test('deleting family unlinks memory without deleting note', () => {
  get('eventDate').value='2020-05-03';get('eventTitle').value='出会い';get('eventType').value='past';get('eventAmount').value='0';get('eventNote').value='大切';get('eventPerson').value='legacy:0';get('addEvent').onclick();
  get('familyList').onclick({target:{dataset:{family:'0'}}});assert.equal(snapshot().families.length,0);assert.equal(snapshot().events[0].personId,undefined);assert.equal(snapshot().events[0].note,'大切');
 });
+
+test('two-person encounter draws explicit crossing connector and restores safely', () => {
+ const {get,snapshot,restore}=app();
+ for(const [name,birth] of [['親友','1990-01-01'],['ロッキー','2018-05-03']]){
+  get('familyName').value=name;get('familyRole').value='友人・ペット';get('familyBirth').value=birth;get('addFamily').onclick();
+ }
+ get('eventDate').value='2020-05-03';get('eventTitle').value='<出会い>';get('eventType').value='past';get('eventAmount').value='0';
+ get('eventPerson').value='legacy:0';get('eventPerson2').value='legacy:1';get('addEvent').onclick();
+ const saved=snapshot();assert.equal(saved.events[0].personId,'f1');assert.equal(saved.events[0].secondPersonId,'f2');
+ get('timelineYear').value='2020';get('timelineYear').oninput();
+ assert.match(get('timelineTrails').innerHTML,/class="life-connection"/);
+ assert.match(get('timelineTrails').innerHTML,/&lt;出会い&gt;/);
+ assert.match(get('timelineEvents').innerHTML,/親友・ロッキー/);
+ restore(saved);assert.equal(snapshot().events[0].secondPersonId,'f2');
+});
+test('second person without first or duplicate person is rejected', () => {
+ const {get,snapshot,alerts}=app();
+ get('eventDate').value='2020-05-03';get('eventTitle').value='再会';get('eventAmount').value='0';
+ get('eventPerson2').value='self';get('addEvent').onclick();
+ assert.equal(snapshot().events.length,0);assert.match(alerts.at(-1),/関連する人/);
+ get('eventPerson').value='self';get('addEvent').onclick();
+ assert.equal(snapshot().events.length,0);assert.match(alerts.at(-1),/異なる2人/);
+});
+test('invalid or duplicate second-person backup reference rejects atomically', () => {
+ const {restore,snapshot}=app(),before=snapshot();
+ for(const secondPersonId of ['f99','self']){
+  const bad=structuredClone(before);
+  bad.events=[{date:'2020-01-01',title:'出会い',type:'past',amount:0,repeat:'once',personId:'self',secondPersonId}];
+  assert.throws(()=>restore(bad),/イベントデータ/);assert.deepEqual(snapshot(),before);
+ }
+});
+test('deleting first linked person preserves memory and promotes second person', () => {
+ const {get,snapshot}=app();
+ for(const name of ['親友','ロッキー']){get('familyName').value=name;get('familyRole').value='友人';get('familyBirth').value='2000-01-01';get('addFamily').onclick()}
+ get('eventDate').value='2020-05-03';get('eventTitle').value='再会';get('eventAmount').value='0';get('eventNote').value='大切な日';
+ get('eventPerson').value='legacy:0';get('eventPerson2').value='legacy:1';get('addEvent').onclick();
+ get('familyList').onclick({target:{dataset:{family:'0'}}});
+ assert.equal(snapshot().events[0].personId,'f2');assert.equal(snapshot().events[0].secondPersonId,undefined);
+ assert.equal(snapshot().events[0].note,'大切な日');
+});
