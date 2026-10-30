@@ -1011,3 +1011,39 @@ test('event deletion control identifies title and date without unsafe HTML attri
   assert.match(markup,/data-event="0" aria-label="「旅行 &quot; &lt;同行&gt;」（2030-04-01）を削除"/);
   assert.doesNotMatch(markup,/aria-label="[^"]*<同行>/);
 });
+
+test('failed restore preserves the selected past chronicle year after temporary range shrink', () => {
+  const {get,restore,snapshot}=app();
+  get('eventDate').value='1950-04-01';
+  get('eventTitle').value='家族の昔の記録';
+  get('eventType').value='past';
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  get('timelineYear').value='1950';
+  get('timelineYear').oninput();
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.birth='2000-01-01';
+  invalid.fields.wageGrowth='-200';
+  invalid.events=[];
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('timelineYear').value,'1950');
+  assert.equal(get('timelineJump').value,'1950');
+  assert.equal(get('timelineYearLabel').textContent,'1950年');
+  assert.match(get('timelineEvents').innerHTML,/家族の昔の記録/);
+});
+
+test('failed restore preserves a selected future year when temporary plan ends earlier', () => {
+  const {get,restore,snapshot}=app();
+  get('timelineYear').value='2080';
+  get('timelineYear').oninput();
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.endAge='50';
+  invalid.fields.wageGrowth='-200';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('timelineYear').value,'2080');
+  assert.equal(get('timelineJump').value,'2080');
+  assert.equal(get('timelineYearLabel').textContent,'2080年');
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
