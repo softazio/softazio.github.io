@@ -941,3 +941,23 @@ test('annual occurrence date follows the selected year and excludes future-start
  get('timelineYear').value='2041';get('timelineYear').oninput();
  assert.match(get('timelineEvents').innerHTML,/2041年05月03日：毎年の記念日（毎年）/);
 });
+
+test('deleting device storage keeps current screen data and explicitly warns about retained backups', () => {
+  const {get,storage,clear,snapshot}=app();
+  get('name').value='テスト用の呼び名';
+  get('salary').value='37';
+  const before=snapshot();
+  const removed=[];
+  storage.removeItem=key=>removed.push(key);
+  clear();
+  assert.deepEqual(removed,['softazio-life125-v1']);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('message').textContent,/端末内の保存データを削除しました/);
+  assert.match(get('message').textContent,/画面の入力内容とダウンロード済みバックアップは残っています/);
+});
+
+test('deletion instructions state that removing browser storage does not erase visible or downloaded data', () => {
+  assert.match(html,/「保存データを削除」は端末内の保存分だけを消し/);
+  assert.match(html,/画面に表示中の入力内容やダウンロード済みバックアップは消しません/);
+  assert.match(html,/confirm\('この端末に保存したLIFE 125のデータを削除しますか？画面の入力内容とダウンロード済みバックアップは残ります。'\)/);
+});
