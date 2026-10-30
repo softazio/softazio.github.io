@@ -539,3 +539,45 @@ test('past chronicle extends timeline and deleting it clamps selected year', () 
   assert.equal(get('timelineYear').min,'1990');
   assert.equal(get('timelineYear').value,'1990');
 });
+
+
+test('light trails display registered pet names safely and follow selected year', () => {
+  const {get}=app();
+  get('familyName').value='<ロッキー>';
+  get('familyRole').value='ペット';
+  get('familyBirth').value='2018-05-03';
+  get('addFamily').onclick();
+  get('timelineYear').value='2030';
+  get('timelineYear').oninput();
+  const svg=get('timelineTrails').innerHTML;
+  assert.match(svg,/class="life-trail"/);
+  assert.match(svg,/&lt;ロッキー&gt;/);
+  assert.doesNotMatch(svg,/<ロッキー>/);
+  assert.match(svg,/aria-hidden="true"/);
+});
+
+test('light trails exclude people not yet born at selected year', () => {
+  const {get}=app();
+  get('familyName').value='ロッキー';
+  get('familyRole').value='ペット';
+  get('familyBirth').value='2018-05-03';
+  get('addFamily').onclick();
+  get('timelineYear').value='2000';
+  get('timelineYear').oninput();
+  assert.doesNotMatch(get('timelineTrails').innerHTML,/ロッキー/);
+  get('timelineYear').value='2030';
+  get('timelineYear').oninput();
+  assert.match(get('timelineTrails').innerHTML,/ロッキー/);
+});
+
+test('light trails cap visual rendering at twelve people and support reduced motion', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.families=Array.from({length:15},(_,i)=>({name:'家族'+i,role:'家族',birth:'1980-01-01'}));
+  restore(backup);
+  get('timelineYear').value='2030';
+  get('timelineYear').oninput();
+  assert.equal((get('timelineTrails').innerHTML.match(/class="life-trail"/g)||[]).length,12);
+  assert.match(html,/@media\(prefers-reduced-motion:reduce\)/);
+  assert.match(html,/\.life-trail\{animation:none;stroke-dashoffset:0\}/);
+});
