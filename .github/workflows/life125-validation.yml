@@ -1,0 +1,26 @@
+name: LIFE 125 Regression Tests
+
+on:
+  pull_request:
+    paths:
+      - 'life125.html'
+      - 'tests/life125-validation.test.cjs'
+      - '.github/workflows/life125-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  life125:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out proposed changes
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run LIFE 125 regression suite
+        run: node --test tests/life125-validation.test.cjs
