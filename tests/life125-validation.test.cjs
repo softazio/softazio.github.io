@@ -364,7 +364,7 @@ test('failed JSON import clears file input and allows selecting the same file ag
   await importFile(valid);
   assert.equal(input.value,'');
   assert.equal(snapshot().fields.salary,'35');
-  assert.match(get('message').textContent,/JSONを読み込みました/);
+  assert.match(get('message').textContent,/バックアップから復元しました/);
 });
 
 test('oversized JSON import clears file input before rejecting it', async () => {
@@ -452,4 +452,16 @@ test('invalid projection does not start JSON download', () => {
   assert.equal(exports.downloads.length,0);
   assert.equal(exports.exportBlobs.length,0);
   assert.match(get('message').textContent,/数値入力/);
+});
+
+
+test('backup controls use understandable labels while preserving JSON file format', () => {
+  assert.match(html, /id="save">この端末に保存<\/button>/);
+  assert.match(html, /id="load">端末の保存を復元<\/button>/);
+  assert.match(html, /id="export">バックアップを保存<\/button>/);
+  assert.match(html, /バックアップから復元<input type="file" id="import"/);
+  const {get,exports}=app();
+  get('export').onclick();
+  assert.equal(exports.downloads[0].filename,'life125-backup.json');
+  assert.match(get('message').textContent,/バックアップのダウンロードを開始しました/);
 });
