@@ -17,10 +17,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out proposed changes
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Use Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '22'
+          package-manager-cache: false
       - name: Run LIFE 125 regression suite
         run: node --test tests/life125-validation.test.cjs
