@@ -22,7 +22,7 @@ function app() {
     if (!elements.has(id)) elements.set(id, {value:defaults[id]??'',innerHTML:'',textContent:'',dataset:{}});
     return elements.get(id);
   };
-  let canClear = true, canExport = true;
+  let canClear = true, canExport = true, canRestore = true;
   const storage = {removeItem:()=>{}};
   const alerts=[];
   const downloads=[], revoked=[], exportBlobs=[];
@@ -32,7 +32,7 @@ function app() {
       if(exportFailure==='click')throw Error('download blocked');
       downloads.push({href:this.href,filename:this.download});
     }})},
-    localStorage:storage,confirm:message=>message.includes('バックアップには')?canExport:canClear,alert:message=>alerts.push(message),
+    localStorage:storage,confirm:message=>message.includes('バックアップには')?canExport:message.includes('復元すると')?canRestore:canClear,alert:message=>alerts.push(message),
     Blob:class {constructor(parts,options){this.content=parts.join('');this.options=options;exportBlobs.push(this)}},
     URL:{createObjectURL:()=>{if(exportFailure==='url')throw Error('object URL blocked');return 'blob:life125-test'},
          revokeObjectURL:url=>revoked.push(url)},
@@ -40,7 +40,7 @@ function app() {
   });
   vm.runInContext(script, context, {timeout:3000});
   const importFile=async file=>{const input=get('import');input.files=file?[file]:[];input.value='life125-backup.json';await input.onchange({target:input});return input};
-  return {importFile,get, alerts, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, setCanExport:v=>{canExport=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
+  return {importFile,get, alerts, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, setCanExport:v=>{canExport=v}, setCanRestore:v=>{canRestore=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -766,4 +766,41 @@ test('consented backup export retains existing JSON format and filename', () => 
   assert.equal(exports.downloads.length,1);
   assert.equal(exports.downloads[0].filename,'life125-backup.json');
   assert.equal(JSON.parse(exports.exportBlobs[0].content).version,1);
+});
+
+
+test('cancelled device restore preserves unsaved screen data', () => {
+ const {get,storage,snapshot,setCanRestore}=app();
+ const saved=snapshot();saved.fields.salary='88';storage.getItem=()=>JSON.stringify(saved);
+ get('salary').value='33';const before=snapshot();setCanRestore(false);
+ get('load').onclick();
+ assert.deepEqual(snapshot(),before);
+ assert.match(get('message').textContent,/復元を取り消しました/);
+});
+
+test('approved device restore replaces screen data', () => {
+ const {get,storage,snapshot,setCanRestore}=app();
+ const saved=snapshot();saved.fields.salary='88';storage.getItem=()=>JSON.stringify(saved);
+ get('salary').value='33';setCanRestore(true);get('load').onclick();
+ assert.equal(snapshot().fields.salary,'88');
+ assert.match(get('message').textContent,/端末の保存を復元しました/);
+});
+
+test('cancelled file restore preserves unsaved screen data', async () => {
+ const {get,importFile,snapshot,setCanRestore}=app();
+ const saved=snapshot();saved.fields.salary='88';
+ get('salary').value='33';const before=snapshot();setCanRestore(false);
+ await importFile({size:100,text:async()=>JSON.stringify(saved)});
+ assert.deepEqual(snapshot(),before);
+ assert.match(get('message').textContent,/復元を取り消しました/);
+});
+
+test('approved file restore retains version 1 compatibility', async () => {
+ const {get,importFile,snapshot,setCanRestore}=app();
+ const saved=snapshot();saved.fields.salary='88';
+ get('salary').value='33';setCanRestore(true);
+ await importFile({size:100,text:async()=>JSON.stringify(saved)});
+ assert.equal(snapshot().fields.salary,'88');
+ assert.equal(snapshot().version,1);
+ assert.match(get('message').textContent,/バックアップから復元しました/);
 });
