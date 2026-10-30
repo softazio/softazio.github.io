@@ -22,7 +22,7 @@ function app() {
     if (!elements.has(id)) elements.set(id, {value:defaults[id]??'',innerHTML:'',textContent:'',dataset:{}});
     return elements.get(id);
   };
-  let canClear = true;
+  let canClear = true, canExport = true;
   const storage = {removeItem:()=>{}};
   const alerts=[];
   const downloads=[], revoked=[], exportBlobs=[];
@@ -32,7 +32,7 @@ function app() {
       if(exportFailure==='click')throw Error('download blocked');
       downloads.push({href:this.href,filename:this.download});
     }})},
-    localStorage:storage,confirm:()=>canClear,alert:message=>alerts.push(message),
+    localStorage:storage,confirm:message=>message.includes('バックアップには')?canExport:canClear,alert:message=>alerts.push(message),
     Blob:class {constructor(parts,options){this.content=parts.join('');this.options=options;exportBlobs.push(this)}},
     URL:{createObjectURL:()=>{if(exportFailure==='url')throw Error('object URL blocked');return 'blob:life125-test'},
          revokeObjectURL:url=>revoked.push(url)},
@@ -40,7 +40,7 @@ function app() {
   });
   vm.runInContext(script, context, {timeout:3000});
   const importFile=async file=>{const input=get('import');input.files=file?[file]:[];input.value='life125-backup.json';await input.onchange({target:input});return input};
-  return {importFile,get, alerts, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
+  return {importFile,get, alerts, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, setCanExport:v=>{canExport=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -739,4 +739,31 @@ test('timeline year buttons are explicitly accessible and never submit forms', (
  assert.match(html,/id="timelineNext" aria-controls="timelineYear">翌年 →<\/button>/);
  assert.match(html,/type="button" class="secondary" id="timelinePrev"/);
  assert.match(html,/type="button" class="secondary" id="timelineNext"/);
+});
+
+test('cancelled backup export does not create or download personal data', () => {
+  const {get,exports,snapshot,setCanExport}=app();
+  const before=snapshot();
+  setCanExport(false);
+  get('export').onclick();
+  assert.equal(exports.downloads.length,0);
+  assert.equal(exports.exportBlobs.length,0);
+  assert.deepEqual(exports.revoked,[]);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('message').textContent,/取り消しました/);
+});
+
+test('backup warning explicitly describes unencrypted personal data', () => {
+  assert.match(html,/バックアップファイルは暗号化されず/);
+  assert.match(html,/呼び名・生年月日・思い出・資産情報/);
+  assert.match(html,/confirm\('バックアップには名前・生年月日・思い出・資産情報が含まれ、暗号化されません/);
+});
+
+test('consented backup export retains existing JSON format and filename', () => {
+  const {get,exports,setCanExport}=app();
+  setCanExport(true);
+  get('export').onclick();
+  assert.equal(exports.downloads.length,1);
+  assert.equal(exports.downloads[0].filename,'life125-backup.json');
+  assert.equal(JSON.parse(exports.exportBlobs[0].content).version,1);
 });
