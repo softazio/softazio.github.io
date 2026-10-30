@@ -12,6 +12,7 @@ assert.ok(script, 'inline application script is present');
 function app() {
   const defaults = {
     name:'本人', birth:'1990-01-01', endAge:'95', cash:'300', salary:'20',
+    eventType:'future', eventRepeat:'once', timelineYear:'2026',
     expense:'18', retireAge:'65', pensionAge:'65', pension:'12', invest:'0',
     contribution:'2', withdraw:'0', returnRate:'3', inflation:'2',
     wageGrowth:'0', debt:'0', debtRate:'0', repayment:'0'
