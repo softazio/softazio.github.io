@@ -12,7 +12,7 @@ assert.ok(script, 'inline application script is present');
 function app() {
   const defaults = {
     name:'本人', birth:'1990-01-01', endAge:'95', cash:'300', salary:'20',
-    eventType:'future', eventRepeat:'once', timelineYear:'2026',
+    eventType:'future', eventRepeat:'once', eventNote:'', timelineYear:'2026',
     expense:'18', retireAge:'65', pensionAge:'65', pension:'12', invest:'0',
     contribution:'2', withdraw:'0', returnRate:'3', inflation:'2',
     wageGrowth:'0', debt:'0', debtRate:'0', repayment:'0'
@@ -580,4 +580,54 @@ test('light trails cap visual rendering at twelve people and support reduced mot
   assert.equal((get('timelineTrails').innerHTML.match(/class="life-trail"/g)||[]).length,12);
   assert.match(html,/@media\(prefers-reduced-motion:reduce\)/);
   assert.match(html,/\.life-trail\{animation:none;stroke-dashoffset:0\}/);
+});
+
+
+test('chronicle note appears safely in timeline and event list and survives backup', () => {
+  const {get,snapshot,restore}=app();
+  get('eventDate').value='2020-05-03';
+  get('eventTitle').value='ロッキーとの出会い';
+  get('eventType').value='past';
+  get('eventNote').value='<img src=x onerror=alert(1)> 幸せだった';
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  const backup=snapshot();
+  assert.equal(backup.events[0].note,'<img src=x onerror=alert(1)> 幸せだった');
+  get('timelineYear').value='2020';
+  get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/&lt;img src=x onerror=alert\(1\)&gt;/);
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/<img/);
+  assert.doesNotMatch(get('eventRows').innerHTML,/<img/);
+  restore(backup);
+  assert.equal(snapshot().events[0].note,backup.events[0].note);
+});
+
+test('oversized note is rejected without adding event', () => {
+  const {get,snapshot,alerts}=app();
+  get('eventDate').value='2020-05-03';
+  get('eventTitle').value='思い出';
+  get('eventNote').value='あ'.repeat(501);
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.length,0);
+  assert.match(alerts.at(-1),/500文字以内/);
+});
+
+test('invalid note type and length in imported backup are rejected without mutation', () => {
+  const {restore,snapshot}=app();
+  const before=snapshot();
+  for (const note of [42,'a'.repeat(501)]) {
+    const bad=structuredClone(before);
+    bad.events=[{date:'2020-05-03',title:'記録',type:'past',amount:0,repeat:'once',note}];
+    assert.throws(()=>restore(bad),/イベントデータ/);
+    assert.deepEqual(snapshot(),before);
+  }
+});
+
+test('legacy backup without note remains compatible', () => {
+  const {restore,snapshot}=app();
+  const old=snapshot();
+  old.events=[{date:'2020-05-03',title:'昔の記録',type:'past',amount:0,repeat:'once'}];
+  restore(old);
+  assert.deepEqual(snapshot().events,old.events);
 });
