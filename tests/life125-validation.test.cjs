@@ -26,7 +26,8 @@ function app() {
   const alerts=[];
   const context = vm.createContext({document:{getElementById:get},localStorage:storage,confirm:()=>canClear,alert:message=>alerts.push(message)});
   vm.runInContext(script, context, {timeout:3000});
-  return {get, alerts, storage, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
+  const importFile=async file=>{const input=get('import');input.files=file?[file]:[];input.value='life125-backup.json';await input.onchange({target:input});return input};
+  return {importFile,get, alerts, storage, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -336,4 +337,29 @@ test('restoration rolls back when extreme returns overflow projection', () => {
   assert.deepEqual(snapshot(),before);
   assert.match(get('stats').innerHTML,/最終純資産/);
   assert.match(get('chart').innerHTML,/<svg/);
+});
+
+
+test('failed JSON import clears file input and allows selecting the same file again', async () => {
+  const {importFile,get,snapshot}=app();
+  const before=snapshot();
+  const malformed={size:5,text:async()=>'{bad}'};
+  const input=await importFile(malformed);
+  assert.equal(input.value,'');
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('message').textContent,/読み込みに失敗/);
+  const valid={size:100,text:async()=>JSON.stringify({...before,fields:{...before.fields,salary:'35'}})};
+  await importFile(valid);
+  assert.equal(input.value,'');
+  assert.equal(snapshot().fields.salary,'35');
+  assert.match(get('message').textContent,/JSONを読み込みました/);
+});
+
+test('oversized JSON import clears file input before rejecting it', async () => {
+  const {importFile,get,snapshot}=app();
+  const before=snapshot();
+  const input=await importFile({size:1000001,text:async()=>{throw Error('should not read')}});
+  assert.equal(input.value,'');
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('message').textContent,/1MB以下/);
 });
