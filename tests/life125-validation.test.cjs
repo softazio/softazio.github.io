@@ -804,3 +804,49 @@ test('approved file restore retains version 1 compatibility', async () => {
  assert.equal(snapshot().version,1);
  assert.match(get('message').textContent,/バックアップから復元しました/);
 });
+
+
+test('cancelled person deletion preserves the person and linked memories', () => {
+ const {get,snapshot,setCanClear}=app();
+ get('familyName').value='ロッキー';get('familyRole').value='ペット';get('familyBirth').value='2018-05-03';get('addFamily').onclick();
+ get('eventDate').value='2020-05-03';get('eventTitle').value='出会い';get('eventType').value='past';
+ get('eventAmount').value='0';get('eventNote').value='大切な思い出';get('eventPerson').value='legacy:0';get('addEvent').onclick();
+ const before=snapshot();setCanClear(false);
+ get('familyList').onclick({target:{dataset:{family:'0'}}});
+ assert.deepEqual(snapshot(),before);
+ assert.match(get('familyList').innerHTML,/ロッキー/);
+});
+
+test('cancelled event deletion preserves the full memory including note', () => {
+ const {get,snapshot,setCanClear}=app();
+ get('eventDate').value='2020-05-03';get('eventTitle').value='再会';
+ get('eventType').value='past';get('eventAmount').value='0';get('eventNote').value='忘れない';
+ get('addEvent').onclick();
+ const before=snapshot();setCanClear(false);
+ get('eventRows').onclick({target:{dataset:{event:'0'}}});
+ assert.deepEqual(snapshot(),before);
+ assert.match(get('eventRows').innerHTML,/忘れない/);
+});
+
+test('confirmed event deletion removes only the selected memory', () => {
+ const {get,snapshot,setCanClear}=app();
+ for(const title of ['残す思い出','削除する思い出']){
+  get('eventDate').value='2020-05-03';get('eventTitle').value=title;
+  get('eventType').value='past';get('eventAmount').value='0';get('addEvent').onclick();
+ }
+ setCanClear(true);
+ get('eventRows').onclick({target:{dataset:{event:'1'}}});
+ assert.deepEqual(snapshot().events.map(e=>e.title),['残す思い出']);
+});
+
+test('invalid deletion indices cannot remove people or memories', () => {
+ const {get,snapshot}=app();
+ get('familyName').value='家族';get('familyRole').value='家族';get('familyBirth').value='1990-01-01';get('addFamily').onclick();
+ get('eventDate').value='2020-01-01';get('eventTitle').value='記録';get('eventAmount').value='0';get('addEvent').onclick();
+ const before=snapshot();
+ for(const index of ['NaN','-1','99']){
+  get('familyList').onclick({target:{dataset:{family:index}}});
+  get('eventRows').onclick({target:{dataset:{event:index}}});
+ }
+ assert.deepEqual(snapshot(),before);
+});
