@@ -1224,3 +1224,43 @@ test('event list labels its amount unit and preserves zero and small decimal amo
   assert.match(get('eventRows').innerHTML,/<td>0\.05<\/td>/);
   assert.deepEqual(snapshot().events,backup.events);
 });
+
+
+test('past-month one-off future event is visibly excluded without changing asset projection', () => {
+  const {get,calculate}=app();
+  const before=get('yearRows').innerHTML;
+  get('eventDate').value='2000-04-01';
+  get('eventTitle').value='過去月の一度きりの支出';
+  get('eventType').value='future';
+  get('eventRepeat').value='once';
+  get('eventAmount').value='-50';
+  get('addEvent').onclick();
+  assert.match(get('eventRows').innerHTML,/予定（過去月・試算対象外）/);
+  get('timelineYear').value='2000';
+  get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/過去月の一度きりの支出[^<]*予定（支出 50万円）（過去月・試算対象外）/);
+  assert.equal(calculate(),true);
+  assert.equal(get('yearRows').innerHTML,before);
+});
+
+test('current-month and annual events remain eligible for future projection', () => {
+  const {get}=app();
+  const now=new Date();
+  const currentMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-01';
+  for(const [date,title,repeat] of [
+    [currentMonth,'今月の予定','once'],
+    ['2000-01-01','毎年の記念日','annual']
+  ]){
+    get('eventDate').value=date;
+    get('eventTitle').value=title;
+    get('eventType').value='future';
+    get('eventRepeat').value=repeat;
+    get('eventAmount').value='-2';
+    get('addEvent').onclick();
+  }
+  const rows=get('eventRows').innerHTML;
+  assert.match(rows,/今月の予定/);
+  assert.match(rows,/毎年の記念日（毎年）/);
+  assert.doesNotMatch(rows,/過去月・試算対象外/);
+  assert.equal((rows.match(/<td>将来<\/td>/g)||[]).length,2);
+});
