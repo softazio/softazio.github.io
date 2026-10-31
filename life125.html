@@ -129,8 +129,9 @@ $('timelineJump').onchange=()=>{
  renderTimeline();
  if(adjusted!==year)msg('指定年は表示範囲外のため、'+slider.min+'〜'+slider.max+'年に調整しました');
 };
-$('birth').onchange=renderTimeline;
-$('endAge').oninput=renderTimeline;
+// 計画期間を変えたときは年表だけでなくイベント一覧の対象区分も更新する。
+$('birth').onchange=renderLists;
+$('endAge').oninput=renderLists;
 $('name').oninput=renderTimeline;
 function nextFamilyId(){let i=1;while(families.some(f=>f.id==='f'+i))i++;return 'f'+i}
 function renderEventPersonOptions(){
