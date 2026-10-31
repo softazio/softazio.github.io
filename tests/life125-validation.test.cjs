@@ -1466,3 +1466,42 @@ test('changing birth month immediately refreshes event list plan boundary', () =
   assert.doesNotMatch(get('eventRows').innerHTML,/計画期間外・試算対象外/);
   assert.match(get('timelineYearLabel').textContent,/年/);
 });
+
+
+test('user-set pension starts in the 65th birthday month, not the preceding month', () => {
+  const {get,calculate}=app();
+  const now=new Date(),birthday=new Date(now.getFullYear(),now.getMonth()+1,1);
+  const birthYear=birthday.getFullYear()-65;
+  const birthMonth=String(birthday.getMonth()+1).padStart(2,'0');
+  for(const [id,value] of [
+    ['birth',birthYear+'-'+birthMonth+'-01'],['endAge','65'],
+    ['cash','0'],['salary','0'],['expense','0'],['pension','10'],
+    ['pensionAge','65'],['invest','0'],['contribution','0'],
+    ['withdraw','0'],['returnRate','0'],['inflation','0'],
+    ['wageGrowth','0'],['debt','0'],['debtRate','0'],['repayment','0']
+  ]) get(id).value=value;
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産<strong>10万円/);
+  get('pensionAge').value='66';
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産<strong>0万円/);
+});
+
+test('user-set retirement stops salary in the birthday month, not one month early', () => {
+  const {get,calculate}=app();
+  const now=new Date(),birthday=new Date(now.getFullYear(),now.getMonth()+1,1);
+  const birthYear=birthday.getFullYear()-65;
+  const birthMonth=String(birthday.getMonth()+1).padStart(2,'0');
+  for(const [id,value] of [
+    ['birth',birthYear+'-'+birthMonth+'-01'],['endAge','65'],
+    ['cash','0'],['salary','7'],['expense','0'],['pension','0'],
+    ['retireAge','65'],['invest','0'],['contribution','0'],
+    ['withdraw','0'],['returnRate','0'],['inflation','0'],
+    ['wageGrowth','0'],['debt','0'],['debtRate','0'],['repayment','0']
+  ]) get(id).value=value;
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産<strong>7万円/);
+  get('retireAge').value='66';
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産<strong>14万円/);
+});
