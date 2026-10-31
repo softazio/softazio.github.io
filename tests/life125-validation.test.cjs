@@ -1655,3 +1655,42 @@ test('negative monthly take-home pension is rejected, zero remains valid and bac
   assert.deepEqual(snapshot(),before);
   assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+
+test('retirement age must be an integer within 0 to 125, including backup restore', () => {
+  const {get,calculate,restore,snapshot}=app();
+  assert.match(html,/id="retireAge" type="number" value="65" min="0" max="125" step="1"/);
+  get('retireAge').value='64.5';
+  assert.equal(calculate(),false);
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.match(get('message').textContent,/退職・年金開始年齢は0〜125歳の整数/);
+  get('retireAge').value='0';
+  get('pensionAge').value='125';
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.retireAge='126';
+  invalid.fields.salary='99';
+  assert.throws(()=>restore(invalid),/退職・年金開始年齢/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('pension start age rejects fractions and negatives without overwriting valid backup', () => {
+  const {get,calculate,restore,snapshot}=app();
+  assert.match(html,/id="pensionAge" type="number" value="65" min="0" max="125" step="1"/);
+  get('pensionAge').value='65.5';
+  assert.equal(calculate(),false);
+  assert.equal(get('chart').innerHTML,'');
+  assert.match(get('message').textContent,/退職・年金開始年齢は0〜125歳の整数/);
+  get('pensionAge').value='-1';
+  assert.equal(calculate(),false);
+  get('pensionAge').value='0';
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.pensionAge='125.1';
+  invalid.fields.cash='999';
+  assert.throws(()=>restore(invalid),/退職・年金開始年齢/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
