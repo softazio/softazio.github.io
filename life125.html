@@ -108,7 +108,7 @@ function renderTimeline(){
  }).sort((a,b)=>a.date.slice(5).localeCompare(b.date.slice(5))||a.date.localeCompare(b.date));
  $('timelineEvents').innerHTML=yearEvents.length?yearEvents.map(e=>{
   const cashFlow=e.type==='future'&&e.amount!==0?'（'+(e.amount<0?'支出 ':'収入 ')+Math.abs(e.amount).toLocaleString('ja-JP')+'万円）':'';
-  return '<li>'+year+'年'+e.date.slice(5,7)+'月'+e.date.slice(8,10)+'日：'+safe(e.title)+(e.repeat==='annual'?'（毎年）':'')+' — '+(e.type==='past'?'記録（試算対象外）':'予定'+cashFlow)+(e.personId?'（関連：'+safe(eventPeopleNames(e,people))+'）':'')+(e.note?' — '+safe(e.note):'')+'</li>';
+  return '<li>'+year+'年'+e.date.slice(5,7)+'月'+e.date.slice(8,10)+'日：'+safe(e.title)+(e.repeat==='annual'?'（毎年）':'')+' — '+(e.type==='past'?'記録（試算対象外）':isExcludedPastMonthEvent(e)?'予定'+cashFlow+'（過去月・試算対象外）':'予定'+cashFlow)+(e.personId?'（関連：'+safe(eventPeopleNames(e,people))+'）':'')+(e.note?' — '+safe(e.note):'')+'</li>';
  }).join(''):'<li>この年の登録イベントはありません</li>';
 }
 function moveTimelineYear(delta){
@@ -140,7 +140,8 @@ function renderEventPersonOptions(){
  second.innerHTML=select.innerHTML.replace('関連付けない','選択しない');
  second.value=allowed.includes(chosen2)?chosen2:'';
 }
-function renderLists(){renderEventPersonOptions();$('familyList').innerHTML=families.map((f,i)=>`<p>${safe(f.name)}（${safe(f.role)}・${safe(f.birth)}） <button type="button" class="secondary" data-family="${i}" aria-label="「${safe(f.name)}」を削除">削除</button></p>`).join('');$('eventRows').innerHTML=events.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<tr><td>${safe(e.date)}</td><td>${safe(e.title)}${e.repeat==='annual'?'（毎年）':''}${e.note?'<div class="muted">'+safe(e.note)+'</div>':''}</td><td>${Number(e.amount).toLocaleString('ja-JP',{maximumFractionDigits:10})}</td><td>${e.type==='past'?'過去（試算対象外）':'将来'}</td><td><button type="button" class="secondary" data-event="${events.indexOf(e)}" aria-label="「${safe(e.title)}」（${safe(e.date)}）を削除">削除</button></td></tr>`).join('')||'<tr><td colspan="5" class="muted">イベントはまだ登録されていません。上の入力欄から追加できます。</td></tr>';renderTimeline()}
+function isExcludedPastMonthEvent(e){const now=new Date(),month=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');return e.type==='future'&&e.repeat==='once'&&e.date.slice(0,7)<month}
+function renderLists(){renderEventPersonOptions();$('familyList').innerHTML=families.map((f,i)=>`<p>${safe(f.name)}（${safe(f.role)}・${safe(f.birth)}） <button type="button" class="secondary" data-family="${i}" aria-label="「${safe(f.name)}」を削除">削除</button></p>`).join('');$('eventRows').innerHTML=events.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<tr><td>${safe(e.date)}</td><td>${safe(e.title)}${e.repeat==='annual'?'（毎年）':''}${e.note?'<div class="muted">'+safe(e.note)+'</div>':''}</td><td>${Number(e.amount).toLocaleString('ja-JP',{maximumFractionDigits:10})}</td><td>${e.type==='past'?'過去（試算対象外）':isExcludedPastMonthEvent(e)?'予定（過去月・試算対象外）':'将来'}</td><td><button type="button" class="secondary" data-event="${events.indexOf(e)}" aria-label="「${safe(e.title)}」（${safe(e.date)}）を削除">削除</button></td></tr>`).join('')||'<tr><td colspan="5" class="muted">イベントはまだ登録されていません。上の入力欄から追加できます。</td></tr>';renderTimeline()}
 $('addFamily').onclick=()=>{
  const name=$('familyName').value.trim(),role=$('familyRole').value.trim(),birth=$('familyBirth').value;
  if(!name||name.length>60||role.length>40)return alert('呼び名（60文字以内）と続柄（40文字以内）を確認してください');
