@@ -1149,7 +1149,7 @@ test('past chronicle rows explicitly identify amounts excluded from asset projec
   get('eventRepeat').value='once';
   get('addEvent').onclick();
   assert.match(get('eventRows').innerHTML,/過去（試算対象外）/);
-  assert.match(get('eventRows').innerHTML,/-9999\.0/);
+  assert.match(get('eventRows').innerHTML,/<td>-9,999<\/td>/);
   assert.equal(calculate(),true);
   assert.equal(get('yearRows').innerHTML,original);
 });
