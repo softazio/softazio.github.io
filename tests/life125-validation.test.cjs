@@ -1052,3 +1052,25 @@ test('keyboard focus has a visible high-contrast indicator on interactive contro
   assert.match(html, /:where\(a,button,input,select,textarea,summary\):focus-visible\{outline:3px solid #145a8d;outline-offset:3px;box-shadow:0 0 0 5px #fff\}/);
   assert.match(html, /@media\(prefers-reduced-motion:reduce\)/);
 });
+
+test('out-of-range direct year reports the actual displayed range for both ends', () => {
+  const {get,snapshot}=app();
+  const before=snapshot(),slider=get('timelineYear'),jump=get('timelineJump');
+  jump.value='1800';jump.onchange();
+  assert.equal(jump.value,slider.min);
+  assert.match(get('message').textContent,/指定年は表示範囲外のため/);
+  assert.ok(get('message').textContent.includes(slider.min+'〜'+slider.max+'年'));
+  jump.value='9999';jump.onchange();
+  assert.equal(jump.value,slider.max);
+  assert.match(get('message').textContent,/指定年は表示範囲外のため/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('valid direct year does not announce a false range adjustment', () => {
+  const {get}=app();
+  const jump=get('timelineJump');
+  get('message').textContent='以前の通知';
+  jump.value='2050';jump.onchange();
+  assert.equal(get('timelineYear').value,'2050');
+  assert.equal(get('message').textContent,'以前の通知');
+});
