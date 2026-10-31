@@ -1505,3 +1505,33 @@ test('user-set retirement stops salary in the birthday month, not one month earl
   assert.equal(calculate(),true);
   assert.match(get('stats').innerHTML,/最終純資産<strong>14万円/);
 });
+
+
+test('negative monthly contribution is rejected instead of silently treated as zero', () => {
+  const {get,calculate}=app();
+  assert.match(html, /id="contribution" type="number" min="0"/);
+  get('contribution').value='-1';
+  assert.equal(calculate(),false);
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.match(get('message').textContent,/投資積立と取崩しは0以上/);
+  get('contribution').value='0';
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('negative withdrawal is rejected and its backup cannot overwrite valid data', () => {
+  const {get,calculate,restore,snapshot}=app();
+  assert.match(html, /id="withdraw" type="number" min="0"/);
+  get('withdraw').value='-2';
+  assert.equal(calculate(),false);
+  assert.equal(get('chart').innerHTML,'');
+  assert.match(get('message').textContent,/投資積立と取崩しは0以上/);
+  get('withdraw').value='0';
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.withdraw='-2';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
