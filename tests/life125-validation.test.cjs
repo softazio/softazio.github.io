@@ -1196,3 +1196,31 @@ test('empty event hint disappears on add and returns after deletion', () => {
   assert.equal(snapshot().events.length,0);
   assert.match(get('eventRows').innerHTML,/イベントはまだ登録されていません/);
 });
+
+test('restored event amounts display their entered precision rather than rounding to one decimal', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[
+    {date:'2030-04-01',title:'細かな支出',type:'future',amount:-12.55,repeat:'once'},
+    {date:'2030-04-02',title:'臨時収入',type:'future',amount:1234.567,repeat:'once'}
+  ];
+  restore(backup);
+  const rows=get('eventRows').innerHTML;
+  assert.match(rows,/<td>-12\.55<\/td>/);
+  assert.match(rows,/<td>1,234\.567<\/td>/);
+  assert.deepEqual(snapshot().events,backup.events);
+});
+
+test('event list labels its amount unit and preserves zero and small decimal amounts', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[
+    {date:'2030-04-01',title:'無料の行事',type:'future',amount:0,repeat:'once'},
+    {date:'2030-04-02',title:'小さな収入',type:'future',amount:0.05,repeat:'once'}
+  ];
+  restore(backup);
+  assert.match(html, /<th>収支（万円）<\/th>/);
+  assert.match(get('eventRows').innerHTML,/<td>0<\/td>/);
+  assert.match(get('eventRows').innerHTML,/<td>0\.05<\/td>/);
+  assert.deepEqual(snapshot().events,backup.events);
+});
