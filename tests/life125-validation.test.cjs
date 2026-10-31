@@ -1100,3 +1100,40 @@ test('final birthday month equal to the current month remains a valid one-month 
   assert.match(get('yearRows').innerHTML,new RegExp('<tr><td>'+now.getFullYear()+'</td>'));
   assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+test('timeline labels distinguish expenses, income, zero-cost events and excluded past records', () => {
+  const {get,snapshot}=app();
+  for(const [date,title,amount,type] of [
+    ['2030-04-02','家族旅行','-12.5','future'],
+    ['2030-06-10','臨時収入','8','future'],
+    ['2030-07-01','無料の記念日','0','future'],
+    ['2030-08-01','昔の記録','-99','past']
+  ]){
+    get('eventDate').value=date;get('eventTitle').value=title;
+    get('eventAmount').value=amount;get('eventType').value=type;
+    get('eventRepeat').value='once';get('addEvent').onclick();
+  }
+  const before=snapshot();
+  get('timelineYear').value='2030';get('timelineYear').oninput();
+  const shown=get('timelineEvents').innerHTML;
+  assert.match(shown,/家族旅行 — 予定（支出 12\.5万円）/);
+  assert.match(shown,/臨時収入 — 予定（収入 8万円）/);
+  assert.match(shown,/無料の記念日 — 予定<\/li>/);
+  assert.match(shown,/昔の記録 — 記録（試算対象外）/);
+  assert.doesNotMatch(shown,/昔の記録[^<]*支出/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('annual future expense appears in the selected year with its cash-flow label', () => {
+  const {get,snapshot}=app();
+  get('eventDate').value='2028-02-05';
+  get('eventTitle').value='年会費';
+  get('eventAmount').value='-3';
+  get('eventType').value='future';
+  get('eventRepeat').value='annual';
+  get('addEvent').onclick();
+  const before=snapshot();
+  get('timelineYear').value='2032';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2032年02月05日：年会費（毎年） — 予定（支出 3万円）/);
+  assert.deepEqual(snapshot(),before);
+});
