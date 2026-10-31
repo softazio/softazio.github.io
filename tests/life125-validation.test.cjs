@@ -1174,5 +1174,5 @@ test('both horizontally scrollable data tables are keyboard-focusable labelled r
 });
 
 test('keyboard focus indicator also covers scrollable table regions', () => {
-  assert.match(html, /:where\\(a,button,input,select,textarea,summary,\\.scroll\\):focus-visible\\{outline:3px solid #145a8d/);
+  assert.ok(html.includes(':where(a,button,input,select,textarea,summary,.scroll):focus-visible{outline:3px solid #145a8d'));
 });
