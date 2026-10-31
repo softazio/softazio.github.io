@@ -16,6 +16,7 @@ function restore(s){
  for(const k of fields){
   const value=s.fields[k];
   if(!Object.hasOwn(s.fields,k)||typeof value!=='string'||value.length>100)throw Error('設定項目が不正です');
+  if(k==='name'&&value.length>60)throw Error('本人の呼び名が不正です');
   if(k==='birth'){if(!validBackupDate(value)||new Date(value+'T00:00:00')>new Date())throw Error('生年月日が不正です')}
   else if(k!=='name'&&(!value.trim()||!Number.isFinite(Number(value))))throw Error('数値項目が不正です');
   nextFields[k]=value;
