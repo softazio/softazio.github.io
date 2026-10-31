@@ -1137,3 +1137,32 @@ test('annual future expense appears in the selected year with its cash-flow labe
   assert.match(get('timelineEvents').innerHTML,/2032年02月05日：年会費（毎年） — 予定（支出 3万円）/);
   assert.deepEqual(snapshot(),before);
 });
+
+
+test('past chronicle rows explicitly identify amounts excluded from asset projections', () => {
+  const {get,calculate}=app();
+  const original=get('yearRows').innerHTML;
+  get('eventDate').value='2030-04-01';
+  get('eventTitle').value='過去の記録';
+  get('eventType').value='past';
+  get('eventAmount').value='-9999';
+  get('eventRepeat').value='once';
+  get('addEvent').onclick();
+  assert.match(get('eventRows').innerHTML,/過去（試算対象外）/);
+  assert.match(get('eventRows').innerHTML,/-9999\.0/);
+  assert.equal(calculate(),true);
+  assert.equal(get('yearRows').innerHTML,original);
+});
+
+test('future event rows keep the normal future label after exclusion clarification', () => {
+  const {get}=app();
+  get('eventDate').value='2030-04-01';
+  get('eventTitle').value='将来の旅行';
+  get('eventType').value='future';
+  get('eventAmount').value='-12.5';
+  get('addEvent').onclick();
+  const markup=get('eventRows').innerHTML;
+  assert.match(markup,/-12\.5/);
+  assert.match(markup,/<td>将来<\/td>/);
+  assert.doesNotMatch(markup,/試算対象外/);
+});
