@@ -1332,3 +1332,23 @@ test('restoration accepts a self nickname at the 60-character boundary', () => {
   assert.match(get('timelineAges').innerHTML,/家{60}/);
   assert.match(html,/id="name" maxlength="60"/);
 });
+
+
+test('simulation explains that contributions continue despite negative cash', () => {
+  assert.match(html, /現預金がマイナスになっても、設定した毎月の投資積立は自動停止せず/);
+  assert.match(html, /現預金不足を借入で自動補填することもありません/);
+  assert.match(html, /NISAの投資枠や拠出可能額の上限判定も行いません/);
+});
+
+test('cash shortfall does not silently stop contributions or create an automatic loan', () => {
+  const {get,calculate}=app();
+  for (const [id,value] of [
+    ['cash','0'],['salary','0'],['expense','0'],['pension','0'],
+    ['invest','0'],['contribution','2'],['withdraw','0'],
+    ['returnRate','0'],['debt','0'],['debtRate','0'],['repayment','0']
+  ]) get(id).value=value;
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/現預金がマイナスになる時期/);
+  assert.match(get('stats').innerHTML,/\d{4}年\d{1,2}月/);
+  assert.match(get('yearRows').innerHTML,/<td>-\d+万円<\/td><td>\d+万円<\/td><td>0万円<\/td>/);
+});
