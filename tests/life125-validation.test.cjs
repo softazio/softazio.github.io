@@ -1434,3 +1434,35 @@ test('annual occurrence in the plan end month remains eligible', () => {
   assert.equal(calculate(),true);
   assert.notEqual(get('yearRows').innerHTML,before);
 });
+
+
+test('changing plan end age immediately refreshes event list status', () => {
+  const {get}=app();
+  get('endAge').value='40';get('endAge').oninput();
+  get('eventDate').value='2030-02-01';
+  get('eventTitle').value='計画終了後の行事';
+  get('eventType').value='future';
+  get('eventRepeat').value='once';
+  get('eventAmount').value='-5';
+  get('addEvent').onclick();
+  assert.match(get('eventRows').innerHTML,/予定（計画期間外・試算対象外）/);
+  get('endAge').value='41';get('endAge').oninput();
+  assert.match(get('eventRows').innerHTML,/<td>将来<\\/td>/);
+  assert.doesNotMatch(get('eventRows').innerHTML,/計画期間外・試算対象外/);
+});
+
+test('changing birth month immediately refreshes event list plan boundary', () => {
+  const {get}=app();
+  get('endAge').value='40';get('endAge').oninput();
+  get('eventDate').value='2030-02-01';
+  get('eventTitle').value='誕生月の行事';
+  get('eventType').value='future';
+  get('eventRepeat').value='annual';
+  get('eventAmount').value='-5';
+  get('addEvent').onclick();
+  assert.match(get('eventRows').innerHTML,/予定（計画期間外・試算対象外）/);
+  get('birth').value='1990-02-01';get('birth').onchange();
+  assert.match(get('eventRows').innerHTML,/<td>将来<\\/td>/);
+  assert.doesNotMatch(get('eventRows').innerHTML,/計画期間外・試算対象外/);
+  assert.match(get('timelineYearLabel').textContent,/年/);
+});
