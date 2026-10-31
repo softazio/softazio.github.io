@@ -1352,3 +1352,45 @@ test('cash shortfall does not silently stop contributions or create an automatic
   assert.match(get('stats').innerHTML,/\d{4}年\d{1,2}月/);
   assert.match(get('yearRows').innerHTML,/<td>-\d+万円<\/td><td>\d+万円<\/td><td>0万円<\/td>/);
 });
+
+
+test('one-off event after the plan end month is labelled outside projection', () => {
+  const {get,calculate,snapshot}=app();
+  get('birth').value='1990-01-01';
+  get('endAge').value='40';
+  assert.equal(calculate(),true);
+  const before=get('yearRows').innerHTML;
+  get('eventDate').value='2030-02-01';
+  get('eventTitle').value='計画終了後の旅行';
+  get('eventType').value='future';
+  get('eventRepeat').value='once';
+  get('eventAmount').value='-99';
+  get('addEvent').onclick();
+  assert.match(get('eventRows').innerHTML,/計画終了後の旅行/);
+  assert.match(get('eventRows').innerHTML,/予定（計画期間外・試算対象外）/);
+  get('timelineYear').value='2030';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/計画終了後の旅行[^<]*予定（支出 99万円）（計画期間外・試算対象外）/);
+  assert.equal(calculate(),true);
+  assert.equal(get('yearRows').innerHTML,before);
+  assert.equal(snapshot().events.length,1);
+});
+
+test('event in the plan end month remains included in projection', () => {
+  const {get,calculate}=app();
+  get('birth').value='1990-01-01';
+  get('endAge').value='40';
+  assert.equal(calculate(),true);
+  const before=get('yearRows').innerHTML;
+  get('eventDate').value='2030-01-01';
+  get('eventTitle').value='計画終了月の予定';
+  get('eventType').value='future';
+  get('eventRepeat').value='once';
+  get('eventAmount').value='-99';
+  get('addEvent').onclick();
+  assert.match(get('eventRows').innerHTML,/<td>将来<\/td>/);
+  get('timelineYear').value='2030';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/計画終了月の予定[^<]*予定（支出 99万円）/);
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/計画期間外/);
+  assert.equal(calculate(),true);
+  assert.notEqual(get('yearRows').innerHTML,before);
+});
