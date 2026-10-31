@@ -1176,3 +1176,23 @@ test('both horizontally scrollable data tables are keyboard-focusable labelled r
 test('keyboard focus indicator also covers scrollable table regions', () => {
   assert.ok(html.includes(':where(a,button,input,select,textarea,summary,.scroll):focus-visible{outline:3px solid #145a8d'));
 });
+
+test('empty event table explains how to add the first event', () => {
+  const {get,snapshot}=app();
+  assert.match(get('eventRows').innerHTML,/<td colspan="5" class="muted">イベントはまだ登録されていません/);
+  assert.equal(snapshot().events.length,0);
+});
+
+test('empty event hint disappears on add and returns after deletion', () => {
+  const {get,snapshot}=app();
+  get('eventDate').value='2030-04-01';
+  get('eventTitle').value='家族旅行';
+  get('eventAmount').value='-5';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.length,1);
+  assert.match(get('eventRows').innerHTML,/家族旅行/);
+  assert.doesNotMatch(get('eventRows').innerHTML,/イベントはまだ登録されていません/);
+  get('eventRows').onclick({target:{dataset:{event:'0'}}});
+  assert.equal(snapshot().events.length,0);
+  assert.match(get('eventRows').innerHTML,/イベントはまだ登録されていません/);
+});
