@@ -1694,3 +1694,37 @@ test('pension start age rejects fractions and negatives without overwriting vali
   assert.deepEqual(snapshot(),before);
   assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+test('editing monthly salary immediately hides stale projections until recalculation', () => {
+  const {get,calculate}=app();
+  assert.match(get('stats').innerHTML,/最終純資産/);
+  get('salary').value='25';
+  get('salary').oninput();
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.equal(get('chart').innerHTML,'');
+  assert.match(get('message').textContent,/試算条件が変更されました/);
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+  get('inflation').value='3';
+  get('inflation').oninput();
+  assert.equal(get('chart').innerHTML,'');
+});
+
+test('changing birthdate or plan end age refreshes timeline and hides old asset totals', () => {
+  const {get,calculate}=app();
+  get('endAge').value='96';
+  get('endAge').oninput();
+  assert.equal(get('timelineYear').max,'2086');
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(calculate(),true);
+  get('birth').value='1991-01-01';
+  get('birth').onchange();
+  assert.equal(get('timelineYear').max,'2087');
+  assert.equal(get('stats').innerHTML,'');
+  assert.match(get('message').textContent,/再計算する/);
+  assert.equal(calculate(),true);
+  get('name').value='別名';
+  get('name').oninput();
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
