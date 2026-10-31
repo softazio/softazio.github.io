@@ -1535,3 +1535,36 @@ test('negative withdrawal is rejected and its backup cannot overwrite valid data
   assert.deepEqual(snapshot(),before);
   assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+test('negative loan principal is rejected rather than silently clamped to zero', () => {
+  const {get,calculate,restore,snapshot}=app();
+  assert.match(html, /id="debt" type="number" min="0"/);
+  get('debt').value='-1';
+  assert.equal(calculate(),false);
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.match(get('message').textContent,/借入残高と毎月の返済額は0以上/);
+  get('debt').value='0';
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.debt='-1';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('negative loan repayment is rejected, while zero repayment remains valid', () => {
+  const {get,calculate,restore,snapshot}=app();
+  assert.match(html, /id="repayment" type="number" min="0"/);
+  get('debt').value='100';
+  get('repayment').value='-0.5';
+  assert.equal(calculate(),false);
+  assert.equal(get('chart').innerHTML,'');
+  assert.match(get('message').textContent,/借入残高と毎月の返済額は0以上/);
+  get('repayment').value='0';
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.repayment='-0.5';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
