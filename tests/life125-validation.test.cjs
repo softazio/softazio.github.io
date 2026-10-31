@@ -1074,3 +1074,29 @@ test('valid direct year does not announce a false range adjustment', () => {
   assert.equal(get('timelineYear').value,'2050');
   assert.equal(get('message').textContent,'以前の通知');
 });
+
+
+test('already-passed final birthday month rejects an empty projection without crashing', () => {
+  const {get,calculate}=app();
+  const now=new Date(),currentMonth=now.getMonth()+1;
+  if(currentMonth===1)return; // January has no earlier birthday month in the same year.
+  get('birth').value=(now.getFullYear()-65)+'-01-01';
+  get('endAge').value='65';
+  assert.equal(calculate(),false);
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.match(get('message').textContent,/到達月は既に過ぎています/);
+  get('endAge').value='66';
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('final birthday month equal to the current month remains a valid one-month projection', () => {
+  const {get,calculate}=app();
+  const now=new Date(),month=String(now.getMonth()+1).padStart(2,'0');
+  get('birth').value=(now.getFullYear()-65)+'-'+month+'-01';
+  get('endAge').value='65';
+  assert.equal(calculate(),true);
+  assert.match(get('yearRows').innerHTML,new RegExp('<tr><td>'+now.getFullYear()+'</td>'));
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
