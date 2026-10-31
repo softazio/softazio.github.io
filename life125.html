@@ -131,8 +131,12 @@ $('timelineJump').onchange=()=>{
  if(adjusted!==year)msg('指定年は表示範囲外のため、'+slider.min+'〜'+slider.max+'年に調整しました');
 };
 // 計画期間を変えたときは年表だけでなくイベント一覧の対象区分も更新する。
-$('birth').onchange=renderLists;
-$('endAge').oninput=renderLists;
+// 入力値だけが変わって以前の資産試算が残ると、古い金額を現在の条件と誤認する。
+function markProjectionStale(){invalidate('試算条件が変更されました。「再計算する」で更新してください')}
+$('birth').onchange=()=>{renderLists();markProjectionStale()};
+$('birth').oninput=()=>{renderLists();markProjectionStale()};
+$('endAge').oninput=()=>{renderLists();markProjectionStale()};
+for(const k of fields.filter(k=>!['name','birth','endAge'].includes(k)))$(k).oninput=markProjectionStale;
 $('name').oninput=renderTimeline;
 function nextFamilyId(){let i=1;while(families.some(f=>f.id==='f'+i))i++;return 'f'+i}
 function renderEventPersonOptions(){
