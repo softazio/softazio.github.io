@@ -1311,3 +1311,24 @@ test('future annual occurrence remains planned; past month in current year is ex
     assert.match(get('timelineEvents').innerHTML,/毎年の行事（毎年） — 予定（支出 2万円）（過去月・試算対象外）/);
   }
 });
+
+test('restoration rejects a self nickname longer than the input limit without mutation', () => {
+  const {restore,snapshot,get}=app();
+  const before=snapshot();
+  const invalid=structuredClone(before);
+  invalid.fields.name='家'.repeat(61);
+  invalid.fields.salary='35';
+  assert.throws(()=>restore(invalid),/本人の呼び名/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('restoration accepts a self nickname at the 60-character boundary', () => {
+  const {restore,snapshot,get}=app();
+  const valid=snapshot();
+  valid.fields.name='家'.repeat(60);
+  restore(valid);
+  assert.equal(snapshot().fields.name,valid.fields.name);
+  assert.match(get('timelineAges').innerHTML,/家{60}/);
+  assert.match(html,/id="name" maxlength="60"/);
+});
