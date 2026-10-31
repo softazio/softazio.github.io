@@ -1594,3 +1594,29 @@ test('negative investment balance in backup cannot overwrite valid settings', ()
   assert.deepEqual(snapshot(),before);
   assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+
+test('negative living expense cannot silently increase projected cash', () => {
+  const {get,calculate}=app();
+  assert.match(html, /id="expense" type="number" min="0"/);
+  get('expense').value='-1';
+  assert.equal(calculate(),false);
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.equal(get('chart').innerHTML,'');
+  assert.match(get('message').textContent,/月の生活費は0以上/);
+  get('expense').value='0';
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('negative living expense backup is rejected and prior data restored', () => {
+  const {get,calculate,restore,snapshot}=app();
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.expense='-0.1';
+  invalid.fields.salary='99';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
