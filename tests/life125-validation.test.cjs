@@ -1728,3 +1728,34 @@ test('changing birthdate or plan end age refreshes timeline and hides old asset 
   get('name').oninput();
   assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+test('annual leap-day event is labelled as February end in a non-leap year', () => {
+  const {get,snapshot}=app();
+  get('eventDate').value='2024-02-29';
+  get('eventTitle').value='閏日の記念日';
+  get('eventAmount').value='0';
+  get('eventRepeat').value='annual';
+  get('addEvent').onclick();
+  const before=snapshot();
+  get('timelineYear').value='2027';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2027年02月末（2月29日がない年）：閏日の記念日（毎年）/);
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/2027年02月29日/);
+  get('timelineYear').value='2028';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2028年02月29日：閏日の記念日（毎年）/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('non-recurring leap-day memory keeps its original date and ordinary annual dates remain unchanged', () => {
+  const {get}=app();
+  get('eventDate').value='2024-02-29';get('eventTitle').value='一度きりの記録';
+  get('eventAmount').value='0';get('eventType').value='past';get('eventRepeat').value='once';
+  get('addEvent').onclick();
+  get('eventDate').value='2024-02-28';get('eventTitle').value='毎年の行事';
+  get('eventType').value='future';get('eventRepeat').value='annual';
+  get('addEvent').onclick();
+  get('timelineYear').value='2024';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2024年02月29日：一度きりの記録/);
+  get('timelineYear').value='2027';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2027年02月28日：毎年の行事（毎年）/);
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/2027年02月末/);
+});
