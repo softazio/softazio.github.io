@@ -1166,3 +1166,13 @@ test('future event rows keep the normal future label after exclusion clarificati
   assert.match(markup,/<td>将来<\/td>/);
   assert.doesNotMatch(markup,/試算対象外/);
 });
+
+
+test('both horizontally scrollable data tables are keyboard-focusable labelled regions', () => {
+  assert.match(html, /<div class="scroll" tabindex="0" role="region" aria-label="イベント一覧（横スクロール可能）"><table>/);
+  assert.match(html, /<div class="scroll" tabindex="0" role="region" aria-label="年次資産推移表（横スクロール可能）"><table>/);
+});
+
+test('keyboard focus indicator also covers scrollable table regions', () => {
+  assert.match(html, /:where\\(a,button,input,select,textarea,summary,\\.scroll\\):focus-visible\\{outline:3px solid #145a8d/);
+});
