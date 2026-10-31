@@ -1620,3 +1620,38 @@ test('negative living expense backup is rejected and prior data restored', () =>
   assert.deepEqual(snapshot(),before);
   assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+
+test('negative monthly take-home salary is rejected instead of subtracting from cash', () => {
+  const {get,calculate,restore,snapshot}=app();
+  assert.match(html, /id="salary" type="number" min="0"/);
+  get('salary').value='-1';
+  assert.equal(calculate(),false);
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.match(get('message').textContent,/手取り給与と年金手取り想定は0以上/);
+  get('salary').value='0';
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.salary='-1';
+  invalid.fields.expense='99';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('negative monthly take-home pension is rejected, zero remains valid and backup rolls back', () => {
+  const {get,calculate,restore,snapshot}=app();
+  assert.match(html, /id="pension" type="number" min="0"/);
+  get('pension').value='-0.1';
+  assert.equal(calculate(),false);
+  assert.equal(get('chart').innerHTML,'');
+  assert.match(get('message').textContent,/手取り給与と年金手取り想定は0以上/);
+  get('pension').value='0';
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.pension='-0.1';
+  invalid.fields.cash='999';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
