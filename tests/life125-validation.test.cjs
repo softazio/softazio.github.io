@@ -1264,3 +1264,25 @@ test('current-month and annual events remain eligible for future projection', ()
   assert.doesNotMatch(rows,/過去月・試算対象外/);
   assert.equal((rows.match(/<td>将来<\/td>/g)||[]).length,2);
 });
+
+
+test('event amount input permits decimals finer than 0.1万円', () => {
+  assert.match(html, /id="eventAmount" type="number" step="any" value="0"/);
+  assert.doesNotMatch(html, /id="eventAmount" type="number" step="0\.1"/);
+});
+
+test('new event preserves precise small expense and income amounts', () => {
+  const {get,snapshot}=app();
+  for (const [date,title,amount] of [
+    ['2030-04-01','小額の支出','-0.025'],
+    ['2030-04-02','小額の収入','0.05']
+  ]) {
+    get('eventDate').value=date;
+    get('eventTitle').value=title;
+    get('eventAmount').value=amount;
+    get('addEvent').onclick();
+  }
+  assert.deepEqual(snapshot().events.map(e=>e.amount),[-0.025,0.05]);
+  assert.match(get('eventRows').innerHTML,/<td>-0\.025<\/td>/);
+  assert.match(get('eventRows').innerHTML,/<td>0\.05<\/td>/);
+});
