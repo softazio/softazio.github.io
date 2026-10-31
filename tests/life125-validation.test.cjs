@@ -1394,3 +1394,43 @@ test('event in the plan end month remains included in projection', () => {
   assert.equal(calculate(),true);
   assert.notEqual(get('yearRows').innerHTML,before);
 });
+
+test('annual event starting after the plan end month is excluded in list and timeline', () => {
+  const {get,calculate}=app();
+  get('birth').value='1990-01-01';
+  get('endAge').value='40';
+  assert.equal(calculate(),true);
+  const before=get('yearRows').innerHTML;
+  get('eventDate').value='2030-02-05';
+  get('eventTitle').value='終了後からの毎年会費';
+  get('eventType').value='future';
+  get('eventRepeat').value='annual';
+  get('eventAmount').value='-99';
+  get('addEvent').onclick();
+  assert.match(get('eventRows').innerHTML,/終了後からの毎年会費（毎年）/);
+  assert.match(get('eventRows').innerHTML,/予定（計画期間外・試算対象外）/);
+  get('timelineYear').value='2030';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2030年02月05日：終了後からの毎年会費（毎年） — 予定（支出 99万円）（計画期間外・試算対象外）/);
+  assert.equal(calculate(),true);
+  assert.equal(get('yearRows').innerHTML,before);
+});
+
+test('annual occurrence in the plan end month remains eligible', () => {
+  const {get,calculate}=app();
+  get('birth').value='1990-01-01';
+  get('endAge').value='40';
+  assert.equal(calculate(),true);
+  const before=get('yearRows').innerHTML;
+  get('eventDate').value='2030-01-05';
+  get('eventTitle').value='終了月の毎年会費';
+  get('eventType').value='future';
+  get('eventRepeat').value='annual';
+  get('eventAmount').value='-99';
+  get('addEvent').onclick();
+  assert.match(get('eventRows').innerHTML,/<td>将来<\/td>/);
+  get('timelineYear').value='2030';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2030年01月05日：終了月の毎年会費（毎年） — 予定（支出 99万円）/);
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/計画期間外/);
+  assert.equal(calculate(),true);
+  assert.notEqual(get('yearRows').innerHTML,before);
+});
