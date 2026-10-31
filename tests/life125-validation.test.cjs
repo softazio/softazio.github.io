@@ -1568,3 +1568,29 @@ test('negative loan repayment is rejected, while zero repayment remains valid', 
   assert.deepEqual(snapshot(),before);
   assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+test('negative investment balance is rejected without leaving stale projection', () => {
+  const {get,calculate}=app();
+  assert.match(html, /id="invest" type="number" min="0"/);
+  get('invest').value='-0.5';
+  assert.equal(calculate(),false);
+  assert.equal(get('stats').innerHTML,'');
+  assert.equal(get('yearRows').innerHTML,'');
+  assert.equal(get('chart').innerHTML,'');
+  assert.match(get('message').textContent,/運用資産残高は0以上/);
+  get('invest').value='0';
+  assert.equal(calculate(),true);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('negative investment balance in backup cannot overwrite valid settings', () => {
+  const {get,calculate,restore,snapshot}=app();
+  get('invest').value='0';
+  assert.equal(calculate(),true);
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.fields.invest='-1';
+  invalid.fields.salary='99';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
