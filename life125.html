@@ -120,8 +120,10 @@ $('timelineNext').onclick=()=>moveTimelineYear(1);
 $('timelineJump').onchange=()=>{
  const jump=$('timelineJump'),raw=String(jump.value).trim(),year=Number(raw),slider=$('timelineYear');
  if(!raw||!Number.isInteger(year)){jump.value=slider.value;msg('年は整数で指定してください');return}
- slider.value=String(Math.max(Number(slider.min),Math.min(Number(slider.max),year)));
+ const adjusted=Math.max(Number(slider.min),Math.min(Number(slider.max),year));
+ slider.value=String(adjusted);
  renderTimeline();
+ if(adjusted!==year)msg('指定年は表示範囲外のため、'+slider.min+'〜'+slider.max+'年に調整しました');
 };
 $('birth').onchange=renderTimeline;
 $('endAge').oninput=renderTimeline;
