@@ -1286,3 +1286,28 @@ test('new event preserves precise small expense and income amounts', () => {
   assert.match(get('eventRows').innerHTML,/<td>-0\.025<\/td>/);
   assert.match(get('eventRows').innerHTML,/<td>0\.05<\/td>/);
 });
+
+test('past-year annual occurrence is marked outside the future projection in timeline', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2000-02-05',title:'毎年の会費',type:'future',amount:-3,repeat:'annual'}];
+  restore(backup);
+  get('timelineYear').value='2000'; get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2000年02月05日：毎年の会費（毎年） — 予定（支出 3万円）（過去月・試算対象外）/);
+  assert.match(get('eventRows').innerHTML,/<td>将来<\/td>/);
+});
+
+test('future annual occurrence remains planned; past month in current year is excluded', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2000-01-05',title:'毎年の行事',type:'future',amount:-2,repeat:'annual'}];
+  restore(backup);
+  const futureYear=new Date().getFullYear()+2;
+  get('timelineYear').value=String(futureYear); get('timelineYear').oninput();
+  assert.ok(get('timelineEvents').innerHTML.includes(futureYear+'年01月05日：毎年の行事（毎年） — 予定（支出 2万円）'));
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/試算対象外/);
+  if(new Date().getMonth()>0){
+    get('timelineYear').value=String(new Date().getFullYear()); get('timelineYear').oninput();
+    assert.match(get('timelineEvents').innerHTML,/毎年の行事（毎年） — 予定（支出 2万円）（過去月・試算対象外）/);
+  }
+});
