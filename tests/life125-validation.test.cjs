@@ -1049,7 +1049,7 @@ test('failed restore preserves a selected future year when temporary plan ends e
 });
 
 test('keyboard focus has a visible high-contrast indicator on interactive controls', () => {
-  assert.match(html, /:where\(a,button,input,select,textarea,summary\):focus-visible\{outline:3px solid #145a8d;outline-offset:3px;box-shadow:0 0 0 5px #fff\}/);
+  assert.ok(html.includes(':where(a,button,input,select,textarea,summary,.scroll):focus-visible{outline:3px solid #145a8d;outline-offset:3px;box-shadow:0 0 0 5px #fff}'));
   assert.match(html, /@media\(prefers-reduced-motion:reduce\)/);
 });
 
