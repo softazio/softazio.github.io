@@ -1973,3 +1973,43 @@ test('invalid event backup explains the known validation failure and retains cur
  assert.match(get('message').textContent,/保存データを読み込めませんでした.*イベントデータが不正/);
  assert.match(get('message').textContent,/削除していません/);
 });
+
+test('deleting an earlier family preserves both pending legacy selections by identity', () => {
+  const {get,snapshot}=app();
+  for(const name of ['削除する人','親友','ロッキー']){
+    get('familyName').value=name;
+    get('familyRole').value='家族';
+    get('familyBirth').value='2000-01-01';
+    get('addFamily').onclick();
+  }
+  get('eventPerson').value='legacy:2';
+  get('eventPerson2').value='legacy:1';
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.deepEqual(snapshot().families.map(f=>f.name),['親友','ロッキー']);
+  assert.equal(get('eventPerson').value,'legacy:1');
+  assert.equal(get('eventPerson2').value,'legacy:0');
+  get('eventDate').value='2026-12-01';
+  get('eventTitle').value='二人の記念日';
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  const after=snapshot();
+  assert.equal(after.events[0].personId,after.families[1].id);
+  assert.equal(after.events[0].secondPersonId,after.families[0].id);
+});
+
+test('deleting selected legacy family clears only that selection, not the surviving person', () => {
+  const {get,snapshot}=app();
+  for(const name of ['削除する人','友人','ペット']){
+    get('familyName').value=name;
+    get('familyRole').value='家族';
+    get('familyBirth').value='2000-01-01';
+    get('addFamily').onclick();
+  }
+  get('eventPerson').value='legacy:0';
+  get('eventPerson2').value='legacy:2';
+  const before=snapshot().events;
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.equal(get('eventPerson').value,'');
+  assert.equal(get('eventPerson2').value,'legacy:1');
+  assert.deepEqual(snapshot().events,before);
+});

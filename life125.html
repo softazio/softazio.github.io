@@ -202,7 +202,16 @@ $('addFamily').onclick=()=>{
  if(!validBackupDate(birth)||new Date(birth+'T00:00:00')>new Date())return alert('生年月日は今日以前の正しい日付を入力してください');
  if(families.length>=100)return alert('家族は100人まで登録できます');
  families.push({name,role,birth});renderLists()
-};$('familyList').onclick=e=>{if(e.target.dataset.family!==undefined){const index=Number(e.target.dataset.family);if(!Number.isInteger(index)||index<0||index>=families.length)return;if(!confirm('「'+families[index].name+'」を削除しますか？関連する思い出の本文は残りますが、この人との関連付けは変更・解除されます。'))return;const removed=families.splice(index,1)[0];if(removed?.id)events=events.map(event=>{
+};$('familyList').onclick=e=>{if(e.target.dataset.family!==undefined){const index=Number(e.target.dataset.family);if(!Number.isInteger(index)||index<0||index>=families.length)return;if(!confirm('「'+families[index].name+'」を削除しますか？関連する思い出の本文は残りますが、この人との関連付けは変更・解除されます。'))return;// 旧形式の legacy:N は家族配列の位置を表す。削除時に別人へずれないよう補正する。
+ const pendingPersonIds=['eventPerson','eventPerson2'];
+ const previousSelections=pendingPersonIds.map(id=>$(id).value);
+ const removed=families.splice(index,1)[0];
+ pendingPersonIds.forEach((id,i)=>{
+  const selected=previousSelections[i];
+  if(!/^legacy:\d+$/.test(selected))return;
+  const position=Number(selected.slice(7));
+  $(id).value=position===index?'':position>index?'legacy:'+(position-1):selected;
+ });if(removed?.id)events=events.map(event=>{
  if(event.personId===removed.id){const {personId,secondPersonId,...rest}=event;return {...rest,...(secondPersonId&&secondPersonId!==removed.id?{personId:secondPersonId}:{})}}
  if(event.secondPersonId===removed.id){const {secondPersonId,...rest}=event;return rest}
  return event;
