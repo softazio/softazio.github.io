@@ -2245,3 +2245,40 @@ test('event table uses original annual leap-day date to flag only pre-birth link
   assert.equal((rows.match(/登録開始日が関連人物の誕生前：日付を確認/g)||[]).length,1);
   assert.deepEqual(snapshot(),before);
 });
+
+test('event table displays linked friend and pet names safely without changing saved data', () => {
+ const {restore,snapshot,get}=app();
+ const backup=snapshot();
+ backup.families=[
+  {id:'f1',name:'親友 <甲>',role:'友人',birth:'1990-01-01'},
+  {id:'f2',name:'ロッキー & Co',role:'ペット',birth:'2015-01-01'}
+ ];
+ backup.events=[
+  {date:'2020-04-01',title:'散歩',type:'past',amount:0,repeat:'once',personId:'f1',secondPersonId:'f2'},
+  {date:'2021-01-01',title:'単独の予定',type:'future',amount:0,repeat:'once'}
+ ];
+ restore(backup);
+ const before=snapshot(),rows=get('eventRows').innerHTML;
+ assert.match(rows,/散歩[^<]*<div class="muted">関連：親友 &lt;甲&gt;・ロッキー &amp; Co<\\/div>/);
+ assert.equal((rows.match(/<div class="muted">関連：/g)||[]).length,1);
+ assert.doesNotMatch(rows,/<甲>/);
+ assert.deepEqual(snapshot(),before);
+});
+
+test('renaming self immediately updates linked event table without recalculating assets', () => {
+ const {get,snapshot}=app();
+ get('eventDate').value='2030-05-01';
+ get('eventTitle').value='本人の記念日';
+ get('eventAmount').value='0';
+ get('eventPerson').value='self';
+ get('addEvent').onclick();
+ const before=snapshot();
+ get('name').value='新しい呼び名';
+ get('name').oninput();
+ const rows=get('eventRows').innerHTML;
+ assert.match(rows,/本人の記念日[^<]*<div class="muted">関連：新しい呼び名<\\/div>/);
+ assert.doesNotMatch(rows,/関連：本人<\\/div>/);
+ assert.deepEqual(snapshot().events,before.events);
+ assert.equal(snapshot().fields.name,'新しい呼び名');
+ assert.match(get('stats').innerHTML,/最終純資産/);
+});
