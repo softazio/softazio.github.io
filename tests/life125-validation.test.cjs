@@ -2212,3 +2212,36 @@ test('annual leap-day memory warns only before linked person birth', () => {
   assert.doesNotMatch(get('timelineEvents').innerHTML,/関連人物の誕生前：日付を確認/);
   assert.deepEqual(snapshot(),before);
 });
+
+
+test('event table warns for linked pre-birth event without warning after birthday', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'年末生まれの友人',role:'友人',birth:'1990-12-20'}];
+  backup.events=[
+    {date:'1990-06-01',title:'誕生前の予定',type:'future',amount:0,repeat:'once',personId:'self',secondPersonId:'f1'},
+    {date:'1990-12-25',title:'誕生後の予定',type:'future',amount:0,repeat:'once',personId:'self',secondPersonId:'f1'}
+  ];
+  restore(backup);
+  const before=snapshot(),rows=get('eventRows').innerHTML;
+  assert.match(rows,/誕生前の予定[^<]*<div class="muted">登録開始日が関連人物の誕生前：日付を確認<\/div>/);
+  assert.match(rows,/誕生後の予定/);
+  assert.equal((rows.match(/登録開始日が関連人物の誕生前：日付を確認/g)||[]).length,1);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('event table uses original annual leap-day date to flag only pre-birth links', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'春生まれの友人',role:'友人',birth:'2000-03-01'}];
+  backup.events=[
+    {date:'1992-02-29',title:'登録開始が誕生前',type:'past',amount:0,repeat:'annual',personId:'f1'},
+    {date:'2004-02-29',title:'登録開始が誕生後',type:'past',amount:0,repeat:'annual',personId:'f1'}
+  ];
+  restore(backup);
+  const before=snapshot(),rows=get('eventRows').innerHTML;
+  assert.match(rows,/登録開始が誕生前（毎年）[^<]*<div class="muted">登録開始日が関連人物の誕生前：日付を確認<\/div>/);
+  assert.match(rows,/登録開始が誕生後（毎年）/);
+  assert.equal((rows.match(/登録開始日が関連人物の誕生前：日付を確認/g)||[]).length,1);
+  assert.deepEqual(snapshot(),before);
+});
