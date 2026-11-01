@@ -167,7 +167,7 @@ function renderTimeline(){
  const people=[{id:'self',name:$('name').value.trim()||'本人',birth},...families];
  $('timelineAges').innerHTML=people.map(p=>{
   const age=validBackupDate(p.birth)?ageAt(p.birth,year,12):null;
-  return '<li>'+safe(p.name)+'：'+(age===null?'生年月日を確認':age<0?'誕生前':age+'歳')+'</li>';
+  return '<li>'+safe(p.name)+'：'+(age===null?'生年月日を確認':age<0?'誕生前':age+'歳')+(p.role?'（'+safe(p.role)+'）':'')+'</li>';
  }).join('');
  renderTrails(people,year,start,end);
  const yearEvents=events.filter(e=>{

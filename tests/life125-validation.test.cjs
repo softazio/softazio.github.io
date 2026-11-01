@@ -2282,3 +2282,22 @@ test('renaming self immediately updates linked event table without recalculating
  assert.equal(snapshot().fields.name,'新しい呼び名');
  assert.match(get('stats').innerHTML,/最終純資産/);
 });
+
+test('family timeline distinguishes identical names by escaped relationship without changing data', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'ロッキー',role:'親友 <A>',birth:'2018-05-03'},
+    {id:'f2',name:'ロッキー',role:'ペット & 犬',birth:'2019-07-03'}
+  ];
+  restore(backup);
+  const before=snapshot();
+  get('timelineYear').value='2030';
+  get('timelineYear').oninput();
+  const ages=get('timelineAges').innerHTML;
+  assert.match(ages,/ロッキー：12歳（親友 &lt;A&gt;）/);
+  assert.match(ages,/ロッキー：11歳（ペット &amp; 犬）/);
+  assert.match(ages,/本人：40歳<\\/li>/);
+  assert.doesNotMatch(ages,/<A>/);
+  assert.deepEqual(snapshot(),before);
+});
