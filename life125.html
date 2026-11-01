@@ -68,13 +68,22 @@ function backupErrorHint(error){
  const known=['対応していないデータ形式です','登録件数が多すぎます','設定項目が不正です','本人の呼び名が不正です','生年月日が不正です','数値項目が不正です','試算条件が不正です','退職・年金開始年齢は0〜125歳の整数で指定してください','家族データが不正です','家族IDが重複しています','イベントデータが不正です','復元データの試算条件が不正です'];
  return '（'+(known.includes(error?.message)?error.message:'JSON形式を確認してください')+'）';
 }
+// 過去クロニクルの毎年の記録は、まだ到来していない発生日を「思い出」にしない。
+function isFutureChronicleOccurrence(e,year){
+ if(e.type!=='past')return false;
+ const occurrence=String(year).padStart(4,'0')+e.date.slice(4);
+ // 2月29日の記念日は平年の2月末に表示する既存ルールに合わせる。
+ const effective=occurrence.endsWith('-02-29')&&!validBackupDate(occurrence)?occurrence.slice(0,8)+'28':occurrence;
+ const now=new Date();
+ const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+ return effective>today;
+}
 // 軌跡上の毎年イベントは選択年までの発生年を表示する（1件につき直近20年まで）。
 function trailEventYears(e,year,born){
  const first=Number(e.date.slice(0,4));
  if(first>year)return [];
- if(e.repeat!=='annual')return first>=born?[first]:[];
- const from=Math.max(first,born,year-19);
- return Array.from({length:Math.max(0,year-from+1)},(_,i)=>from+i);
+ const years=e.repeat!=='annual'?(first>=born?[first]:[]):Array.from({length:Math.max(0,year-Math.max(first,born,year-19)+1)},(_,i)=>Math.max(first,born,year-19)+i);
+ return e.type==='past'?years.filter(y=>!isFutureChronicleOccurrence(e,y)):years;
 }
 function renderTrails(people,year,start,end){
  // 視覚的な補助表示。氏名・年齢は下のテキスト一覧で確認できる。
@@ -136,7 +145,7 @@ function renderTimeline(){
  renderTrails(people,year,start,end);
  const yearEvents=events.filter(e=>{
   const eventYear=Number(e.date.slice(0,4));
-  return eventYear===year||(e.repeat==='annual'&&year>=eventYear);
+  return (eventYear===year||(e.repeat==='annual'&&year>=eventYear))&&!isFutureChronicleOccurrence(e,year);
  }).sort((a,b)=>a.date.slice(5).localeCompare(b.date.slice(5))||a.date.localeCompare(b.date));
  $('timelineEvents').innerHTML=yearEvents.length?yearEvents.map(e=>{
   const cashFlow=e.type==='future'&&e.amount!==0?'（'+(e.amount<0?'支出 ':'収入 ')+Math.abs(e.amount).toLocaleString('ja-JP')+'万円）':'';

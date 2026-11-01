@@ -2091,3 +2091,36 @@ test('light trails prioritize recent annual occurrences even when their first da
   assert.equal((svg.match(/class="life-connection"/g)||[]).length,20);
   assert.deepEqual(snapshot(),before);
 });
+
+test('annual past chronicles never invent future memories in timeline or light trails', () => {
+  const {restore,snapshot,get}=app();
+  const currentYear=new Date().getFullYear();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'親友',role:'友人',birth:'1990-01-01'}];
+  backup.events=[{date:'2000-01-01',title:'毎年の思い出',type:'past',
+    amount:0,repeat:'annual',personId:'self',secondPersonId:'f1'}];
+  restore(backup);
+  const before=snapshot();
+  get('timelineYear').value=String(currentYear-1);get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/毎年の思い出（毎年） — 記録（試算対象外）/);
+  get('timelineYear').value=String(currentYear+2);get('timelineYear').oninput();
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/毎年の思い出/);
+  const svg=get('timelineTrails').innerHTML;
+  assert.equal((svg.match(/class="life-event-marker"/g)||[]).length,36);
+  assert.equal((svg.match(/class="life-connection"/g)||[]).length,18);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('annual past chronicle occurrence later this year is not yet a memory', () => {
+  const {restore,snapshot,get}=app();
+  const today=new Date(),tomorrow=new Date(today.getFullYear(),today.getMonth(),today.getDate()+1);
+  if(tomorrow.getFullYear()!==today.getFullYear())return;
+  const monthDay=String(tomorrow.getMonth()+1).padStart(2,'0')+'-'+String(tomorrow.getDate()).padStart(2,'0');
+  const backup=snapshot();
+  backup.events=[{date:'2000-'+monthDay,title:'明日の記念日',type:'past',amount:0,repeat:'annual'}];
+  restore(backup);
+  get('timelineYear').value=String(today.getFullYear());get('timelineYear').oninput();
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/明日の記念日/);
+  get('timelineYear').value=String(today.getFullYear()-1);get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/明日の記念日/);
+});
