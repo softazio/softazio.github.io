@@ -2139,8 +2139,8 @@ test('light trails retain a distinct older memory beside twenty annual occurrenc
   const before=snapshot();
   get('timelineYear').value='2051';get('timelineYear').oninput();
   const svg=get('timelineTrails').innerHTML;
-  assert.match(svg,/<title>一度だけの思い出<\\/title>/);
-  assert.match(svg,/<title>毎年の再会<\\/title>/);
+  assert.match(svg,/<title>一度だけの思い出<\/title>/);
+  assert.match(svg,/<title>毎年の再会<\/title>/);
   assert.equal((svg.match(/class="life-event-marker"/g)||[]).length,40);
   assert.equal((svg.match(/class="life-connection"/g)||[]).length,20);
   assert.deepEqual(snapshot(),before);
