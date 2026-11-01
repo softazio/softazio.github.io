@@ -136,13 +136,22 @@ function renderTrails(people,year,start,end){
  }).join('');
  $('timelineTrails').innerHTML='<svg viewBox="0 0 760 '+height+'" aria-hidden="true" focusable="false">'+paths+connections+'</svg>';
 }
+// 同名・同続柄の人物は生年月日、完全一致なら登録順で区別する。保存データは不変。
+function personRole(p){return p.role||(p.id==='self'?'本人':'家族')}
+function personDisplayName(p,people,alwaysRole=false){
+ const sameName=people.filter(other=>other.name===p.name);
+ if(!alwaysRole&&sameName.length===1)return p.name;
+ const role=personRole(p);
+ const sameRole=sameName.filter(other=>personRole(other)===role);
+ if(sameRole.length===1)return p.name+'（'+role+'）';
+ const sameBirth=sameRole.filter(other=>other.birth===p.birth);
+ if(sameBirth.length===1)return p.name+'（'+role+'・'+p.birth+'）';
+ return p.name+'（'+role+'・'+p.birth+'・登録'+(sameBirth.indexOf(p)+1)+'）';
+}
 function eventPeopleNames(e,people){
  return [e.personId,e.secondPersonId].filter(Boolean).map(id=>{
   const person=people.find(p=>p.id===id);
-  if(!person)return '未登録';
-  // 同じ呼び名の人物がいる場合だけ続柄を添え、イベントの相手を区別しやすくする。
-  if(people.filter(p=>p.name===person.name).length<2)return person.name;
-  return person.name+'（'+(person.role||(id==='self'?'本人':'家族'))+'）';
+  return person?personDisplayName(person,people):'未登録';
  }).join('・');
 }
 // 出来事は消さず、関連人物の誕生前の日付だけ年表上で注意を促す。
@@ -213,7 +222,8 @@ $('name').oninput=renderLists;
 function nextFamilyId(){let i=1;while(families.some(f=>f.id==='f'+i))i++;return 'f'+i}
 function renderEventPersonOptions(){
  const select=$('eventPerson'),chosen=select.value,second=$('eventPerson2'),chosen2=second.value;
- select.innerHTML='<option value="">関連付けない</option><option value="self">本人</option>'+families.map((f,i)=>'<option value="'+safe(f.id||'legacy:'+i)+'">'+safe(f.name)+'（'+safe(f.role||'家族')+'）</option>').join('');
+ const people=[{id:'self',name:$('name').value.trim()||'本人',birth:$('birth').value},...families];
+ select.innerHTML='<option value="">関連付けない</option><option value="self">本人</option>'+families.map((f,i)=>'<option value="'+safe(f.id||'legacy:'+i)+'">'+safe(personDisplayName(f,people,true))+'</option>').join('');
  const allowed=['','self',...families.map((f,i)=>f.id||'legacy:'+i)];
  select.value=allowed.includes(chosen)?chosen:'';
  second.innerHTML=select.innerHTML.replace('関連付けない','選択しない');

@@ -2333,3 +2333,50 @@ test('event links distinguish self from a pet with the same name without modifyi
   assert.match(get('eventRows').innerHTML,/関連：ロッキー（本人）・ロッキー（ペット）/);
   assert.deepEqual(snapshot(),before);
 });
+
+test('same-name same-role people with different birthdays are distinct in selectors and memories', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'ロッキー',role:'友人',birth:'2000-01-01'},
+    {id:'f2',name:'ロッキー',role:'友人',birth:'2001-02-02'}
+  ];
+  backup.events=[{date:'2022-05-01',title:'再会',type:'past',amount:0,
+    repeat:'once',personId:'f1',secondPersonId:'f2'}];
+  restore(backup);
+  const before=snapshot();
+  const choices=get('eventPerson').innerHTML;
+  assert.ok(choices.includes('<option value="f1">ロッキー（友人・2000-01-01）</option>'));
+  assert.ok(choices.includes('<option value="f2">ロッキー（友人・2001-02-02）</option>'));
+  const expected='関連：ロッキー（友人・2000-01-01）・ロッキー（友人・2001-02-02）';
+  assert.ok(get('eventRows').innerHTML.includes(expected));
+  get('timelineYear').value='2022';get('timelineYear').oninput();
+  assert.ok(get('timelineEvents').innerHTML.includes(expected));
+  assert.deepEqual(snapshot(),before);
+});
+
+test('exact duplicate names roles and birthdays get unique selection labels and keep IDs', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'同名',role:'友人',birth:'2000-01-01'},
+    {id:'f2',name:'同名',role:'友人',birth:'2000-01-01'}
+  ];
+  backup.events=[{date:'2022-05-01',title:'記念日',type:'past',amount:0,
+    repeat:'once',personId:'f1',secondPersonId:'f2'}];
+  restore(backup);
+  const before=snapshot();
+  const choices=get('eventPerson').innerHTML;
+  assert.ok(choices.includes('<option value="f1">同名（友人・2000-01-01・登録1）</option>'));
+  assert.ok(choices.includes('<option value="f2">同名（友人・2000-01-01・登録2）</option>'));
+  const expected='関連：同名（友人・2000-01-01・登録1）・同名（友人・2000-01-01・登録2）';
+  assert.ok(get('eventRows').innerHTML.includes(expected));
+  get('timelineYear').value='2022';get('timelineYear').oninput();
+  assert.ok(get('timelineEvents').innerHTML.includes(expected));
+  assert.deepEqual(snapshot(),before);
+  get('eventPerson').value='f2';get('eventPerson2').value='f1';
+  get('eventDate').value='2030-05-01';get('eventTitle').value='選択確認';get('eventAmount').value='0';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.at(-1).personId,'f2');
+  assert.equal(snapshot().events.at(-1).secondPersonId,'f1');
+});
