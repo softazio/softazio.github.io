@@ -1759,3 +1759,36 @@ test('non-recurring leap-day memory keeps its original date and ordinary annual 
   assert.match(get('timelineEvents').innerHTML,/2027年02月28日：毎年の行事（毎年）/);
   assert.doesNotMatch(get('timelineEvents').innerHTML,/2027年02月末/);
 });
+
+
+test('future-dated past chronicle is rejected without changing existing memories', () => {
+  const {get,alerts,snapshot}=app();
+  const before=snapshot();
+  get('eventDate').value='2999-01-01';
+  get('eventTitle').value='まだ起きていない思い出';
+  get('eventAmount').value='0';
+  get('eventType').value='past';
+  get('addEvent').onclick();
+  assert.deepEqual(snapshot(),before);
+  assert.match(alerts.at(-1),/過去のクロニクルには今日以前/);
+});
+
+test('today is allowed for past chronicle, while future events stay permitted and invalid backups roll back', () => {
+  const {get,restore,snapshot}=app();
+  const now=new Date(),today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+  get('eventDate').value=today;
+  get('eventTitle').value='今日の記録';
+  get('eventAmount').value='0';
+  get('eventType').value='past';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.at(-1).date,today);
+  get('eventDate').value='2999-01-01';
+  get('eventTitle').value='未来の予定';
+  get('eventType').value='future';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.at(-1).type,'future');
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.events.push({date:'2999-01-01',title:'未来を過去として登録',type:'past',amount:0,repeat:'once'});
+  assert.throws(()=>restore(invalid),/イベントデータが不正/);
+  assert.deepEqual(snapshot(),before);
+});
