@@ -137,7 +137,13 @@ function renderTrails(people,year,start,end){
  $('timelineTrails').innerHTML='<svg viewBox="0 0 760 '+height+'" aria-hidden="true" focusable="false">'+paths+connections+'</svg>';
 }
 function eventPeopleNames(e,people){
- return [e.personId,e.secondPersonId].filter(Boolean).map(id=>people.find(p=>p.id===id)?.name||'未登録').join('・');
+ return [e.personId,e.secondPersonId].filter(Boolean).map(id=>{
+  const person=people.find(p=>p.id===id);
+  if(!person)return '未登録';
+  // 同じ呼び名の人物がいる場合だけ続柄を添え、イベントの相手を区別しやすくする。
+  if(people.filter(p=>p.name===person.name).length<2)return person.name;
+  return person.name+'（'+(person.role||(id==='self'?'本人':'家族'))+'）';
+ }).join('・');
 }
 // 出来事は消さず、関連人物の誕生前の日付だけ年表上で注意を促す。
 function hasPreBirthLinkedPerson(e,year,people){

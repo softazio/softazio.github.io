@@ -2301,3 +2301,35 @@ test('family timeline distinguishes identical names by escaped relationship with
   assert.doesNotMatch(ages,/<A>/);
   assert.deepEqual(snapshot(),before);
 });
+
+test('event links distinguish same-name friend and pet by escaped relationship in list and timeline', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'ロッキー',role:'親友 <A>',birth:'2018-05-03'},
+    {id:'f2',name:'ロッキー',role:'ペット & 犬',birth:'2019-07-03'}
+  ];
+  backup.events=[{date:'2022-05-01',title:'二人の思い出',type:'past',amount:0,
+    repeat:'once',personId:'f1',secondPersonId:'f2'}];
+  restore(backup);
+  const before=snapshot();
+  const rows=get('eventRows').innerHTML;
+  assert.match(rows,/関連：ロッキー（親友 &lt;A&gt;）・ロッキー（ペット &amp; 犬）/);
+  get('timelineYear').value='2022';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/関連：ロッキー（親友 &lt;A&gt;）・ロッキー（ペット &amp; 犬）/);
+  assert.doesNotMatch(rows,/<A>/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('event links distinguish self from a pet with the same name without modifying records', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.fields.name='ロッキー';
+  backup.families=[{id:'f1',name:'ロッキー',role:'ペット',birth:'2015-01-01'}];
+  backup.events=[{date:'2022-05-01',title:'散歩',type:'past',amount:0,
+    repeat:'once',personId:'self',secondPersonId:'f1'}];
+  restore(backup);
+  const before=snapshot();
+  assert.match(get('eventRows').innerHTML,/関連：ロッキー（本人）・ロッキー（ペット）/);
+  assert.deepEqual(snapshot(),before);
+});
