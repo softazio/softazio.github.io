@@ -254,7 +254,9 @@ $('addFamily').onclick=()=>{
  if(!validBackupDate(birth)||new Date(birth+'T00:00:00')>new Date())return alert('生年月日は今日以前の正しい日付を入力してください');
  if(families.length>=100)return alert('家族は100人まで登録できます');
  families.push({name,role,birth});renderLists()
-};$('familyList').onclick=e=>{if(e.target.dataset.family!==undefined){const index=Number(e.target.dataset.family);if(!Number.isInteger(index)||index<0||index>=families.length)return;if(!confirm('「'+families[index].name+'」を削除しますか？関連する思い出の本文は残りますが、この人との関連付けは変更・解除されます。'))return;// 旧形式の legacy:N は家族配列の位置を表す。削除時に別人へずれないよう補正する。
+};$('familyList').onclick=e=>{if(e.target.dataset.family!==undefined){const index=Number(e.target.dataset.family);if(!Number.isInteger(index)||index<0||index>=families.length)return;const target=families[index],linkedCount=target.id?events.filter(ev=>ev.personId===target.id||ev.secondPersonId===target.id).length:0;
+ const identity=target.name+'（'+(target.role||'続柄未登録')+'・'+target.birth+'）';
+ if(!confirm('「'+identity+'」を削除しますか？\n関連する出来事：'+linkedCount+'件\n思い出の本文は残りますが、この人との関連付けは変更・解除され、元に戻せません。'))return;// 旧形式の legacy:N は家族配列の位置を表す。削除時に別人へずれないよう補正する。
  const pendingPersonIds=['eventPerson','eventPerson2'];
  const previousSelections=pendingPersonIds.map(id=>$(id).value);
  const removed=families.splice(index,1)[0];

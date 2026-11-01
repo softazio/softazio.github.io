@@ -2407,3 +2407,48 @@ test('deletion dialog and accessible label distinguish identical event titles by
  assert.equal(snapshot().events[0].personId,'f1');
  assert.equal(snapshot().events[0].note,'友人との思い出');
 });
+
+test('family deletion confirmation identifies same-name pet and counts both event links', () => {
+  const {get,restore,snapshot,setCanClear,confirmMessages}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'ロッキー',role:'友人',birth:'1990-01-01'},
+    {id:'f2',name:'ロッキー',role:'ペット',birth:'2018-05-03'}
+  ];
+  backup.events=[
+    {date:'2020-05-03',title:'出会い',type:'past',amount:0,repeat:'once',personId:'f2',note:'大切'},
+    {date:'2021-05-03',title:'散歩',type:'past',amount:0,repeat:'once',personId:'f1',secondPersonId:'f2'}
+  ];
+  restore(backup);
+  const before=snapshot();
+  setCanClear(false);
+  get('familyList').onclick({target:{dataset:{family:'1'}}});
+  assert.match(confirmMessages.at(-1),/ロッキー（ペット・2018-05-03）/);
+  assert.match(confirmMessages.at(-1),/関連する出来事：2件/);
+  assert.match(confirmMessages.at(-1),/元に戻せません/);
+  assert.deepEqual(snapshot(),before);
+  setCanClear(true);
+  get('familyList').onclick({target:{dataset:{family:'1'}}});
+  const after=snapshot();
+  assert.equal(after.families.length,1);
+  assert.equal(after.families[0].id,'f1');
+  assert.equal(after.events.length,2);
+  assert.equal(after.events[0].personId,undefined);
+  assert.equal(after.events[0].note,'大切');
+  assert.equal(after.events[1].personId,'f1');
+  assert.equal(after.events[1].secondPersonId,undefined);
+});
+
+test('family deletion with no linked events reports zero without changing unrelated memory', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'家族',role:'兄弟',birth:'1980-01-01'}];
+  backup.events=[{date:'2020-01-01',title:'自分の記録',type:'past',amount:0,repeat:'once',personId:'self'}];
+  restore(backup);
+  const before=snapshot();
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.match(confirmMessages.at(-1),/家族（兄弟・1980-01-01）/);
+  assert.match(confirmMessages.at(-1),/関連する出来事：0件/);
+  assert.equal(snapshot().families.length,0);
+  assert.deepEqual(snapshot().events,before.events);
+});
