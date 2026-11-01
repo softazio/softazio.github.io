@@ -2452,3 +2452,99 @@ test('family deletion with no linked events reports zero without changing unrela
   assert.equal(snapshot().families.length,0);
   assert.deepEqual(snapshot().events,before.events);
 });
+
+
+test('editing a linked event changes only that record and preserves backup version', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'ロッキー',role:'友人',birth:'2000-01-01'},
+    {id:'f2',name:'ロッキー',role:'ペット',birth:'2018-05-03'}
+  ];
+  backup.events=[
+    {date:'2030-05-01',title:'出会い',type:'future',amount:-5,repeat:'once',personId:'f1',note:'友人'},
+    {date:'2030-05-01',title:'出会い',type:'future',amount:-3,repeat:'once',personId:'f2',note:'ペット'}
+  ];
+  restore(backup);
+  const first=structuredClone(snapshot().events[0]);
+  assert.match(get('eventRows').innerHTML,/data-event-edit="1"/);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'1'}}});
+  assert.equal(get('eventTitle').value,'出会い');
+  assert.equal(get('eventPerson').value,'f2');
+  assert.equal(get('addEvent').textContent,'変更を保存');
+  assert.equal(get('cancelEventEdit').hidden,false);
+  get('eventTitle').value='新しい <記録>';
+  get('eventAmount').value='-9';
+  get('eventNote').value='忘れない & 大切';
+  get('eventPerson2').value='f1';
+  get('addEvent').onclick();
+  const after=snapshot();
+  assert.equal(after.version,1);
+  assert.equal(after.events.length,2);
+  assert.deepEqual(after.events[0],first);
+  assert.equal(after.events[1].title,'新しい <記録>');
+  assert.equal(after.events[1].amount,-9);
+  assert.equal(after.events[1].note,'忘れない & 大切');
+  assert.equal(after.events[1].personId,'f2');
+  assert.equal(after.events[1].secondPersonId,'f1');
+  assert.match(get('eventRows').innerHTML,/新しい &lt;記録&gt;/);
+  assert.doesNotMatch(get('eventRows').innerHTML,/<記録>/);
+  assert.equal(get('addEvent').textContent,'イベントを追加');
+  assert.equal(get('cancelEventEdit').hidden,true);
+  assert.match(get('stats').innerHTML,/最終純資産/);
+});
+
+test('invalid event edits and cancel leave the original memory unchanged', () => {
+  const {get,restore,snapshot,alerts}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2020-01-01',title:'大切な日',type:'past',amount:0,repeat:'once',note:'その日の気持ち'}];
+  restore(backup);
+  const before=snapshot();
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  assert.equal(get('eventNote').value,'その日の気持ち');
+  get('eventTitle').value='';
+  get('addEvent').onclick();
+  assert.match(alerts.at(-1),/イベント名/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('cancelEventEdit').hidden,false);
+  get('cancelEventEdit').onclick();
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventTitle').value,'');
+  assert.equal(get('addEvent').textContent,'イベントを追加');
+  assert.equal(get('cancelEventEdit').hidden,true);
+});
+
+test('deleting another event while editing retains the intended event index', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=['最初','途中','最後'].map((title,i)=>({
+    date:'2030-05-0'+(i+1),title,type:'future',amount:0,repeat:'once'
+  }));
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'2'}}});
+  get('eventRows').onclick({target:{dataset:{event:'0'}}});
+  get('eventTitle').value='最後だけ更新';
+  get('addEvent').onclick();
+  assert.deepEqual(snapshot().events.map(e=>e.title),['途中','最後だけ更新']);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'1'}}});
+  get('eventRows').onclick({target:{dataset:{event:'1'}}});
+  assert.deepEqual(snapshot().events.map(e=>e.title),['途中']);
+  assert.equal(get('addEvent').textContent,'イベントを追加');
+  assert.equal(get('cancelEventEdit').hidden,true);
+});
+
+test('successful restore exits event edit mode without silently saving old changes', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-01-01',title:'元の記録',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='保存していない変更';
+  const replacement=snapshot();
+  replacement.events[0].title='バックアップの記録';
+  restore(replacement);
+  assert.equal(snapshot().events[0].title,'バックアップの記録');
+  assert.equal(get('addEvent').textContent,'イベントを追加');
+  assert.equal(get('cancelEventEdit').hidden,true);
+  assert.equal(get('eventTitle').value,'保存していない変更');
+});
