@@ -2145,3 +2145,36 @@ test('light trails retain a distinct older memory beside twenty annual occurrenc
   assert.equal((svg.match(/class="life-connection"/g)||[]).length,20);
   assert.deepEqual(snapshot(),before);
 });
+
+
+test('light trails exclude one-time events before a participant is born in the same year', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'年末生まれの友人',role:'友人',birth:'1990-12-20'}];
+  backup.events=[
+    {date:'1990-06-01',title:'友人の誕生前',type:'future',amount:0,repeat:'once',personId:'self',secondPersonId:'f1'},
+    {date:'1990-12-25',title:'友人の誕生後',type:'future',amount:0,repeat:'once',personId:'self',secondPersonId:'f1'}
+  ];
+  restore(backup);
+  const before=snapshot();
+  get('timelineYear').value='1990';get('timelineYear').oninput();
+  const svg=get('timelineTrails').innerHTML;
+  assert.equal((svg.match(/class="life-event-marker"/g)||[]).length,3);
+  assert.equal((svg.match(/class="life-connection"/g)||[]).length,1);
+  assert.match(svg,/<path class="life-connection"[^>]*><title>友人の誕生後<\/title><\/path>/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('annual light trail occurrence begins after the linked person birthday, not birth year start', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'年末生まれの友人',role:'友人',birth:'1990-12-20'}];
+  backup.events=[{date:'1988-06-01',title:'毎年6月の出来事',type:'future',amount:0,repeat:'annual',personId:'f1'}];
+  restore(backup);
+  const before=snapshot();
+  get('timelineYear').value='1990';get('timelineYear').oninput();
+  assert.equal((get('timelineTrails').innerHTML.match(/class="life-event-marker"/g)||[]).length,0);
+  get('timelineYear').value='1991';get('timelineYear').oninput();
+  assert.equal((get('timelineTrails').innerHTML.match(/class="life-event-marker"/g)||[]).length,1);
+  assert.deepEqual(snapshot(),before);
+});
