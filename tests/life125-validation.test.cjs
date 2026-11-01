@@ -2259,7 +2259,7 @@ test('event table displays linked friend and pet names safely without changing s
  ];
  restore(backup);
  const before=snapshot(),rows=get('eventRows').innerHTML;
- assert.match(rows,/散歩[^<]*<div class="muted">関連：親友 &lt;甲&gt;・ロッキー &amp; Co<\\/div>/);
+ assert.match(rows,/散歩[^<]*<div class="muted">関連：親友 &lt;甲&gt;・ロッキー &amp; Co<\/div>/);
  assert.equal((rows.match(/<div class="muted">関連：/g)||[]).length,1);
  assert.doesNotMatch(rows,/<甲>/);
  assert.deepEqual(snapshot(),before);
@@ -2276,8 +2276,8 @@ test('renaming self immediately updates linked event table without recalculating
  get('name').value='新しい呼び名';
  get('name').oninput();
  const rows=get('eventRows').innerHTML;
- assert.match(rows,/本人の記念日[^<]*<div class="muted">関連：新しい呼び名<\\/div>/);
- assert.doesNotMatch(rows,/関連：本人<\\/div>/);
+ assert.match(rows,/本人の記念日[^<]*<div class="muted">関連：新しい呼び名<\/div>/);
+ assert.doesNotMatch(rows,/関連：本人<\/div>/);
  assert.deepEqual(snapshot().events,before.events);
  assert.equal(snapshot().fields.name,'新しい呼び名');
  assert.match(get('stats').innerHTML,/最終純資産/);
