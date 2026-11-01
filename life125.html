@@ -46,6 +46,9 @@ function restore(s){
   for(const k of fields)$(k).value=nextFields[k];
   families=nextFamilies;events=nextEvents;renderLists();
   if(!calculate())throw Error('復元データの試算条件が不正です');
+  // 復元先で同じ人物IDが別人を指す場合があるため、編集中の関連付けは解除する。
+  $('eventPerson').value='';
+  $('eventPerson2').value='';
  }catch(error){
   for(const k of fields)$(k).value=previous.fields[k];
   families=previous.families;events=previous.events;renderLists();
