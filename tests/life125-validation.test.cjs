@@ -1949,3 +1949,27 @@ test('successful restore clears legacy index links that could silently point at 
   assert.equal(get('eventPerson').value,'');
   assert.equal(get('eventPerson2').value,'');
 });
+
+
+test('invalid JSON import gives a safe format hint without exposing parser input', async () => {
+ const {importFile,get,snapshot}=app();
+ const before=snapshot();
+ await importFile({size:80,text:async()=>'{"secretPersonName":"内緒",'});
+ assert.deepEqual(snapshot(),before);
+ assert.match(get('message').textContent,/読み込みに失敗しました.*JSON形式/);
+ assert.doesNotMatch(get('message').textContent,/内緒|secretPersonName/);
+});
+
+test('invalid event backup explains the known validation failure and retains current data', async () => {
+ const {importFile,get,snapshot,storage}=app();
+ const before=snapshot(),bad=structuredClone(before);
+ bad.events=[{date:'2030-01-01',title:'予定',type:'unknown',amount:0,repeat:'once'}];
+ await importFile({size:500,text:async()=>JSON.stringify(bad)});
+ assert.deepEqual(snapshot(),before);
+ assert.match(get('message').textContent,/読み込みに失敗しました.*イベントデータが不正/);
+ storage.getItem=()=>JSON.stringify(bad);
+ get('load').onclick();
+ assert.deepEqual(snapshot(),before);
+ assert.match(get('message').textContent,/保存データを読み込めませんでした.*イベントデータが不正/);
+ assert.match(get('message').textContent,/削除していません/);
+});
