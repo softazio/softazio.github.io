@@ -2048,3 +2048,21 @@ test('deleting a linked primary person promotes the surviving persistent ID', ()
   assert.equal(snapshot().events.at(-1).personId,'f2');
   assert.equal(alerts.length,0);
 });
+
+test('light trails prioritize newest dated events when more than twenty are linked', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'友人',role:'友人',birth:'1990-01-01'}];
+  backup.events=Array.from({length:25},(_,i)=>({
+    date:`${2027+i}-06-01`,title:`再会${2027+i}`,type:'future',
+    amount:0,repeat:'once',personId:'self',secondPersonId:'f1'
+  }));
+  restore(backup);
+  get('timelineYear').value='2051';
+  get('timelineYear').oninput();
+  const svg=get('timelineTrails').innerHTML;
+  assert.match(svg,/<title>再会2051<\/title>/);
+  assert.doesNotMatch(svg,/<title>再会2027<\/title>/);
+  assert.equal((svg.match(/class="life-event-marker"/g)||[]).length,40);
+  assert.equal((svg.match(/class="life-connection"/g)||[]).length,20);
+});

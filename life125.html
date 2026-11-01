@@ -86,7 +86,7 @@ function renderTrails(people,year,start,end){
   const born=Number(p.birth.slice(0,4)),from=xAt(born),to=xAt(year),y=30+i*36;
   const middle=(from+to)/2,curve=y-10+(i%3)*8,color=colors[i%colors.length];
   const d='M'+from.toFixed(1)+' '+y+' Q'+middle.toFixed(1)+' '+curve+' '+to.toFixed(1)+' '+y;
-  const markers=events.filter(e=>e.personId&&(e.personId===p.id||e.secondPersonId===p.id)).slice(0,20)
+  const markers=events.filter(e=>e.personId&&(e.personId===p.id||e.secondPersonId===p.id)).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,20)
    .flatMap(e=>trailEventYears(e,year,born).map(eventYear=>({eventYear,title:e.title})))
    .sort((a,b)=>b.eventYear-a.eventYear).slice(0,20).map(({eventYear,title})=>{
     const ex=xAt(eventYear).toFixed(1);
@@ -97,7 +97,7 @@ function renderTrails(people,year,start,end){
    '<circle cx="'+to.toFixed(1)+'" cy="'+y+'" r="5" fill="'+color+'"/>'+markers;
  }).join('');
  // 明示的に2人を関連付けた出来事だけ、同じ年の軌跡間をつなぐ。
- const connections=events.filter(e=>e.personId&&e.secondPersonId).slice(0,20).flatMap(e=>{
+ const connections=events.filter(e=>e.personId&&e.secondPersonId).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,20).flatMap(e=>{
   const a=visible.findIndex(p=>p.id===e.personId),b=visible.findIndex(p=>p.id===e.secondPersonId);
   if(a<0||b<0)return [];
   const born=Math.max(Number(visible[a].birth.slice(0,4)),Number(visible[b].birth.slice(0,4)));
