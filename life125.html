@@ -295,7 +295,7 @@ $('addEvent').onclick=()=>{
  if(!amountRaw.trim()||!Number.isFinite(Number(amountRaw)))return alert('収支額には有限の数値を入力してください');
  if(!['future','past'].includes(type)||!['once','annual'].includes(repeat))return alert('イベントの種類と繰り返しを確認してください');
   if(type==='past'&&new Date(date+'T00:00:00')>new Date())return alert('過去のクロニクルには今日以前の日付を指定してください');
- if(events.length>=2000)return alert('イベントは2000件まで登録できます');
+ if(editingEventIndex<0&&events.length>=2000)return alert('イベントは2000件まで登録できます');
  if(note.length>500)return alert('思い出・気持ちは500文字以内で入力してください');
  const first=$('eventPerson').value,second=$('eventPerson2').value;
  if(second&&!first)return alert('交差する相手を登録するには、関連する人も選んでください');

@@ -2548,3 +2548,50 @@ test('successful restore exits event edit mode without silently saving old chang
   assert.equal(get('cancelEventEdit').hidden,true);
   assert.equal(get('eventTitle').value,'保存していない変更');
 });
+
+
+test('editing an event at the 2000-item limit succeeds while a new event is rejected', () => {
+  const {get,restore,snapshot,alerts}=app();
+  const backup=snapshot();
+  backup.events=Array.from({length:2000},(_,i)=>({
+    date:'2020-01-01',title:'記録'+i,type:'past',amount:0,repeat:'once'
+  }));
+  restore(backup);
+  assert.equal(snapshot().events.length,2000);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'1999'}}});
+  assert.equal(get('addEvent').textContent,'変更を保存');
+  get('eventTitle').value='修正した思い出';
+  get('addEvent').onclick();
+  const edited=snapshot();
+  assert.equal(edited.events.length,2000);
+  assert.equal(edited.events[1999].title,'修正した思い出');
+  assert.equal(edited.events[1998].title,'記録1998');
+  assert.equal(get('cancelEventEdit').hidden,true);
+  get('eventDate').value='2020-01-01';
+  get('eventTitle').value='追加不可';
+  get('eventType').value='past';
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  assert.match(alerts.at(-1),/2000件/);
+  assert.equal(snapshot().events.length,2000);
+});
+
+test('invalid edit at the 2000-item limit remains editable without mutating memories', () => {
+  const {get,restore,snapshot,alerts}=app();
+  const backup=snapshot();
+  backup.events=Array.from({length:2000},(_,i)=>({
+    date:'2020-01-01',title:'記録'+i,type:'past',amount:0,repeat:'once'
+  }));
+  restore(backup);
+  const before=snapshot().events[0];
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='';
+  get('addEvent').onclick();
+  assert.match(alerts.at(-1),/イベント名/);
+  assert.equal(snapshot().events.length,2000);
+  assert.deepEqual(snapshot().events[0],before);
+  assert.equal(get('cancelEventEdit').hidden,false);
+  get('cancelEventEdit').onclick();
+  assert.equal(get('cancelEventEdit').hidden,true);
+  assert.deepEqual(snapshot().events[0],before);
+});
