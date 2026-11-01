@@ -2066,3 +2066,28 @@ test('light trails prioritize newest dated events when more than twenty are link
   assert.equal((svg.match(/class="life-event-marker"/g)||[]).length,40);
   assert.equal((svg.match(/class="life-connection"/g)||[]).length,20);
 });
+
+test('light trails prioritize recent annual occurrences even when their first date is old', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'親友',role:'友人',birth:'1990-01-01'}];
+  backup.events=[
+    {date:'2001-03-01',title:'毎年の再会',type:'future',amount:0,
+      repeat:'annual',personId:'self',secondPersonId:'f1'},
+    ...Array.from({length:25},(_,i)=>({
+      date:`${2027+i}-06-01`,title:`一度きり${2027+i}`,type:'future',
+      amount:0,repeat:'once',personId:'self',secondPersonId:'f1'
+    }))
+  ];
+  restore(backup);
+  const before=snapshot();
+  get('timelineYear').value='2051';
+  get('timelineYear').oninput();
+  const svg=get('timelineTrails').innerHTML;
+  assert.match(svg,/<title>毎年の再会<\/title>/);
+  assert.match(svg,/<title>一度きり2051<\/title>/);
+  assert.doesNotMatch(svg,/<title>一度きり2027<\/title>/);
+  assert.equal((svg.match(/class="life-event-marker"/g)||[]).length,40);
+  assert.equal((svg.match(/class="life-connection"/g)||[]).length,20);
+  assert.deepEqual(snapshot(),before);
+});
