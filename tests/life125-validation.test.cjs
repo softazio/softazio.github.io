@@ -1826,3 +1826,37 @@ test('annual two-person encounter repeats crossing paths, one-time event stays s
  assert.equal((get('timelineTrails').innerHTML.match(/class="life-connection"/g)||[]).length,5);
  assert.equal(snapshot().events.length,2);
 });
+
+test('failed backup restore preserves deliberately stale projection state', () => {
+ const {get,restore,snapshot}=app();
+ get('salary').value='25';
+ get('salary').oninput();
+ const before=snapshot(),message=get('message').textContent;
+ assert.equal(get('stats').innerHTML,'');
+ assert.equal(get('yearRows').innerHTML,'');
+ assert.equal(get('chart').innerHTML,'');
+ const invalid=structuredClone(before);
+ invalid.fields.wageGrowth='-200';
+ assert.throws(()=>restore(invalid),/試算条件/);
+ assert.deepEqual(snapshot(),before);
+ assert.equal(get('stats').innerHTML,'');
+ assert.equal(get('yearRows').innerHTML,'');
+ assert.equal(get('chart').innerHTML,'');
+ assert.equal(get('message').textContent,message);
+});
+
+test('failed backup restore does not replace pending input warning with recalculation error', () => {
+ const {get,restore,snapshot}=app();
+ get('expense').value='-5';
+ get('expense').oninput();
+ const before=snapshot(),message=get('message').textContent;
+ assert.match(message,/試算条件が変更されました/);
+ const invalid=structuredClone(before);
+ invalid.fields.wageGrowth='-200';
+ assert.throws(()=>restore(invalid),/試算条件/);
+ assert.deepEqual(snapshot(),before);
+ assert.equal(get('stats').innerHTML,'');
+ assert.equal(get('yearRows').innerHTML,'');
+ assert.equal(get('chart').innerHTML,'');
+ assert.equal(get('message').textContent,message);
+});
