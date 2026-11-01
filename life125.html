@@ -50,6 +50,14 @@ function restore(s){
   throw error;
  }
 }
+// 軌跡上の毎年イベントは選択年までの発生年を表示する（1件につき直近20年まで）。
+function trailEventYears(e,year,born){
+ const first=Number(e.date.slice(0,4));
+ if(first>year)return [];
+ if(e.repeat!=='annual')return first>=born?[first]:[];
+ const from=Math.max(first,born,year-19);
+ return Array.from({length:Math.max(0,year-from+1)},(_,i)=>from+i);
+}
 function renderTrails(people,year,start,end){
  // 視覚的な補助表示。氏名・年齢は下のテキスト一覧で確認できる。
  const visible=people.filter(p=>validBackupDate(p.birth)&&Number(p.birth.slice(0,4))<=year).slice(0,12);
@@ -60,21 +68,25 @@ function renderTrails(people,year,start,end){
   const born=Number(p.birth.slice(0,4)),from=xAt(born),to=xAt(year),y=30+i*36;
   const middle=(from+to)/2,curve=y-10+(i%3)*8,color=colors[i%colors.length];
   const d='M'+from.toFixed(1)+' '+y+' Q'+middle.toFixed(1)+' '+curve+' '+to.toFixed(1)+' '+y;
-  const markers=events.filter(e=>e.personId&&(e.personId===p.id||e.secondPersonId===p.id)&&Number(e.date.slice(0,4))>=born&&Number(e.date.slice(0,4))<=year).slice(0,20).map(e=>{
-   const ex=xAt(Number(e.date.slice(0,4))).toFixed(1);
-   return '<circle class="life-event-marker" cx="'+ex+'" cy="'+y+'" r="4" fill="#fff" stroke="'+color+'" stroke-width="2"><title>'+safe(e.title)+'</title></circle>';
-  }).join('');
+  const markers=events.filter(e=>e.personId&&(e.personId===p.id||e.secondPersonId===p.id)).slice(0,20)
+   .flatMap(e=>trailEventYears(e,year,born).map(eventYear=>({eventYear,title:e.title})))
+   .sort((a,b)=>b.eventYear-a.eventYear).slice(0,20).map(({eventYear,title})=>{
+    const ex=xAt(eventYear).toFixed(1);
+    return '<circle class="life-event-marker" cx="'+ex+'" cy="'+y+'" r="4" fill="#fff" stroke="'+color+'" stroke-width="2"><title>'+safe(title)+'</title></circle>';
+   }).join('');
   return '<text x="8" y="'+(y+5)+'" fill="#f5f7ff" font-size="13">'+safe(p.name)+'</text>'+
    '<path class="life-trail" d="'+d+'" fill="none" stroke="'+color+'" stroke-width="3" stroke-linecap="round"/>'+
    '<circle cx="'+to.toFixed(1)+'" cy="'+y+'" r="5" fill="'+color+'"/>'+markers;
  }).join('');
  // 明示的に2人を関連付けた出来事だけ、同じ年の軌跡間をつなぐ。
- const connections=events.filter(e=>e.personId&&e.secondPersonId&&Number(e.date.slice(0,4))<=year).slice(0,20).map(e=>{
+ const connections=events.filter(e=>e.personId&&e.secondPersonId).slice(0,20).flatMap(e=>{
   const a=visible.findIndex(p=>p.id===e.personId),b=visible.findIndex(p=>p.id===e.secondPersonId);
-  const eventYear=Number(e.date.slice(0,4));
-  if(a<0||b<0||eventYear<Number(visible[a].birth.slice(0,4))||eventYear<Number(visible[b].birth.slice(0,4)))return '';
+  if(a<0||b<0)return [];
+  const born=Math.max(Number(visible[a].birth.slice(0,4)),Number(visible[b].birth.slice(0,4)));
+  return trailEventYears(e,year,born).map(eventYear=>({a,b,eventYear,title:e.title}));
+ }).sort((a,b)=>b.eventYear-a.eventYear).slice(0,20).map(({a,b,eventYear,title})=>{
   const x=xAt(eventYear).toFixed(1),y1=30+a*36,y2=30+b*36,mid=(y1+y2)/2;
-  return '<path class="life-connection" d="M'+x+' '+y1+' Q'+(Number(x)+16).toFixed(1)+' '+mid+' '+x+' '+y2+'" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-dasharray="3 3"><title>'+safe(e.title)+'</title></path>';
+  return '<path class="life-connection" d="M'+x+' '+y1+' Q'+(Number(x)+16).toFixed(1)+' '+mid+' '+x+' '+y2+'" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-dasharray="3 3"><title>'+safe(title)+'</title></path>';
  }).join('');
  $('timelineTrails').innerHTML='<svg viewBox="0 0 760 '+height+'" aria-hidden="true" focusable="false">'+paths+connections+'</svg>';
 }

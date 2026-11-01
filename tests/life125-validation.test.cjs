@@ -1794,3 +1794,35 @@ test('today is allowed for past chronicle, while future events stay permitted an
   assert.throws(()=>restore(invalid),/イベントデータが不正/);
   assert.deepEqual(snapshot(),before);
 });
+
+test('annual linked event creates recurring trail markers, without changing saved event', () => {
+ const {get,snapshot}=app();
+ get('eventDate').value='2024-02-29';get('eventTitle').value='毎年の記念日';
+ get('eventType').value='future';get('eventRepeat').value='annual';get('eventAmount').value='0';
+ get('eventPerson').value='self';get('addEvent').onclick();
+ const before=snapshot();
+ get('timelineYear').value='2023';get('timelineYear').oninput();
+ assert.equal((get('timelineTrails').innerHTML.match(/class="life-event-marker"/g)||[]).length,0);
+ get('timelineYear').value='2027';get('timelineYear').oninput();
+ assert.equal((get('timelineTrails').innerHTML.match(/class="life-event-marker"/g)||[]).length,4);
+ get('timelineYear').value='2028';get('timelineYear').oninput();
+ assert.equal((get('timelineTrails').innerHTML.match(/class="life-event-marker"/g)||[]).length,5);
+ assert.deepEqual(snapshot(),before);
+});
+
+test('annual two-person encounter repeats crossing paths, one-time event stays single', () => {
+ const {get,snapshot}=app();
+ for(const name of ['親友','ロッキー']){
+  get('familyName').value=name;get('familyRole').value='友人';get('familyBirth').value='2000-01-01';get('addFamily').onclick();
+ }
+ get('eventDate').value='2024-03-01';get('eventTitle').value='毎年の再会';
+ get('eventType').value='future';get('eventRepeat').value='annual';get('eventAmount').value='0';
+ get('eventPerson').value='legacy:0';get('eventPerson2').value='legacy:1';get('addEvent').onclick();
+ get('timelineYear').value='2027';get('timelineYear').oninput();
+ assert.equal((get('timelineTrails').innerHTML.match(/class="life-connection"/g)||[]).length,4);
+ get('eventDate').value='2025-01-01';get('eventTitle').value='一度だけ';
+ get('eventRepeat').value='once';get('eventPerson').value='f1';get('eventPerson2').value='f2';get('addEvent').onclick();
+ get('timelineYear').value='2027';get('timelineYear').oninput();
+ assert.equal((get('timelineTrails').innerHTML.match(/class="life-connection"/g)||[]).length,5);
+ assert.equal(snapshot().events.length,2);
+});
