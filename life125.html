@@ -78,6 +78,21 @@ function isFutureChronicleOccurrence(e,year){
  const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
  return effective>today;
 }
+// 20個の表示枠を同じ毎年イベントだけで埋めず、異なる思い出を最低1回ずつ優先する。
+function selectTrailOccurrences(items){
+ const ordered=items.sort((a,b)=>b.eventYear-a.eventYear),selected=[],seen=new Set();
+ for(const item of ordered){
+  if(seen.has(item.eventIndex))continue;
+  seen.add(item.eventIndex);selected.push(item);
+  if(selected.length===20)return selected;
+ }
+ for(const item of ordered){
+  if(selected.includes(item))continue;
+  selected.push(item);
+  if(selected.length===20)break;
+ }
+ return selected;
+}
 // 軌跡上の毎年イベントは選択年までの発生年を表示する（1件につき直近20年まで）。
 function trailEventYears(e,year,born){
  const first=Number(e.date.slice(0,4));
@@ -95,9 +110,9 @@ function renderTrails(people,year,start,end){
   const born=Number(p.birth.slice(0,4)),from=xAt(born),to=xAt(year),y=30+i*36;
   const middle=(from+to)/2,curve=y-10+(i%3)*8,color=colors[i%colors.length];
   const d='M'+from.toFixed(1)+' '+y+' Q'+middle.toFixed(1)+' '+curve+' '+to.toFixed(1)+' '+y;
-  const markers=events.filter(e=>e.personId&&(e.personId===p.id||e.secondPersonId===p.id))
-   .flatMap(e=>trailEventYears(e,year,born).map(eventYear=>({eventYear,title:e.title})))
-   .sort((a,b)=>b.eventYear-a.eventYear).slice(0,20).map(({eventYear,title})=>{
+  const markers=selectTrailOccurrences(events.filter(e=>e.personId&&(e.personId===p.id||e.secondPersonId===p.id))
+   .flatMap((e,eventIndex)=>trailEventYears(e,year,born).map(eventYear=>({eventYear,title:e.title,eventIndex}))))
+   .map(({eventYear,title})=>{
     const ex=xAt(eventYear).toFixed(1);
     return '<circle class="life-event-marker" cx="'+ex+'" cy="'+y+'" r="4" fill="#fff" stroke="'+color+'" stroke-width="2"><title>'+safe(title)+'</title></circle>';
    }).join('');
@@ -106,12 +121,12 @@ function renderTrails(people,year,start,end){
    '<circle cx="'+to.toFixed(1)+'" cy="'+y+'" r="5" fill="'+color+'"/>'+markers;
  }).join('');
  // 明示的に2人を関連付けた出来事だけ、同じ年の軌跡間をつなぐ。
- const connections=events.filter(e=>e.personId&&e.secondPersonId).flatMap(e=>{
+ const connections=selectTrailOccurrences(events.filter(e=>e.personId&&e.secondPersonId).flatMap((e,eventIndex)=>{
   const a=visible.findIndex(p=>p.id===e.personId),b=visible.findIndex(p=>p.id===e.secondPersonId);
   if(a<0||b<0)return [];
   const born=Math.max(Number(visible[a].birth.slice(0,4)),Number(visible[b].birth.slice(0,4)));
-  return trailEventYears(e,year,born).map(eventYear=>({a,b,eventYear,title:e.title}));
- }).sort((a,b)=>b.eventYear-a.eventYear).slice(0,20).map(({a,b,eventYear,title})=>{
+  return trailEventYears(e,year,born).map(eventYear=>({a,b,eventYear,title:e.title,eventIndex}));
+ })).map(({a,b,eventYear,title})=>{
   const x=xAt(eventYear).toFixed(1),y1=30+a*36,y2=30+b*36,mid=(y1+y2)/2;
   return '<path class="life-connection" d="M'+x+' '+y1+' Q'+(Number(x)+16).toFixed(1)+' '+mid+' '+x+' '+y2+'" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-dasharray="3 3"><title>'+safe(title)+'</title></path>';
  }).join('');

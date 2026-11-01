@@ -2124,3 +2124,24 @@ test('annual past chronicle occurrence later this year is not yet a memory', () 
   get('timelineYear').value=String(today.getFullYear()-1);get('timelineYear').oninput();
   assert.match(get('timelineEvents').innerHTML,/明日の記念日/);
 });
+
+test('light trails retain a distinct older memory beside twenty annual occurrences', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'友人',role:'友人',birth:'1990-01-01'}];
+  backup.events=[
+    {date:'2001-03-01',title:'毎年の再会',type:'future',amount:0,
+      repeat:'annual',personId:'self',secondPersonId:'f1'},
+    {date:'2027-06-01',title:'一度だけの思い出',type:'future',amount:0,
+      repeat:'once',personId:'self',secondPersonId:'f1'}
+  ];
+  restore(backup);
+  const before=snapshot();
+  get('timelineYear').value='2051';get('timelineYear').oninput();
+  const svg=get('timelineTrails').innerHTML;
+  assert.match(svg,/<title>一度だけの思い出<\\/title>/);
+  assert.match(svg,/<title>毎年の再会<\\/title>/);
+  assert.equal((svg.match(/class="life-event-marker"/g)||[]).length,40);
+  assert.equal((svg.match(/class="life-connection"/g)||[]).length,20);
+  assert.deepEqual(snapshot(),before);
+});
