@@ -1997,7 +1997,7 @@ test('deleting an earlier family preserves both pending legacy selections by ide
   assert.equal(after.events[0].secondPersonId,after.families[0].id);
 });
 
-test('deleting selected legacy family clears only that selection, not the surviving person', () => {
+test('deleting selected legacy family promotes the surviving second person', () => {
   const {get,snapshot}=app();
   for(const name of ['削除する人','友人','ペット']){
     get('familyName').value=name;
@@ -2009,7 +2009,42 @@ test('deleting selected legacy family clears only that selection, not the surviv
   get('eventPerson2').value='legacy:2';
   const before=snapshot().events;
   get('familyList').onclick({target:{dataset:{family:'0'}}});
-  assert.equal(get('eventPerson').value,'');
-  assert.equal(get('eventPerson2').value,'legacy:1');
+  assert.equal(get('eventPerson').value,'legacy:1');
+  assert.equal(get('eventPerson2').value,'');
   assert.deepEqual(snapshot().events,before);
+  get('eventDate').value='2026-12-01';
+  get('eventTitle').value='残った人の思い出';
+  get('eventAmount').value='0';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[0].personId,snapshot().families[1].id);
+});
+
+test('deleting a linked primary person promotes the surviving persistent ID', () => {
+  const {get,snapshot,alerts}=app();
+  for(const name of ['削除する人','残る親友']){
+    get('familyName').value=name;
+    get('familyRole').value='友人';
+    get('familyBirth').value='2000-01-01';
+    get('addFamily').onclick();
+  }
+  get('eventDate').value='2026-12-01';
+  get('eventTitle').value='二人の出来事';
+  get('eventAmount').value='0';
+  get('eventPerson').value='legacy:0';
+  get('eventPerson2').value='legacy:1';
+  get('addEvent').onclick();
+  const original=snapshot();
+  assert.equal(original.events[0].personId,'f1');
+  assert.equal(original.events[0].secondPersonId,'f2');
+  get('eventPerson').value='f1';
+  get('eventPerson2').value='f2';
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.equal(get('eventPerson').value,'f2');
+  assert.equal(get('eventPerson2').value,'');
+  assert.equal(snapshot().events[0].personId,'f2');
+  assert.equal(snapshot().events[0].secondPersonId,undefined);
+  get('eventTitle').value='残る人の新しい予定';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.at(-1).personId,'f2');
+  assert.equal(alerts.length,0);
 });

@@ -215,7 +215,13 @@ $('addFamily').onclick=()=>{
  if(event.personId===removed.id){const {personId,secondPersonId,...rest}=event;return {...rest,...(secondPersonId&&secondPersonId!==removed.id?{personId:secondPersonId}:{})}}
  if(event.secondPersonId===removed.id){const {secondPersonId,...rest}=event;return rest}
  return event;
-});renderLists();if(removed?.id)msg('人物を削除しました。関連する思い出は残し、人物との関連付けのみ解除しました')}};
+});renderLists();
+ // 主人物が削除されても残った相手を選択可能な状態に保つ（相手だけの選択は登録不可）。
+ if(!$('eventPerson').value&&$('eventPerson2').value){
+  $('eventPerson').value=$('eventPerson2').value;
+  $('eventPerson2').value='';
+ }
+ if(removed?.id)msg('人物を削除しました。関連する思い出は残し、人物との関連付けのみ解除しました')}};
 $('addEvent').onclick=()=>{
  const date=$('eventDate').value,title=$('eventTitle').value.trim(),amountRaw=$('eventAmount').value;
  const type=$('eventType').value,repeat=$('eventRepeat').value,note=$('eventNote').value.trim();
