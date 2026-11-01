@@ -33,7 +33,7 @@ function restore(s){
  if(new Set(ids).size!==ids.length)throw Error('家族IDが重複しています');
  const validPeople=new Set(['self',...ids]);
  const nextEvents=s.events.map(e=>{
-  if(!e||typeof e!=='object'||typeof e.title!=='string'||!e.title.trim()||e.title.length>100||!validBackupDate(e.date)||!['future','past'].includes(e.type)||!['once','annual'].includes(e.repeat)||typeof e.amount!=='number'||!Number.isFinite(e.amount)||('note' in e&&(typeof e.note!=='string'||e.note.length>500))||('personId' in e&&(typeof e.personId!=='string'||!validPeople.has(e.personId)))||('secondPersonId' in e&&(!e.personId||typeof e.secondPersonId!=='string'||!validPeople.has(e.secondPersonId)||e.secondPersonId===e.personId)))throw Error('イベントデータが不正です');
+  if(!e||typeof e!=='object'||typeof e.title!=='string'||!e.title.trim()||e.title.length>100||!validBackupDate(e.date)||(e.type==='past'&&new Date(e.date+'T00:00:00')>new Date())||!['future','past'].includes(e.type)||!['once','annual'].includes(e.repeat)||typeof e.amount!=='number'||!Number.isFinite(e.amount)||('note' in e&&(typeof e.note!=='string'||e.note.length>500))||('personId' in e&&(typeof e.personId!=='string'||!validPeople.has(e.personId)))||('secondPersonId' in e&&(!e.personId||typeof e.secondPersonId!=='string'||!validPeople.has(e.secondPersonId)||e.secondPersonId===e.personId)))throw Error('イベントデータが不正です');
   return {date:e.date,title:e.title,type:e.type,amount:e.amount,repeat:e.repeat,...('note' in e?{note:e.note}:{}),...('personId' in e?{personId:e.personId}:{}),...('secondPersonId' in e?{secondPersonId:e.secondPersonId}:{})};
  });
  // 入力形式の検証に加え、計算が成立する場合だけ復元を確定する。
@@ -183,6 +183,7 @@ $('addEvent').onclick=()=>{
  if(!validBackupDate(date)||!title||title.length>100)return alert('正しい日付とイベント名を入力してください');
  if(!amountRaw.trim()||!Number.isFinite(Number(amountRaw)))return alert('収支額には有限の数値を入力してください');
  if(!['future','past'].includes(type)||!['once','annual'].includes(repeat))return alert('イベントの種類と繰り返しを確認してください');
+  if(type==='past'&&new Date(date+'T00:00:00')>new Date())return alert('過去のクロニクルには今日以前の日付を指定してください');
  if(events.length>=2000)return alert('イベントは2000件まで登録できます');
  if(note.length>500)return alert('思い出・気持ちは500文字以内で入力してください');
  const first=$('eventPerson').value,second=$('eventPerson2').value;
