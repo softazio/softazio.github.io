@@ -2297,7 +2297,7 @@ test('family timeline distinguishes identical names by escaped relationship with
   const ages=get('timelineAges').innerHTML;
   assert.match(ages,/ロッキー：12歳（親友 &lt;A&gt;）/);
   assert.match(ages,/ロッキー：11歳（ペット &amp; 犬）/);
-  assert.match(ages,/本人：40歳<\\/li>/);
+  assert.match(ages,/本人：40歳<\/li>/);
   assert.doesNotMatch(ages,/<A>/);
   assert.deepEqual(snapshot(),before);
 });
