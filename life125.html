@@ -139,6 +139,14 @@ function renderTrails(people,year,start,end){
 function eventPeopleNames(e,people){
  return [e.personId,e.secondPersonId].filter(Boolean).map(id=>people.find(p=>p.id===id)?.name||'未登録').join('・');
 }
+// 出来事は消さず、関連人物の誕生前の日付だけ年表上で注意を促す。
+function hasPreBirthLinkedPerson(e,year,people){
+ const occurrence=effectiveEventDate(e,year);
+ return [e.personId,e.secondPersonId].filter(Boolean).some(id=>{
+  const person=people.find(p=>p.id===id);
+  return person&&validBackupDate(person.birth)&&occurrence<person.birth;
+ });
+}
 function renderTimeline(){
  const now=new Date(),currentYear=now.getFullYear(),birth=$('birth').value;
  // 過去クロニクルを表示できるよう、本人・家族の誕生年とイベント年まで遡る。
@@ -168,7 +176,7 @@ function renderTimeline(){
  }).sort((a,b)=>a.date.slice(5).localeCompare(b.date.slice(5))||a.date.localeCompare(b.date));
  $('timelineEvents').innerHTML=yearEvents.length?yearEvents.map(e=>{
   const cashFlow=e.type==='future'&&e.amount!==0?'（'+(e.amount<0?'支出 ':'収入 ')+Math.abs(e.amount).toLocaleString('ja-JP')+'万円）':'';
-  return '<li>'+occurrenceDateLabel(e,year)+'：'+safe(e.title)+(e.repeat==='annual'?'（毎年）':'')+' — '+(e.type==='past'?'記録（試算対象外）':(isExcludedPastMonthEvent(e)||isPastAnnualTimelineOccurrence(e,year))?'予定'+cashFlow+'（過去月・試算対象外）':isBeyondPlanEndMonth(e,year)?'予定'+cashFlow+'（計画期間外・試算対象外）':'予定'+cashFlow)+(e.personId?'（関連：'+safe(eventPeopleNames(e,people))+'）':'')+(e.note?' — '+safe(e.note):'')+'</li>';
+  return '<li>'+occurrenceDateLabel(e,year)+'：'+safe(e.title)+(e.repeat==='annual'?'（毎年）':'')+' — '+(e.type==='past'?'記録（試算対象外）':(isExcludedPastMonthEvent(e)||isPastAnnualTimelineOccurrence(e,year))?'予定'+cashFlow+'（過去月・試算対象外）':isBeyondPlanEndMonth(e,year)?'予定'+cashFlow+'（計画期間外・試算対象外）':'予定'+cashFlow)+(e.personId?'（関連：'+safe(eventPeopleNames(e,people))+'）':'')+(hasPreBirthLinkedPerson(e,year,people)?'（関連人物の誕生前：日付を確認）':'')+(e.note?' — '+safe(e.note):'')+'</li>';
  }).join(''):'<li>この年の登録イベントはありません</li>';
 }
 function moveTimelineYear(delta){

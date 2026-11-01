@@ -2178,3 +2178,37 @@ test('annual light trail occurrence begins after the linked person birthday, not
   assert.equal((get('timelineTrails').innerHTML.match(/class="life-event-marker"/g)||[]).length,1);
   assert.deepEqual(snapshot(),before);
 });
+
+test('timeline flags linked events before a person\'s birthday without hiding the memory', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'年末生まれの友人',role:'友人',birth:'1990-12-20'}];
+  backup.events=[
+    {date:'1990-06-01',title:'誕生前の予定',type:'future',amount:0,repeat:'once',personId:'self',secondPersonId:'f1'},
+    {date:'1990-12-25',title:'誕生後の予定',type:'future',amount:0,repeat:'once',personId:'self',secondPersonId:'f1'}
+  ];
+  restore(backup);
+  const before=snapshot();
+  get('timelineYear').value='1990';get('timelineYear').oninput();
+  const list=get('timelineEvents').innerHTML;
+  assert.match(list,/誕生前の予定[^<]*関連人物の誕生前：日付を確認/);
+  assert.match(list,/誕生後の予定/);
+  assert.equal((list.match(/関連人物の誕生前：日付を確認/g)||[]).length,1);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('annual leap-day memory warns only before linked person birth', () => {
+  const {restore,snapshot,get}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'春生まれの友人',role:'友人',birth:'2000-03-01'}];
+  backup.events=[{date:'1992-02-29',title:'2月末の記念日',type:'past',amount:0,
+    repeat:'annual',personId:'f1'}];
+  restore(backup);
+  const before=snapshot();
+  get('timelineYear').value='2000';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/関連人物の誕生前：日付を確認/);
+  get('timelineYear').value='2001';get('timelineYear').oninput();
+  assert.match(get('timelineEvents').innerHTML,/2月末の記念日/);
+  assert.doesNotMatch(get('timelineEvents').innerHTML,/関連人物の誕生前：日付を確認/);
+  assert.deepEqual(snapshot(),before);
+});
