@@ -1107,7 +1107,7 @@ test('timeline labels distinguish expenses, income, zero-cost events and exclude
     ['2030-04-02','家族旅行','-12.5','future'],
     ['2030-06-10','臨時収入','8','future'],
     ['2030-07-01','無料の記念日','0','future'],
-    ['2030-08-01','昔の記録','-99','past']
+    ['2020-08-01','昔の記録','-99','past']
   ]){
     get('eventDate').value=date;get('eventTitle').value=title;
     get('eventAmount').value=amount;get('eventType').value=type;
@@ -1119,8 +1119,10 @@ test('timeline labels distinguish expenses, income, zero-cost events and exclude
   assert.match(shown,/家族旅行 — 予定（支出 12\.5万円）/);
   assert.match(shown,/臨時収入 — 予定（収入 8万円）/);
   assert.match(shown,/無料の記念日 — 予定<\/li>/);
-  assert.match(shown,/昔の記録 — 記録（試算対象外）/);
-  assert.doesNotMatch(shown,/昔の記録[^<]*支出/);
+  get('timelineYear').value='2020';get('timelineYear').oninput();
+  const pastShown=get('timelineEvents').innerHTML;
+  assert.match(pastShown,/昔の記録 — 記録（試算対象外）/);
+  assert.doesNotMatch(pastShown,/昔の記録[^<]*支出/);
   assert.deepEqual(snapshot(),before);
 });
 
@@ -1142,7 +1144,7 @@ test('annual future expense appears in the selected year with its cash-flow labe
 test('past chronicle rows explicitly identify amounts excluded from asset projections', () => {
   const {get,calculate}=app();
   const original=get('yearRows').innerHTML;
-  get('eventDate').value='2030-04-01';
+  get('eventDate').value='2020-04-01';
   get('eventTitle').value='過去の記録';
   get('eventType').value='past';
   get('eventAmount').value='-9999';
