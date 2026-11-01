@@ -1860,3 +1860,50 @@ test('failed backup restore does not replace pending input warning with recalcul
  assert.equal(get('chart').innerHTML,'');
  assert.equal(get('message').textContent,message);
 });
+
+test('failed restore preserves both selected people while editing an event', () => {
+  const {get,restore,snapshot}=app();
+  for (const name of ['親友','ロッキー']) {
+    get('familyName').value=name;
+    get('familyRole').value='家族';
+    get('familyBirth').value='2000-01-01';
+    get('addFamily').onclick();
+  }
+  get('eventPerson').value='legacy:0';
+  get('eventPerson2').value='legacy:1';
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.families=[];
+  invalid.fields.wageGrowth='-200';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventPerson').value,'legacy:0');
+  assert.equal(get('eventPerson2').value,'legacy:1');
+});
+
+test('failed restore preserves existing linked person IDs and pending event form', () => {
+  const {get,restore,snapshot}=app();
+  for (const name of ['友人','ペット']) {
+    get('familyName').value=name;
+    get('familyRole').value='家族';
+    get('familyBirth').value='2000-01-01';
+    get('addFamily').onclick();
+  }
+  get('eventDate').value='2026-12-01';
+  get('eventTitle').value='交差する出来事';
+  get('eventAmount').value='0';
+  get('eventPerson').value='legacy:0';
+  get('eventPerson2').value='legacy:1';
+  get('addEvent').onclick();
+  get('eventTitle').value='編集中の新しい出来事';
+  get('eventPerson').value='f1';
+  get('eventPerson2').value='f2';
+  const before=snapshot(),invalid=structuredClone(before);
+  invalid.families=[];
+  invalid.events=[];
+  invalid.fields.wageGrowth='-200';
+  assert.throws(()=>restore(invalid),/試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventPerson').value,'f1');
+  assert.equal(get('eventPerson2').value,'f2');
+  assert.equal(get('eventTitle').value,'編集中の新しい出来事');
+});

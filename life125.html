@@ -41,6 +41,7 @@ function restore(s){
  const previous=snapshot(),previousTimelineYear=$('timelineYear').value;
  // 復元に失敗した場合は、未再計算の状態も含めて表示をそのまま保つ。
  const previousProjection={stats:$('stats').innerHTML,yearRows:$('yearRows').innerHTML,chart:$('chart').innerHTML,message:$('message').textContent};
+ const previousEventPeople={first:$('eventPerson').value,second:$('eventPerson2').value};
  try{
   for(const k of fields)$(k).value=nextFields[k];
   families=nextFamilies;events=nextEvents;renderLists();
@@ -48,6 +49,9 @@ function restore(s){
  }catch(error){
   for(const k of fields)$(k).value=previous.fields[k];
   families=previous.families;events=previous.events;renderLists();
+  // 失敗した復元で、編集中イベントの人物選択を失わない。
+  $('eventPerson').value=previousEventPeople.first;
+  $('eventPerson2').value=previousEventPeople.second;
   $('timelineYear').value=previousTimelineYear;renderTimeline();
   $('stats').innerHTML=previousProjection.stats;
   $('yearRows').innerHTML=previousProjection.yearRows;
