@@ -333,7 +333,9 @@ $('addEvent').onclick=()=>{
   $('eventAmount').value=String(item.amount);$('eventRepeat').value=item.repeat;$('eventNote').value=item.note||'';
   $('eventPerson').value=item.personId||'';$('eventPerson2').value=item.secondPersonId||'';
   $('addEvent').textContent='変更を保存';$('cancelEventEdit').hidden=false;
-  msg('イベントを編集中です。変更を保存するか、編集をやめてください');return;
+  msg('イベントを編集中です。変更を保存するか、編集をやめてください');
+  // スマホで一覧の編集を押した後、画面上部の入力欄に戻れるようにする。
+  $('eventTitle').focus?.();return;
  }
  if(e.target.dataset.event!==undefined){const index=Number(e.target.dataset.event);if(!Number.isInteger(index)||index<0||index>=events.length)return;
  const target=events[index],people=[{id:'self',name:$('name').value.trim()||'本人',birth:$('birth').value},...families];

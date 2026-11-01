@@ -2595,3 +2595,20 @@ test('invalid edit at the 2000-item limit remains editable without mutating memo
   assert.equal(get('cancelEventEdit').hidden,true);
   assert.deepEqual(snapshot().events[0],before);
 });
+
+test('event edit focuses the input above the list without changing the record', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-04-01',title:'家族の予定',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  const before=snapshot();
+  let focusCount=0;
+  get('eventTitle').focus=()=>{focusCount++};
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  assert.equal(focusCount,1);
+  assert.equal(get('eventTitle').value,'家族の予定');
+  assert.equal(get('addEvent').textContent,'変更を保存');
+  assert.deepEqual(snapshot(),before);
+  get('cancelEventEdit').onclick();
+  assert.deepEqual(snapshot(),before);
+});
