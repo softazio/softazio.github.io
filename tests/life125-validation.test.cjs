@@ -1907,3 +1907,45 @@ test('failed restore preserves existing linked person IDs and pending event form
   assert.equal(get('eventPerson2').value,'f2');
   assert.equal(get('eventTitle').value,'編集中の新しい出来事');
 });
+
+test('successful restore clears pending person links when identical IDs now refer to different people', () => {
+  const {get,restore,snapshot}=app();
+  const old=snapshot();
+  old.families=[
+    {id:'f1',name:'旧友',role:'友人',birth:'2000-01-01'},
+    {id:'f2',name:'旧ペット',role:'ペット',birth:'2010-01-01'}
+  ];
+  restore(old);
+  get('eventPerson').value='f1';
+  get('eventPerson2').value='f2';
+  get('eventTitle').value='入力途中の思い出';
+  const next=structuredClone(old);
+  next.families[0].name='別の友人';
+  next.families[1].name='別のペット';
+  restore(next);
+  assert.deepEqual(snapshot().families,next.families);
+  assert.equal(get('eventPerson').value,'');
+  assert.equal(get('eventPerson2').value,'');
+  assert.equal(get('eventTitle').value,'入力途中の思い出');
+});
+
+test('successful restore clears legacy index links that could silently point at different family', () => {
+  const {get,restore,snapshot}=app();
+  for (const name of ['元の友人','元の犬']) {
+    get('familyName').value=name;
+    get('familyRole').value='家族';
+    get('familyBirth').value='2000-01-01';
+    get('addFamily').onclick();
+  }
+  get('eventPerson').value='legacy:0';
+  get('eventPerson2').value='legacy:1';
+  const next=snapshot();
+  next.families=[
+    {name:'新しい友人',role:'友人',birth:'2001-01-01'},
+    {name:'新しい犬',role:'ペット',birth:'2011-01-01'}
+  ];
+  restore(next);
+  assert.deepEqual(snapshot().families,next.families);
+  assert.equal(get('eventPerson').value,'');
+  assert.equal(get('eventPerson2').value,'');
+});
