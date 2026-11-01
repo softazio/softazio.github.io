@@ -24,7 +24,7 @@ function app() {
   };
   let canClear = true, canExport = true, canRestore = true, canSave = true;
   const storage = {removeItem:()=>{}};
-  const alerts=[];
+  const alerts=[],confirmMessages=[];
   const downloads=[], revoked=[], exportBlobs=[];
   let exportFailure=null;
   const context = vm.createContext({
@@ -32,7 +32,7 @@ function app() {
       if(exportFailure==='click')throw Error('download blocked');
       downloads.push({href:this.href,filename:this.download});
     }})},
-    localStorage:storage,confirm:message=>message.includes('この端末に家族の呼び名')?canSave:message.includes('バックアップには')?canExport:message.includes('復元すると')?canRestore:canClear,alert:message=>alerts.push(message),
+    localStorage:storage,confirm:message=>{confirmMessages.push(message);return message.includes('この端末に家族の呼び名')?canSave:message.includes('バックアップには')?canExport:message.includes('復元すると')?canRestore:canClear},alert:message=>alerts.push(message),
     Blob:class {constructor(parts,options){this.content=parts.join('');this.options=options;exportBlobs.push(this)}},
     URL:{createObjectURL:()=>{if(exportFailure==='url')throw Error('object URL blocked');return 'blob:life125-test'},
          revokeObjectURL:url=>revoked.push(url)},
@@ -40,7 +40,7 @@ function app() {
   });
   vm.runInContext(script, context, {timeout:3000});
   const importFile=async file=>{const input=get('import');input.files=file?[file]:[];input.value='life125-backup.json';await input.onchange({target:input});return input};
-  return {importFile,get, alerts, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, setCanSave:v=>{canSave=v}, setCanExport:v=>{canExport=v}, setCanRestore:v=>{canRestore=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
+  return {importFile,get, alerts, confirmMessages, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, setCanSave:v=>{canSave=v}, setCanExport:v=>{canExport=v}, setCanRestore:v=>{canRestore=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -2379,4 +2379,31 @@ test('exact duplicate names roles and birthdays get unique selection labels and 
   get('addEvent').onclick();
   assert.equal(snapshot().events.at(-1).personId,'f2');
   assert.equal(snapshot().events.at(-1).secondPersonId,'f1');
+});
+
+test('deletion dialog and accessible label distinguish identical event titles by linked person', () => {
+ const {get,restore,snapshot,setCanClear,confirmMessages}=app();
+ const backup=snapshot();
+ backup.families=[
+  {id:'f1',name:'ロッキー',role:'友人',birth:'2000-01-01'},
+  {id:'f2',name:'ロッキー',role:'ペット',birth:'2018-05-03'}
+ ];
+ backup.events=[
+  {date:'2022-05-03',title:'出会い',type:'past',amount:0,repeat:'once',personId:'f1',note:'友人との思い出'},
+  {date:'2022-05-03',title:'出会い',type:'past',amount:0,repeat:'once',personId:'f2',note:'ペットとの思い出'}
+ ];
+ restore(backup);
+ const before=snapshot(),rows=get('eventRows').innerHTML;
+ assert.match(rows,/aria-label="「出会い」（2022-05-03、関連：ロッキー（友人））を削除"/);
+ assert.match(rows,/aria-label="「出会い」（2022-05-03、関連：ロッキー（ペット））を削除"/);
+ setCanClear(false);
+ get('eventRows').onclick({target:{dataset:{event:'1'}}});
+ assert.deepEqual(snapshot(),before);
+ assert.match(confirmMessages.at(-1),/2022-05-03 \/ 出会い \/ 過去の記録 \/ 0万円 \/ 関連：ロッキー（ペット）/);
+ assert.match(confirmMessages.at(-1),/元に戻せません/);
+ setCanClear(true);
+ get('eventRows').onclick({target:{dataset:{event:'1'}}});
+ assert.equal(snapshot().events.length,1);
+ assert.equal(snapshot().events[0].personId,'f1');
+ assert.equal(snapshot().events[0].note,'友人との思い出');
 });
