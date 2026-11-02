@@ -2533,8 +2533,8 @@ test('deleting another event while editing retains the intended event index', ()
   assert.equal(get('cancelEventEdit').hidden,true);
 });
 
-test('successful restore exits event edit mode without silently saving old changes', () => {
-  const {get,restore,snapshot}=app();
+test('successful restore clears stale event draft and prevents accidental duplicate', () => {
+  const {get,restore,snapshot,alerts}=app();
   const backup=snapshot();
   backup.events=[{date:'2030-01-01',title:'元の記録',type:'future',amount:0,repeat:'once'}];
   restore(backup);
@@ -2546,7 +2546,16 @@ test('successful restore exits event edit mode without silently saving old chang
   assert.equal(snapshot().events[0].title,'バックアップの記録');
   assert.equal(get('addEvent').textContent,'イベントを追加');
   assert.equal(get('cancelEventEdit').hidden,true);
-  assert.equal(get('eventTitle').value,'保存していない変更');
+  assert.equal(get('eventTitle').value,'');
+  assert.equal(get('eventDate').value,'');
+  assert.equal(get('eventNote').value,'');
+  assert.equal(get('eventAmount').value,'0');
+  assert.equal(get('eventPerson').value,'');
+  assert.equal(get('eventPerson2').value,'');
+  const restored=snapshot();
+  get('addEvent').onclick();
+  assert.match(alerts.at(-1),/正しい日付とイベント名/);
+  assert.deepEqual(snapshot(),restored);
 });
 
 
@@ -2651,4 +2660,24 @@ test('editing an event blocks JSON export until edit is cancelled', () => {
   get('export').onclick();
   assert.equal(exports.downloads.length,1);
   assert.equal(JSON.parse(exports.exportBlobs[0].content).events[0].title,'元の思い出');
+});
+
+
+test('failed restore keeps the event edit draft and controls intact', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-01-01',title:'元の予定',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='編集中の予定';
+  get('eventNote').value='残しておきたい気持ち';
+  const before=snapshot();
+  const invalid=structuredClone(before);
+  invalid.fields.wageGrowth='-200';
+  assert.throws(()=>restore(invalid),/復元データの試算条件/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventTitle').value,'編集中の予定');
+  assert.equal(get('eventNote').value,'残しておきたい気持ち');
+  assert.equal(get('addEvent').textContent,'変更を保存');
+  assert.equal(get('cancelEventEdit').hidden,false);
 });
