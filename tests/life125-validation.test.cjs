@@ -3088,3 +3088,62 @@ test('JSON export blocks partial event draft and succeeds after clearing it', ()
   assert.equal(exports.downloads.length,1);
   assert.equal(JSON.parse(exports.exportBlobs[0].content).version,1);
 });
+
+
+test('deleting a linked family cannot change an unfinished new memory draft', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'親友',role:'友人',birth:'2000-01-01'},
+    {id:'f2',name:'ロッキー',role:'ペット',birth:'2018-05-03'}
+  ];
+  restore(backup);
+  get('eventDate').value='2030-05-03';
+  get('eventTitle').value='出会った日の記憶';
+  get('eventNote').value='忘れたくない気持ち';
+  get('eventPerson').value='f1';
+  get('eventPerson2').value='f2';
+  const before=snapshot(),count=confirmMessages.length;
+  let focused=0;
+  get('eventTitle').focus=()=>{focused++};
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.deepEqual(snapshot(),before);
+  assert.equal(confirmMessages.length,count);
+  assert.equal(get('eventTitle').value,'出会った日の記憶');
+  assert.equal(get('eventNote').value,'忘れたくない気持ち');
+  assert.equal(get('eventPerson').value,'f1');
+  assert.equal(get('eventPerson2').value,'f2');
+  assert.equal(focused,1);
+  assert.match(get('message').textContent,/新しいイベントの入力途中.*家族を削除/);
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[0].personId,'f1');
+  assert.equal(snapshot().events[0].secondPersonId,'f2');
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.equal(snapshot().families.length,1);
+  assert.equal(snapshot().events[0].personId,'f2');
+});
+
+test('unrelated family deletion waits for a new memory draft but works after registration', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'友人',role:'親友',birth:'2000-01-01'},
+    {id:'f2',name:'別の家族',role:'家族',birth:'2001-01-01'}
+  ];
+  restore(backup);
+  get('eventDate').value='2031-02-03';
+  get('eventTitle').value='大切な記録';
+  get('eventPerson').value='f1';
+  const before=snapshot(),count=confirmMessages.length;
+  get('familyList').onclick({target:{dataset:{family:'1'}}});
+  assert.deepEqual(snapshot(),before);
+  assert.equal(confirmMessages.length,count);
+  assert.equal(get('eventTitle').value,'大切な記録');
+  assert.equal(get('eventPerson').value,'f1');
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[0].personId,'f1');
+  get('familyList').onclick({target:{dataset:{family:'1'}}});
+  assert.equal(snapshot().families.length,1);
+  assert.equal(snapshot().families[0].id,'f1');
+  assert.equal(snapshot().events[0].personId,'f1');
+});
