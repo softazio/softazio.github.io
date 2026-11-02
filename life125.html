@@ -283,7 +283,21 @@ function stopEventEditing(clearForm=false){
  }
 }
 $('cancelEventEdit').hidden=true;
-$('cancelEventEdit').onclick=()=>{stopEventEditing(true);msg('イベントの編集を取り消しました')};
+function hasUnsavedEventEdit(){
+ const e=events[editingEventIndex];
+ return Boolean(e&&(
+  $('eventDate').value!==e.date||$('eventTitle').value!==e.title||
+  $('eventType').value!==e.type||$('eventAmount').value!==String(e.amount)||
+  $('eventRepeat').value!==e.repeat||$('eventNote').value!==(e.note||'')||
+  $('eventPerson').value!==(e.personId||'')||$('eventPerson2').value!==(e.secondPersonId||'')
+ ));
+}
+$('cancelEventEdit').onclick=()=>{
+ if(hasUnsavedEventEdit()&&!confirm('編集中のイベントには未保存の変更があります。変更を破棄して編集をやめますか？')){
+  msg('編集中の変更を保持しました');$('eventTitle').focus?.();return;
+ }
+ stopEventEditing(true);msg('イベントの編集を取り消しました');
+};
 function renderLists(){renderEventPersonOptions();const people=[{id:'self',name:$('name').value.trim()||'本人',birth:$('birth').value},...families];$('familyList').innerHTML=families.map((f,i)=>`<p>${safe(f.name)}（${safe(f.role)}・${safe(f.birth)}） <button type="button" class="secondary" data-family="${i}" aria-label="「${safe(f.name)}」を削除">削除</button></p>`).join('');$('eventRows').innerHTML=events.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<tr><td>${safe(e.date)}</td><td>${safe(e.title)}${e.repeat==='annual'?'（毎年）':''}${e.note?'<div class="muted">'+safe(e.note)+'</div>':''}${hasPreBirthLinkedPerson(e,Number(e.date.slice(0,4)),people)?'<div class="muted">登録開始日が関連人物の誕生前：日付を確認</div>':''}${e.personId?'<div class="muted">関連：'+safe(eventPeopleNames(e,people))+'</div>':''}</td><td>${Number(e.amount).toLocaleString('ja-JP',{maximumFractionDigits:10})}</td><td>${e.type==='past'?'過去（試算対象外）':isExcludedPastMonthEvent(e)?'予定（過去月・試算対象外）':isBeyondPlanEndMonth(e)?'予定（計画期間外・試算対象外）':'将来'}</td><td><button type="button" class="secondary" data-event-edit="${events.indexOf(e)}" aria-label="「${safe(e.title)}」（${safe(e.date)}）を編集">編集</button> <button type="button" class="secondary" data-event="${events.indexOf(e)}" aria-label="「${safe(e.title)}」（${safe(e.date)}${e.personId?'、関連：'+safe(eventPeopleNames(e,people)):''}）を削除">削除</button></td></tr>`).join('')||'<tr><td colspan="5" class="muted">イベントはまだ登録されていません。上の入力欄から追加できます。</td></tr>';renderTimeline()}
 $('addFamily').onclick=()=>{
  const name=$('familyName').value.trim(),role=$('familyRole').value.trim(),birth=$('familyBirth').value;

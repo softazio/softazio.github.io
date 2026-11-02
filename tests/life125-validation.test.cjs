@@ -2902,7 +2902,7 @@ test('deleting an unrelated family member is blocked during edit and works after
   assert.equal(snapshot().families.length,1);
   assert.equal(snapshot().families[0].id,'f1');
   assert.equal(snapshot().events[0].personId,'f1');
-  assert.equal(confirmMessages.length,confirms+1);
+  assert.equal(confirmMessages.length,confirms+2); // 変更破棄の確認 + 家族削除の確認
 });
 
 test('new event draft survives a cancelled switch to editing an existing event', () => {
@@ -3187,4 +3187,49 @@ test('pending person warning does not block confirmed legacy-compatible deletion
   get('familyList').onclick({target:{dataset:{family:'0'}}});
   assert.doesNotMatch(confirmMessages.at(-1),/入力途中のイベントで選択した人物も変更/);
   assert.equal(snapshot().families.length,0);
+});
+
+test('cancel edit keeps unsaved memories when discard confirmation is declined', () => {
+  const {get,restore,snapshot,setCanClear,confirmMessages}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-05-03',title:'元の思い出',type:'future',amount:0,repeat:'once',note:'大切な日'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='まだ書きかけ';
+  get('eventNote').value='消したくない気持ち';
+  const before=snapshot();
+  setCanClear(false);
+  let focused=0;
+  get('eventTitle').focus=()=>{focused++};
+  get('cancelEventEdit').onclick();
+  assert.match(confirmMessages.at(-1),/未保存の変更.*破棄/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventTitle').value,'まだ書きかけ');
+  assert.equal(get('eventNote').value,'消したくない気持ち');
+  assert.equal(get('addEvent').textContent,'変更を保存');
+  assert.equal(get('cancelEventEdit').hidden,false);
+  assert.match(get('message').textContent,/変更を保持/);
+  assert.equal(focused,1);
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[0].note,'消したくない気持ち');
+});
+
+test('unchanged event edit cancels without prompt; accepted discard keeps original', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-05-03',title:'元の思い出',type:'future',amount:-2,repeat:'once',note:'原文'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  const initial=confirmMessages.length;
+  get('cancelEventEdit').onclick();
+  assert.equal(confirmMessages.length,initial);
+  assert.deepEqual(snapshot().events,backup.events);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventNote').value='変更したメモ';
+  get('cancelEventEdit').onclick();
+  assert.equal(confirmMessages.length,initial+1);
+  assert.match(confirmMessages.at(-1),/未保存の変更/);
+  assert.deepEqual(snapshot().events,backup.events);
+  assert.equal(get('eventNote').value,'');
+  assert.equal(get('addEvent').textContent,'イベントを追加');
 });
