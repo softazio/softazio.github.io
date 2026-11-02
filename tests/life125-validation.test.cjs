@@ -378,13 +378,39 @@ test('failed JSON import clears file input and allows selecting the same file ag
   assert.match(get('message').textContent,/バックアップから復元しました/);
 });
 
+test('large valid backup exported by LIFE 125 can be restored beyond the old 1MB limit', async () => {
+  const source=app(),backup=source.snapshot();
+  backup.events=Array.from({length:650},(_,i)=>({
+    date:'2030-05-01',title:'記念'+String(i).padStart(3,'0')+'思'.repeat(90),
+    type:'future',amount:0,repeat:'once',note:'大切'.repeat(250)
+  }));
+  source.restore(backup);
+  source.get('export').onclick();
+  const json=source.exports.exportBlobs.at(-1).content;
+  const bytes=Buffer.byteLength(json,'utf8');
+  assert.ok(bytes>1000000&&bytes<=5000000,'valid backup exceeds the former limit but stays within 5MB');
+  const target=app();
+  await target.importFile({size:bytes,text:async()=>json});
+  assert.equal(target.snapshot().events.length,650);
+  assert.equal(target.snapshot().events[0].note,'大切'.repeat(250));
+  assert.match(target.get('message').textContent,/バックアップから復元しました/);
+});
+
+test('JSON backup exactly at 5MB is not rejected by the size guard', async () => {
+  const {importFile,snapshot,get}=app();
+  const valid=snapshot();valid.fields.salary='38';
+  await importFile({size:5000000,text:async()=>JSON.stringify(valid)});
+  assert.equal(snapshot().fields.salary,'38');
+  assert.match(get('message').textContent,/バックアップから復元しました/);
+});
+
 test('oversized JSON import clears file input before rejecting it', async () => {
   const {importFile,get,snapshot}=app();
   const before=snapshot();
-  const input=await importFile({size:1000001,text:async()=>{throw Error('should not read')}});
+  const input=await importFile({size:5000001,text:async()=>{throw Error('should not read')}});
   assert.equal(input.value,'');
   assert.deepEqual(snapshot(),before);
-  assert.match(get('message').textContent,/1MB以下/);
+  assert.match(get('message').textContent,/5MB以下/);
 });
 
 
