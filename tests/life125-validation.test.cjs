@@ -2996,3 +2996,48 @@ test('invalid new event retains the draft for correction and clears it only afte
   assert.equal(get('eventTitle').value,'');
   assert.equal(get('eventNote').value,'');
 });
+
+test('device save refuses unfinished family registration until the person is added', () => {
+  const {get,storage,snapshot,confirmMessages}=app();
+  let writes=0, saved;
+  storage.setItem=(key,value)=>{writes++;saved=JSON.parse(value)};
+  get('familyName').value='ロッキー';
+  get('familyRole').value='ペット';
+  get('familyBirth').value='2018-05-03';
+  const before=snapshot(), confirmsBefore=confirmMessages.length;
+  let focused=0;
+  get('familyName').focus=()=>{focused++};
+  get('save').onclick();
+  assert.equal(writes,0);
+  assert.equal(confirmMessages.length,confirmsBefore);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('familyName').value,'ロッキー');
+  assert.equal(get('familyBirth').value,'2018-05-03');
+  assert.equal(focused,1);
+  assert.match(get('message').textContent,/家族の入力途中.*家族を追加/);
+  get('addFamily').onclick();
+  get('save').onclick();
+  assert.equal(writes,1);
+  assert.equal(saved.families.length,1);
+  assert.equal(saved.families[0].name,'ロッキー');
+});
+
+test('JSON export refuses a partial family draft and succeeds after clearing it', () => {
+  const {get,exports,snapshot,confirmMessages}=app();
+  get('familyRole').value='親友';
+  const before=snapshot(), confirmsBefore=confirmMessages.length;
+  let focused=0;
+  get('familyName').focus=()=>{focused++};
+  get('export').onclick();
+  assert.equal(exports.downloads.length,0);
+  assert.equal(exports.exportBlobs.length,0);
+  assert.equal(confirmMessages.length,confirmsBefore);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('familyRole').value,'親友');
+  assert.equal(focused,1);
+  assert.match(get('message').textContent,/家族の入力途中.*バックアップ/);
+  get('familyRole').value='';
+  get('export').onclick();
+  assert.equal(exports.downloads.length,1);
+  assert.equal(JSON.parse(exports.exportBlobs[0].content).version,1);
+});
