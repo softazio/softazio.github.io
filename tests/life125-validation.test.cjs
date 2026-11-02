@@ -3451,3 +3451,32 @@ test('cancelled device restore leaves an in-flight JSON import available', async
   await pending;
   assert.equal(snapshot().fields.salary,'77');
 });
+
+test('opening a backup chooser invalidates an older in-flight import even if cancel is unsupported', async () => {
+  const {get,importFile,snapshot,confirmMessages}=app();
+  const oldBackup=snapshot();
+  oldBackup.fields.salary='88';
+  let finishOld;
+  const pending=importFile({size:300,text:()=>new Promise(resolve=>{finishOld=resolve})});
+  let opened=0;
+  get('import').click=()=>{opened++};
+  get('importButton').onclick();
+  assert.equal(opened,1);
+  const confirmations=confirmMessages.length;
+  finishOld(JSON.stringify(oldBackup));
+  await pending;
+  assert.equal(snapshot().fields.salary,'20');
+  assert.equal(confirmMessages.length,confirmations);
+});
+
+test('a new backup selection still restores after the chooser invalidates old requests', async () => {
+  const {get,importFile,snapshot}=app();
+  let opened=0;
+  get('import').click=()=>{opened++};
+  get('importButton').onclick();
+  const replacement=snapshot();
+  replacement.fields.salary='45';
+  await importFile({size:300,text:async()=>JSON.stringify(replacement)});
+  assert.equal(opened,1);
+  assert.equal(snapshot().fields.salary,'45');
+});
