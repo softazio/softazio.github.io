@@ -315,7 +315,11 @@ test('family creation stops at the 100-person backup limit', () => {
   const {get,snapshot,alerts}=app();
   get('familyName').value='家族';
   get('familyBirth').value='2000-01-01';
-  for(let i=0;i<101;i++)get('addFamily').onclick();
+  for(let i=0;i<101;i++){
+    get('familyName').value='家族';
+    get('familyBirth').value='2000-01-01';
+    get('addFamily').onclick();
+  }
   assert.equal(snapshot().families.length,100);
   assert.match(alerts.at(-1),/100人/);
 });
@@ -2712,4 +2716,39 @@ test('failed restore preserves family registration draft', () => {
   assert.equal(get('familyRole').value,'親友');
   assert.equal(get('familyBirth').value,'2000-02-29');
   assert.deepEqual(snapshot(),before);
+});
+
+test('successful family addition clears draft and blocks accidental duplicate tap', () => {
+  const {get,snapshot,alerts}=app();
+  get('familyName').value='ロッキー';
+  get('familyRole').value='ペット';
+  get('familyBirth').value='2018-05-03';
+  get('addFamily').onclick();
+  const after=snapshot();
+  assert.deepEqual(after.families,[{name:'ロッキー',role:'ペット',birth:'2018-05-03'}]);
+  assert.equal(get('familyName').value,'');
+  assert.equal(get('familyRole').value,'');
+  assert.equal(get('familyBirth').value,'');
+  get('addFamily').onclick();
+  assert.deepEqual(snapshot(),after);
+  assert.match(alerts.at(-1),/呼び名/);
+});
+
+test('invalid family addition retains draft for correction and clears only on success', () => {
+  const {get,snapshot,alerts}=app();
+  get('familyName').value='友人';
+  get('familyRole').value='親友';
+  get('familyBirth').value='2999-01-01';
+  get('addFamily').onclick();
+  assert.equal(snapshot().families.length,0);
+  assert.match(alerts.at(-1),/生年月日/);
+  assert.equal(get('familyName').value,'友人');
+  assert.equal(get('familyRole').value,'親友');
+  assert.equal(get('familyBirth').value,'2999-01-01');
+  get('familyBirth').value='2000-01-01';
+  get('addFamily').onclick();
+  assert.equal(snapshot().families.length,1);
+  assert.equal(get('familyName').value,'');
+  assert.equal(get('familyRole').value,'');
+  assert.equal(get('familyBirth').value,'');
 });
