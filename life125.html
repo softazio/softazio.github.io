@@ -337,7 +337,7 @@ $('addEvent').onclick=()=>{
  const updated={date,title,type,amount:Number(amountRaw),repeat,...(note?{note}:{}),...(personId?{personId}:{}),...(secondPersonId?{secondPersonId}:{})};
  const wasEditing=editingEventIndex>=0;
  if(wasEditing){if(editingEventIndex>=events.length)return alert('編集対象が見つかりません。編集をやり直してください');events[editingEventIndex]=updated;stopEventEditing(true)}
- else events.push(updated);
+ else {events.push(updated);stopEventEditing(true)}
  renderLists();const valid=calculate();if(wasEditing&&valid)msg('イベントの変更を保存し、試算を更新しました')
 };$('eventRows').onclick=e=>{
  if(e.target.dataset.eventEdit!==undefined){

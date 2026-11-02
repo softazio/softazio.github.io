@@ -2940,3 +2940,53 @@ test('accepting draft discard starts existing-event edit; empty draft needs no c
   assert.equal(confirmMessages.length,count);
   assert.equal(get('eventTitle').value,'保存済み');
 });
+
+test('successful new event registration clears the draft and prevents duplicate taps', () => {
+  const {get,snapshot,alerts}=app();
+  get('eventDate').value='2031-05-03';
+  get('eventTitle').value='ロッキーとの思い出';
+  get('eventType').value='future';
+  get('eventAmount').value='-3';
+  get('eventRepeat').value='annual';
+  get('eventNote').value='大切な気持ち';
+  get('eventPerson').value='self';
+  get('addEvent').onclick();
+  const saved=snapshot();
+  assert.equal(saved.events.length,1);
+  assert.equal(saved.events[0].note,'大切な気持ち');
+  assert.equal(saved.events[0].personId,'self');
+  assert.equal(get('eventDate').value,'');
+  assert.equal(get('eventTitle').value,'');
+  assert.equal(get('eventType').value,'future');
+  assert.equal(get('eventAmount').value,'0');
+  assert.equal(get('eventRepeat').value,'once');
+  assert.equal(get('eventNote').value,'');
+  assert.equal(get('eventPerson').value,'');
+  assert.equal(get('eventPerson2').value,'');
+  get('addEvent').onclick();
+  assert.deepEqual(snapshot(),saved);
+  assert.match(alerts.at(-1),/正しい日付とイベント名/);
+});
+
+test('invalid new event retains the draft for correction and clears it only after success', () => {
+  const {get,snapshot,alerts}=app();
+  get('eventDate').value='2030-02-30';
+  get('eventTitle').value='卒業の記録';
+  get('eventType').value='future';
+  get('eventAmount').value='-10';
+  get('eventNote').value='入力途中の気持ち';
+  const before=snapshot();
+  get('addEvent').onclick();
+  assert.match(alerts.at(-1),/正しい日付とイベント名/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventTitle').value,'卒業の記録');
+  assert.equal(get('eventNote').value,'入力途中の気持ち');
+  assert.equal(get('eventAmount').value,'-10');
+  get('eventDate').value='2030-02-28';
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.length,1);
+  assert.equal(snapshot().events[0].title,'卒業の記録');
+  assert.equal(snapshot().events[0].note,'入力途中の気持ち');
+  assert.equal(get('eventTitle').value,'');
+  assert.equal(get('eventNote').value,'');
+});
