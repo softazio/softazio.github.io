@@ -3417,3 +3417,37 @@ test('cancelling file selection invalidates a pending older JSON import', async 
   assert.equal(snapshot().fields.salary,'20');
   assert.equal(confirmMessages.length,confirmations);
 });
+
+test('device restore supersedes an in-flight JSON backup import', async () => {
+  const {get,storage,importFile,snapshot,confirmMessages}=app();
+  const saved=snapshot(),older=snapshot();
+  saved.fields.salary='46';
+  older.fields.salary='77';
+  storage.getItem=()=>JSON.stringify(saved);
+  let finishOlder;
+  const pending=importFile({size:300,text:()=>new Promise(resolve=>{finishOlder=resolve})});
+  get('load').onclick();
+  assert.equal(snapshot().fields.salary,'46');
+  const confirmations=confirmMessages.length;
+  finishOlder(JSON.stringify(older));
+  await pending;
+  assert.equal(snapshot().fields.salary,'46');
+  assert.equal(confirmMessages.length,confirmations);
+});
+
+test('cancelled device restore leaves an in-flight JSON import available', async () => {
+  const {get,storage,importFile,snapshot,setCanRestore}=app();
+  const saved=snapshot(),fileBackup=snapshot();
+  saved.fields.salary='46';
+  fileBackup.fields.salary='77';
+  storage.getItem=()=>JSON.stringify(saved);
+  let finishFile;
+  const pending=importFile({size:300,text:()=>new Promise(resolve=>{finishFile=resolve})});
+  setCanRestore(false);
+  get('load').onclick();
+  assert.equal(snapshot().fields.salary,'20');
+  setCanRestore(true);
+  finishFile(JSON.stringify(fileBackup));
+  await pending;
+  assert.equal(snapshot().fields.salary,'77');
+});
