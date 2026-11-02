@@ -2797,3 +2797,49 @@ test('reopening the same event while editing does not erase a draft', () => {
   assert.equal(snapshot().events[0].title,'大切な日');
   assert.equal(get('addEvent').textContent,'イベントを追加');
 });
+
+
+test('deleting the event being edited is blocked without losing unsaved memories', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-01-01',title:'元の思い出',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='未保存の思い出';
+  get('eventNote').value='大切な気持ち';
+  const before=snapshot(),confirms=confirmMessages.length;
+  let focused=0;
+  get('eventTitle').focus=()=>{focused++};
+  get('eventRows').onclick({target:{dataset:{event:'0'}}});
+  assert.deepEqual(snapshot(),before);
+  assert.equal(confirmMessages.length,confirms);
+  assert.equal(get('eventTitle').value,'未保存の思い出');
+  assert.equal(get('eventNote').value,'大切な気持ち');
+  assert.equal(get('addEvent').textContent,'変更を保存');
+  assert.match(get('message').textContent,/イベントを編集中.*削除してください/);
+  assert.equal(focused,1);
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[0].title,'未保存の思い出');
+});
+
+test('deleting another event is blocked while editing, then works after cancellation', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.events=[
+    {date:'2030-01-01',title:'残す予定',type:'future',amount:0,repeat:'once'},
+    {date:'2030-02-01',title:'削除予定',type:'future',amount:-1,repeat:'once'}
+  ];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='編集中の予定';
+  const before=snapshot(),confirms=confirmMessages.length;
+  get('eventRows').onclick({target:{dataset:{event:'1'}}});
+  assert.deepEqual(snapshot(),before);
+  assert.equal(confirmMessages.length,confirms);
+  assert.equal(get('eventTitle').value,'編集中の予定');
+  get('cancelEventEdit').onclick();
+  get('eventRows').onclick({target:{dataset:{event:'1'}}});
+  assert.equal(snapshot().events.length,1);
+  assert.equal(snapshot().events[0].title,'残す予定');
+  assert.equal(confirmMessages.length,confirms+1);
+});
