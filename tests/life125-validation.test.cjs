@@ -3506,3 +3506,31 @@ test('a new backup selection still restores after the chooser invalidates old re
   assert.equal(opened,1);
   assert.equal(snapshot().fields.salary,'45');
 });
+
+test('JSON import confirms restoration is not yet saved on the device', async () => {
+  const {get,importFile,snapshot,storage}=app();
+  let writes=0;
+  storage.setItem=()=>{writes++};
+  const backup=snapshot();
+  backup.fields.salary='48';
+  await importFile({size:500,text:async()=>JSON.stringify(backup)});
+  assert.equal(snapshot().fields.salary,'48');
+  assert.equal(writes,0);
+  assert.match(get('message').textContent,/バックアップから復元しました/);
+  assert.match(get('message').textContent,/端末内の保存データは更新されていません/);
+  assert.match(get('message').textContent,/この端末に保存/);
+});
+
+test('restored JSON can be explicitly saved to the device afterward', async () => {
+  const {get,importFile,snapshot,storage}=app();
+  const backup=snapshot();
+  backup.fields.salary='49';
+  await importFile({size:500,text:async()=>JSON.stringify(backup)});
+  let saved;
+  storage.setItem=(key,value)=>{saved={key,data:JSON.parse(value)}};
+  get('save').onclick();
+  assert.equal(saved.key,'softazio-life125-v1');
+  assert.equal(saved.data.version,1);
+  assert.equal(saved.data.fields.salary,'49');
+  assert.match(get('message').textContent,/この端末内に保存しました/);
+});
