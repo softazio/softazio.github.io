@@ -3316,3 +3316,44 @@ test('unavailable device storage read prevents overwrite and reports an error', 
   assert.equal(confirmMessages.length,before);
   assert.match(get('message').textContent,/保存領域を確認できません/);
 });
+
+test('device restore explicitly warns about unfinished family draft without losing it on cancellation', () => {
+  const {get,storage,snapshot,confirmMessages,setCanRestore}=app();
+  const saved=snapshot();
+  saved.fields.salary='44';
+  storage.getItem=()=>JSON.stringify(saved);
+  get('familyName').value='未登録の家族';
+  get('familyBirth').value='2000-01-01';
+  setCanRestore(false);
+  get('load').onclick();
+  assert.match(confirmMessages.at(-1),/家族・イベントの入力途中/);
+  assert.match(confirmMessages.at(-1),/復元すると/);
+  assert.equal(get('familyName').value,'未登録の家族');
+  assert.equal(snapshot().fields.salary,'20');
+});
+
+test('file restore warns about unsaved event edit and cancellation preserves the memory draft', async () => {
+  const {get,restore,importFile,snapshot,confirmMessages,setCanRestore}=app();
+  const initial=snapshot();
+  initial.events=[{date:'2030-01-01',title:'元の思い出',type:'future',amount:0,repeat:'once'}];
+  restore(initial);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='編集中の思い出';
+  const replacement=snapshot();
+  replacement.fields.salary='44';
+  setCanRestore(false);
+  await importFile({size:500,text:async()=>JSON.stringify(replacement)});
+  assert.match(confirmMessages.at(-1),/未保存のイベント編集/);
+  assert.equal(get('eventTitle').value,'編集中の思い出');
+  assert.equal(snapshot().fields.salary,'20');
+  assert.equal(snapshot().events[0].title,'元の思い出');
+});
+
+test('restore without unfinished drafts keeps the concise existing confirmation', () => {
+  const {get,storage,snapshot,confirmMessages,setCanRestore}=app();
+  storage.getItem=()=>JSON.stringify(snapshot());
+  setCanRestore(false);
+  get('load').onclick();
+  assert.match(confirmMessages.at(-1),/復元すると/);
+  assert.doesNotMatch(confirmMessages.at(-1),/家族・イベントの入力途中/);
+});
