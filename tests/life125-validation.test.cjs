@@ -3147,3 +3147,44 @@ test('unrelated family deletion waits for a new memory draft but works after reg
   assert.equal(snapshot().families[0].id,'f1');
   assert.equal(snapshot().events[0].personId,'f1');
 });
+
+test('pending person-only draft is warned before family deletion and survives cancellation', () => {
+  const {get,restore,snapshot,setCanClear,confirmMessages}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'親友',role:'友人',birth:'2000-01-01'},
+    {id:'f2',name:'ロッキー',role:'ペット',birth:'2018-05-03'}
+  ];
+  restore(backup);
+  get('eventPerson').value='f1';
+  get('eventPerson2').value='f2';
+  const before=snapshot();
+  setCanClear(false);
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.match(confirmMessages.at(-1),/入力途中のイベントで選択した人物も変更/);
+  assert.match(confirmMessages.at(-1),/先にイベントを登録/);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventPerson').value,'f1');
+  assert.equal(get('eventPerson2').value,'f2');
+});
+
+test('pending person warning does not block confirmed legacy-compatible deletion', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'親友',role:'友人',birth:'2000-01-01'},
+    {id:'f2',name:'ロッキー',role:'ペット',birth:'2018-05-03'}
+  ];
+  restore(backup);
+  get('eventPerson').value='f1';
+  get('eventPerson2').value='f2';
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.match(confirmMessages.at(-1),/入力途中のイベントで選択した人物も変更/);
+  assert.deepEqual(snapshot().families.map(f=>f.id),['f2']);
+  assert.equal(get('eventPerson').value,'f2');
+  assert.equal(get('eventPerson2').value,'');
+  get('eventPerson').value='';
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.doesNotMatch(confirmMessages.at(-1),/入力途中のイベントで選択した人物も変更/);
+  assert.equal(snapshot().families.length,0);
+});
