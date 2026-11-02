@@ -2612,3 +2612,43 @@ test('event edit focuses the input above the list without changing the record', 
   get('cancelEventEdit').onclick();
   assert.deepEqual(snapshot(),before);
 });
+
+test('editing an event blocks local backup until changes are saved', () => {
+  const {get,restore,snapshot,storage,confirmMessages}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-04-01',title:'元の予定',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='修正した予定';
+  let writes=0;
+  storage.setItem=()=>{writes++};
+  const confirmsBefore=confirmMessages.length;
+  get('save').onclick();
+  assert.equal(writes,0);
+  assert.equal(confirmMessages.length,confirmsBefore);
+  assert.equal(snapshot().events[0].title,'元の予定');
+  assert.match(get('message').textContent,/イベントを編集中.*変更を保存/);
+  get('addEvent').onclick();
+  get('save').onclick();
+  assert.equal(writes,1);
+  assert.equal(snapshot().events[0].title,'修正した予定');
+});
+
+test('editing an event blocks JSON export until edit is cancelled', () => {
+  const {get,restore,snapshot,exports,confirmMessages}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-04-01',title:'元の思い出',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='未保存の修正';
+  const confirmsBefore=confirmMessages.length;
+  get('export').onclick();
+  assert.equal(exports.downloads.length,0);
+  assert.equal(exports.exportBlobs.length,0);
+  assert.equal(confirmMessages.length,confirmsBefore);
+  assert.match(get('message').textContent,/イベントを編集中.*編集をやめる/);
+  get('cancelEventEdit').onclick();
+  get('export').onclick();
+  assert.equal(exports.downloads.length,1);
+  assert.equal(JSON.parse(exports.exportBlobs[0].content).events[0].title,'元の思い出');
+});
