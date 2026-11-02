@@ -432,7 +432,7 @@ test('JSON export creates a backup and releases its object URL', () => {
   const {get,exports}=app();
   get('export').onclick();
   assert.equal(exports.downloads.length,1);
-  assert.match(exports.downloads[0].filename,/^life125-backup-\d{8}-\d{6}\.json$/);
+  assert.match(exports.downloads[0].filename,/^life125-backup-\d{8}-\d{6}-\d{3}-\d{3}\.json$/);
   assert.equal(JSON.parse(exports.exportBlobs[0].content).fields.salary,'20');
   assert.deepEqual(exports.revoked,['blob:life125-test']);
   assert.match(get('message').textContent,/バックアップのダウンロードを開始しました/);
@@ -474,7 +474,7 @@ test('backup controls use understandable labels while preserving JSON file forma
   assert.match(html, /<input type="file" id="import" accept="application\/json,\.json"/);
   const {get,exports}=app();
   get('export').onclick();
-  assert.match(exports.downloads[0].filename,/^life125-backup-\d{8}-\d{6}\.json$/);
+  assert.match(exports.downloads[0].filename,/^life125-backup-\d{8}-\d{6}-\d{3}-\d{3}\.json$/);
   assert.match(get('message').textContent,/バックアップのダウンロードを開始しました/);
 });
 
@@ -775,7 +775,7 @@ test('consented backup export retains version 1 JSON with a dated filename', () 
   setCanExport(true);
   get('export').onclick();
   assert.equal(exports.downloads.length,1);
-  assert.match(exports.downloads[0].filename,/^life125-backup-\d{8}-\d{6}\.json$/);
+  assert.match(exports.downloads[0].filename,/^life125-backup-\d{8}-\d{6}-\d{3}-\d{3}\.json$/);
   assert.equal(JSON.parse(exports.exportBlobs[0].content).version,1);
 });
 
@@ -3364,9 +3364,24 @@ test('dated backup filename contains no personal labels and preserves export con
   get('name').value='機密の呼び名';
   get('export').onclick();
   assert.equal(out.downloads.length,1);
-  assert.match(out.downloads[0].filename,/^life125-backup-\d{8}-\d{6}\.json$/);
+  assert.match(out.downloads[0].filename,/^life125-backup-\d{8}-\d{6}-\d{3}-\d{3}\.json$/);
   assert.doesNotMatch(out.downloads[0].filename,/機密の呼び名/);
   const backup=JSON.parse(out.exportBlobs[0].content);
   assert.equal(backup.version,1);
   assert.equal(backup.fields.name,'機密の呼び名');
+});
+
+
+test('successive JSON backups use distinct names even within the same second', () => {
+  const {get,exports:out}=app();
+  get('name').value='非公開の呼び名';
+  get('export').onclick();
+  get('export').onclick();
+  assert.equal(out.downloads.length,2);
+  const [first,second]=out.downloads.map(item=>item.filename);
+  assert.match(first,/^life125-backup-\d{8}-\d{6}-\d{3}-001\.json$/);
+  assert.match(second,/^life125-backup-\d{8}-\d{6}-\d{3}-002\.json$/);
+  assert.notEqual(first,second);
+  assert.doesNotMatch(second,/非公開の呼び名/);
+  assert.equal(JSON.parse(out.exportBlobs[1].content).version,1);
 });
