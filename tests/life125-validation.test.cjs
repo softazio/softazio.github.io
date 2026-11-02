@@ -2681,3 +2681,35 @@ test('failed restore keeps the event edit draft and controls intact', () => {
   assert.equal(get('addEvent').textContent,'変更を保存');
   assert.equal(get('cancelEventEdit').hidden,false);
 });
+
+test('successful restore clears stale family registration draft', () => {
+  const {get,restore,snapshot,alerts}=app();
+  get('familyName').value='以前の家族';
+  get('familyRole').value='友人';
+  get('familyBirth').value='2000-01-01';
+  const backup=snapshot();
+  backup.families=[{name:'新しい家族',role:'家族',birth:'1995-05-05'}];
+  restore(backup);
+  assert.equal(get('familyName').value,'');
+  assert.equal(get('familyRole').value,'');
+  assert.equal(get('familyBirth').value,'');
+  const before=snapshot();
+  get('addFamily').onclick();
+  assert.match(alerts.at(-1),/呼び名/);
+  assert.deepEqual(snapshot(),before);
+});
+
+test('failed restore preserves family registration draft', () => {
+  const {get,restore,snapshot}=app();
+  get('familyName').value='入力途中の家族';
+  get('familyRole').value='親友';
+  get('familyBirth').value='2000-02-29';
+  const before=snapshot();
+  const invalid=structuredClone(before);
+  invalid.fields.wageGrowth='-200';
+  assert.throws(()=>restore(invalid),/復元データの試算条件/);
+  assert.equal(get('familyName').value,'入力途中の家族');
+  assert.equal(get('familyRole').value,'親友');
+  assert.equal(get('familyBirth').value,'2000-02-29');
+  assert.deepEqual(snapshot(),before);
+});

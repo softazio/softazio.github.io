@@ -46,6 +46,8 @@ function restore(s){
   for(const k of fields)$(k).value=nextFields[k];
   families=nextFamilies;events=nextEvents;renderLists();
   if(!calculate())throw Error('復元データの試算条件が不正です');
+  // 復元前の家族登録下書きも消去し、別の家族構成へ誤登録しないようにする。
+  $('familyName').value='';$('familyRole').value='';$('familyBirth').value='';
   // 復元後に古い編集中の内容を残すと、別のデータとして誤登録し得るため入力欄を消去する。
   stopEventEditing(true);
  }catch(error){
