@@ -3041,3 +3041,50 @@ test('JSON export refuses a partial family draft and succeeds after clearing it'
   assert.equal(exports.downloads.length,1);
   assert.equal(JSON.parse(exports.exportBlobs[0].content).version,1);
 });
+
+
+test('device save blocks unfinished new event and preserves it until registration', () => {
+  const {get,storage,snapshot,confirmMessages}=app();
+  let writes=0, saved;
+  storage.setItem=(key,value)=>{writes++;saved=JSON.parse(value)};
+  get('eventDate').value='2031-05-03';
+  get('eventTitle').value='大切な思い出';
+  get('eventNote').value='まだ入力途中の気持ち';
+  get('eventAmount').value='-2';
+  const before=snapshot(), confirmsBefore=confirmMessages.length;
+  let focused=0;
+  get('eventTitle').focus=()=>{focused++};
+  get('save').onclick();
+  assert.equal(writes,0);
+  assert.equal(confirmMessages.length,confirmsBefore);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventTitle').value,'大切な思い出');
+  assert.equal(get('eventNote').value,'まだ入力途中の気持ち');
+  assert.equal(focused,1);
+  assert.match(get('message').textContent,/新しいイベントの入力途中.*イベントを追加/);
+  get('addEvent').onclick();
+  get('save').onclick();
+  assert.equal(writes,1);
+  assert.equal(saved.events.length,1);
+  assert.equal(saved.events[0].note,'まだ入力途中の気持ち');
+});
+
+test('JSON export blocks partial event draft and succeeds after clearing it', () => {
+  const {get,exports,snapshot,confirmMessages}=app();
+  get('eventRepeat').value='annual';
+  const before=snapshot(), confirmsBefore=confirmMessages.length;
+  let focused=0;
+  get('eventTitle').focus=()=>{focused++};
+  get('export').onclick();
+  assert.equal(exports.downloads.length,0);
+  assert.equal(exports.exportBlobs.length,0);
+  assert.equal(confirmMessages.length,confirmsBefore);
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventRepeat').value,'annual');
+  assert.equal(focused,1);
+  assert.match(get('message').textContent,/新しいイベントの入力途中.*バックアップ/);
+  get('eventRepeat').value='once';
+  get('export').onclick();
+  assert.equal(exports.downloads.length,1);
+  assert.equal(JSON.parse(exports.exportBlobs[0].content).version,1);
+});
