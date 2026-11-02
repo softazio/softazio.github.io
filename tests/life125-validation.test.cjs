@@ -24,7 +24,7 @@ function app() {
     return elements.get(id);
   };
   let canClear = true, canExport = true, canRestore = true, canSave = true;
-  const storage = {removeItem:()=>{}};
+  const storage = {getItem:()=>null,removeItem:()=>{}};
   const alerts=[],confirmMessages=[];
   const downloads=[], revoked=[], exportBlobs=[];
   let exportFailure=null;
@@ -3272,4 +3272,47 @@ test('page navigation warns only for changed event edits and clears after save',
   get('addEvent').onclick();
   assert.equal(snapshot().events[0].note,'未保存の追記');
   assert.equal(dispatchBeforeUnload().defaultPrevented,false);
+});
+
+test('existing device backup is not overwritten when overwrite consent is declined', () => {
+  const {get,storage,setCanSave,confirmMessages,snapshot}=app();
+  const existing='{"version":1,"sentinel":"original backup"}';
+  let writes=0;
+  storage.getItem=key=>{assert.equal(key,'softazio-life125-v1');return existing};
+  storage.setItem=()=>{writes++};
+  const before=snapshot();
+  setCanSave(false);
+  get('save').onclick();
+  assert.equal(writes,0);
+  assert.deepEqual(snapshot(),before);
+  assert.match(confirmMessages.at(-1),/既存の端末保存データを上書き/);
+  assert.match(confirmMessages.at(-1),/先にバックアップを保存/);
+  assert.match(get('message').textContent,/保存を取り消しました/);
+});
+
+test('approved device overwrite keeps the storage key and version 1 format', () => {
+  const {get,storage,confirmMessages}=app();
+  let writes=0,key,saved;
+  storage.getItem=()=>'{ "version": 1, "sentinel": "old" }';
+  storage.setItem=(k,value)=>{writes++;key=k;saved=JSON.parse(value)};
+  get('salary').value='27';
+  get('save').onclick();
+  assert.equal(writes,1);
+  assert.equal(key,'softazio-life125-v1');
+  assert.equal(saved.version,1);
+  assert.equal(saved.fields.salary,'27');
+  assert.match(confirmMessages.at(-1),/上書きしますか/);
+  assert.match(get('message').textContent,/保存しました/);
+});
+
+test('unavailable device storage read prevents overwrite and reports an error', () => {
+  const {get,storage,confirmMessages}=app();
+  let writes=0;
+  storage.getItem=()=>{throw Error('storage blocked')};
+  storage.setItem=()=>{writes++};
+  const before=confirmMessages.length;
+  get('save').onclick();
+  assert.equal(writes,0);
+  assert.equal(confirmMessages.length,before);
+  assert.match(get('message').textContent,/保存領域を確認できません/);
 });
