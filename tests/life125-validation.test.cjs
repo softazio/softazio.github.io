@@ -2518,7 +2518,7 @@ test('invalid event edits and cancel leave the original memory unchanged', () =>
   assert.equal(get('cancelEventEdit').hidden,true);
 });
 
-test('deleting another event while editing retains the intended event index', () => {
+test('deleting another event while editing waits until edit is saved or cancelled', () => {
   const {get,restore,snapshot}=app();
   const backup=snapshot();
   backup.events=['最初','途中','最後'].map((title,i)=>({
@@ -2527,10 +2527,16 @@ test('deleting another event while editing retains the intended event index', ()
   restore(backup);
   get('eventRows').onclick({target:{dataset:{eventEdit:'2'}}});
   get('eventRows').onclick({target:{dataset:{event:'0'}}});
+  assert.deepEqual(snapshot().events.map(e=>e.title),['最初','途中','最後']);
   get('eventTitle').value='最後だけ更新';
   get('addEvent').onclick();
+  assert.deepEqual(snapshot().events.map(e=>e.title),['最初','途中','最後だけ更新']);
+  get('eventRows').onclick({target:{dataset:{event:'0'}}});
   assert.deepEqual(snapshot().events.map(e=>e.title),['途中','最後だけ更新']);
   get('eventRows').onclick({target:{dataset:{eventEdit:'1'}}});
+  get('eventRows').onclick({target:{dataset:{event:'1'}}});
+  assert.deepEqual(snapshot().events.map(e=>e.title),['途中','最後だけ更新']);
+  get('cancelEventEdit').onclick();
   get('eventRows').onclick({target:{dataset:{event:'1'}}});
   assert.deepEqual(snapshot().events.map(e=>e.title),['途中']);
   assert.equal(get('addEvent').textContent,'イベントを追加');
