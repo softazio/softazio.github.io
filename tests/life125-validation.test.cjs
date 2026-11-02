@@ -3404,13 +3404,13 @@ test('out-of-order JSON backup imports keep the latest selected file', async () 
 });
 
 test('cancelling file selection invalidates a pending older JSON import', async () => {
-  const {importFile,snapshot,confirmMessages}=app();
+  const {get,importFile,snapshot,confirmMessages}=app();
   const older=snapshot();
   older.fields.salary='77';
   let finishOlder;
   const slowText=new Promise(resolve=>{finishOlder=resolve});
   const pendingOlder=importFile({size:300,text:()=>slowText});
-  await importFile(null);
+  get('import').oncancel();
   const confirmations=confirmMessages.length;
   finishOlder(JSON.stringify(older));
   await pendingOlder;
