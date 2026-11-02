@@ -2849,3 +2849,52 @@ test('deleting another event is blocked while editing, then works after cancella
   assert.equal(snapshot().events[0].title,'残す予定');
   assert.equal(confirmMessages.length,confirms+1);
 });
+
+test('deleting a linked family member while editing keeps the event draft and associations intact', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.families=[{id:'f1',name:'ロッキー',role:'ペット',birth:'2018-05-03'}];
+  backup.events=[{date:'2030-05-03',title:'出会った日',type:'future',amount:0,repeat:'once',personId:'f1'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='忘れたくない日';
+  get('eventNote').value='まだ書きかけ';
+  const before=snapshot(),confirms=confirmMessages.length;
+  let focused=0;
+  get('eventTitle').focus=()=>{focused++};
+  get('familyList').onclick({target:{dataset:{family:'0'}}});
+  assert.deepEqual(snapshot(),before);
+  assert.equal(confirmMessages.length,confirms);
+  assert.equal(get('eventTitle').value,'忘れたくない日');
+  assert.equal(get('eventNote').value,'まだ書きかけ');
+  assert.equal(get('eventPerson').value,'f1');
+  assert.match(get('message').textContent,/イベントを編集中.*家族を削除/);
+  assert.equal(focused,1);
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[0].personId,'f1');
+  assert.equal(snapshot().events[0].note,'まだ書きかけ');
+});
+
+test('deleting an unrelated family member is blocked during edit and works after cancellation', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.families=[
+    {id:'f1',name:'親友',role:'友人',birth:'2000-01-01'},
+    {id:'f2',name:'別の家族',role:'家族',birth:'2001-01-01'}
+  ];
+  backup.events=[{date:'2030-01-01',title:'再会',type:'future',amount:0,repeat:'once',personId:'f1'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='まだ編集途中';
+  const before=snapshot(),confirms=confirmMessages.length;
+  get('familyList').onclick({target:{dataset:{family:'1'}}});
+  assert.deepEqual(snapshot(),before);
+  assert.equal(confirmMessages.length,confirms);
+  assert.equal(get('eventTitle').value,'まだ編集途中');
+  get('cancelEventEdit').onclick();
+  get('familyList').onclick({target:{dataset:{family:'1'}}});
+  assert.equal(snapshot().families.length,1);
+  assert.equal(snapshot().families[0].id,'f1');
+  assert.equal(snapshot().events[0].personId,'f1');
+  assert.equal(confirmMessages.length,confirms+1);
+});
