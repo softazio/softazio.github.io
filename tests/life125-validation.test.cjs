@@ -1908,7 +1908,7 @@ test('failed restore preserves existing linked person IDs and pending event form
   assert.equal(get('eventTitle').value,'編集中の新しい出来事');
 });
 
-test('successful restore clears pending person links when identical IDs now refer to different people', () => {
+test('successful restore clears pending event draft and links when identical IDs now refer to different people', () => {
   const {get,restore,snapshot}=app();
   const old=snapshot();
   old.families=[
@@ -1926,7 +1926,7 @@ test('successful restore clears pending person links when identical IDs now refe
   assert.deepEqual(snapshot().families,next.families);
   assert.equal(get('eventPerson').value,'');
   assert.equal(get('eventPerson2').value,'');
-  assert.equal(get('eventTitle').value,'入力途中の思い出');
+  assert.equal(get('eventTitle').value,'');
 });
 
 test('successful restore clears legacy index links that could silently point at different family', () => {
