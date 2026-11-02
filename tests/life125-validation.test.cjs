@@ -3385,3 +3385,35 @@ test('successive JSON backups use distinct names even within the same second', (
   assert.doesNotMatch(second,/非公開の呼び名/);
   assert.equal(JSON.parse(out.exportBlobs[1].content).version,1);
 });
+
+
+test('out-of-order JSON backup imports keep the latest selected file', async () => {
+  const {importFile,snapshot,confirmMessages}=app();
+  const older=snapshot(),newer=snapshot();
+  older.fields.salary='31';newer.fields.salary='47';
+  let finishOlder;
+  const slowText=new Promise(resolve=>{finishOlder=resolve});
+  const pendingOlder=importFile({size:400,text:()=>slowText});
+  await importFile({size:400,text:async()=>JSON.stringify(newer)});
+  assert.equal(snapshot().fields.salary,'47');
+  const confirmations=confirmMessages.length;
+  finishOlder(JSON.stringify(older));
+  await pendingOlder;
+  assert.equal(snapshot().fields.salary,'47');
+  assert.equal(confirmMessages.length,confirmations);
+});
+
+test('cancelling file selection invalidates a pending older JSON import', async () => {
+  const {importFile,snapshot,confirmMessages}=app();
+  const older=snapshot();
+  older.fields.salary='77';
+  let finishOlder;
+  const slowText=new Promise(resolve=>{finishOlder=resolve});
+  const pendingOlder=importFile({size:300,text:()=>slowText});
+  await importFile(null);
+  const confirmations=confirmMessages.length;
+  finishOlder(JSON.stringify(older));
+  await pendingOlder;
+  assert.equal(snapshot().fields.salary,'20');
+  assert.equal(confirmMessages.length,confirmations);
+});
