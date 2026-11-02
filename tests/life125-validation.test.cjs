@@ -2752,3 +2752,48 @@ test('invalid family addition retains draft for correction and clears only on su
   assert.equal(get('familyRole').value,'');
   assert.equal(get('familyBirth').value,'');
 });
+
+
+test('switching to another event while editing keeps the unsaved draft', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[
+    {date:'2030-01-01',title:'最初の記録',type:'future',amount:0,repeat:'once'},
+    {date:'2030-02-01',title:'次の記録',type:'future',amount:0,repeat:'once'}
+  ];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='まだ保存していない変更';
+  get('eventNote').value='残したい気持ち';
+  const before=snapshot();
+  let focusCount=0;
+  get('eventTitle').focus=()=>{focusCount++};
+  get('eventRows').onclick({target:{dataset:{eventEdit:'1'}}});
+  assert.equal(get('eventTitle').value,'まだ保存していない変更');
+  assert.equal(get('eventNote').value,'残したい気持ち');
+  assert.equal(get('addEvent').textContent,'変更を保存');
+  assert.match(get('message').textContent,/イベントを編集中.*変更を保存/);
+  assert.equal(focusCount,1);
+  assert.deepEqual(snapshot(),before);
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[0].title,'まだ保存していない変更');
+  get('eventRows').onclick({target:{dataset:{eventEdit:'1'}}});
+  assert.equal(get('eventTitle').value,'次の記録');
+});
+
+test('reopening the same event while editing does not erase a draft', () => {
+  const {get,restore,snapshot}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-03-01',title:'大切な日',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  get('eventTitle').value='編集中の題名';
+  get('eventAmount').value='-12';
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  assert.equal(get('eventTitle').value,'編集中の題名');
+  assert.equal(get('eventAmount').value,'-12');
+  assert.equal(snapshot().events[0].title,'大切な日');
+  get('cancelEventEdit').onclick();
+  assert.equal(snapshot().events[0].title,'大切な日');
+  assert.equal(get('addEvent').textContent,'イベントを追加');
+});

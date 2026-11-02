@@ -337,6 +337,11 @@ $('addEvent').onclick=()=>{
  if(e.target.dataset.eventEdit!==undefined){
   const index=Number(e.target.dataset.eventEdit);
   if(!Number.isInteger(index)||index<0||index>=events.length)return;
+  // 編集中に別の「編集」を押しても、未保存の思い出を上書きしない。
+  if(editingEventIndex>=0){
+   msg('イベントを編集中です。先に「変更を保存」または「編集をやめる」を選んでください');
+   $('eventTitle').focus?.();return;
+  }
   const item=events[index];editingEventIndex=index;
   $('eventDate').value=item.date;$('eventTitle').value=item.title;$('eventType').value=item.type;
   $('eventAmount').value=String(item.amount);$('eventRepeat').value=item.repeat;$('eventNote').value=item.note||'';
