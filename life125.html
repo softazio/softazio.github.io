@@ -309,7 +309,10 @@ $('addFamily').onclick=()=>{
  }
  const target=families[index],linkedCount=target.id?events.filter(ev=>ev.personId===target.id||ev.secondPersonId===target.id).length:0;
  const identity=target.name+'（'+(target.role||'続柄未登録')+'・'+target.birth+'）';
- if(!confirm('「'+identity+'」を削除しますか？\n関連する出来事：'+linkedCount+'件\n思い出の本文は残りますが、この人との関連付けは変更・解除され、元に戻せません。'))return;// 旧形式の legacy:N は家族配列の位置を表す。削除時に別人へずれないよう補正する。
+ // 人物だけを選択した未登録イベントでは従来の補正を維持し、削除前に影響を明示する。
+ const pendingSelectionWarning=($('eventPerson').value||$('eventPerson2').value)
+  ?'\n入力途中のイベントで選択した人物も変更される可能性があります。関連付けを残すには先にイベントを登録してください。':'';
+ if(!confirm('「'+identity+'」を削除しますか？\n関連する出来事：'+linkedCount+'件\n思い出の本文は残りますが、この人との関連付けは変更・解除され、元に戻せません。'+pendingSelectionWarning))return;// 旧形式の legacy:N は家族配列の位置を表す。削除時に別人へずれないよう補正する。
  const pendingPersonIds=['eventPerson','eventPerson2'];
  const previousSelections=pendingPersonIds.map(id=>$(id).value);
  const removed=families.splice(index,1)[0];
