@@ -18,6 +18,7 @@ function app() {
     wageGrowth:'0', debt:'0', debtRate:'0', repayment:'0'
   };
   const elements = new Map();
+  const listeners = new Map();
   const get = id => {
     if (!elements.has(id)) elements.set(id, {value:defaults[id]??'',innerHTML:'',textContent:'',dataset:{}});
     return elements.get(id);
@@ -28,6 +29,7 @@ function app() {
   const downloads=[], revoked=[], exportBlobs=[];
   let exportFailure=null;
   const context = vm.createContext({
+    window:{addEventListener:(type,fn)=>{const items=listeners.get(type)||[];items.push(fn);listeners.set(type,items)}},
     document:{getElementById:get,createElement:()=>({click(){
       if(exportFailure==='click')throw Error('download blocked');
       downloads.push({href:this.href,filename:this.download});
@@ -40,7 +42,8 @@ function app() {
   });
   vm.runInContext(script, context, {timeout:3000});
   const importFile=async file=>{const input=get('import');input.files=file?[file]:[];input.value='life125-backup.json';await input.onchange({target:input});return input};
-  return {importFile,get, alerts, confirmMessages, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, setCanSave:v=>{canSave=v}, setCanExport:v=>{canExport=v}, setCanRestore:v=>{canRestore=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
+  const dispatchBeforeUnload=()=>{const event={defaultPrevented:false,returnValue:undefined,preventDefault(){this.defaultPrevented=true}};for(const listener of listeners.get('beforeunload')||[])listener(event);return event};
+  return {importFile,dispatchBeforeUnload,get, alerts, confirmMessages, storage, exports:{downloads,revoked,exportBlobs,setFailure:v=>{exportFailure=v}}, clear:()=>get('clear').onclick(), setCanClear:v=>{canClear=v}, setCanSave:v=>{canSave=v}, setCanExport:v=>{canExport=v}, setCanRestore:v=>{canRestore=v}, calculate:()=>vm.runInContext('calculate()', context, {timeout:3000}), restore:data=>{context.__backup=data;vm.runInContext('restore(__backup)',context,{timeout:3000})}, snapshot:()=>JSON.parse(vm.runInContext('JSON.stringify(snapshot())',context,{timeout:3000}))};
 }
 
 test('invalid upper age clears previous projections, then valid input restores them', () => {
@@ -3232,4 +3235,41 @@ test('unchanged event edit cancels without prompt; accepted discard keeps origin
   assert.deepEqual(snapshot().events,backup.events);
   assert.equal(get('eventNote').value,'');
   assert.equal(get('addEvent').textContent,'イベントを追加');
+});
+
+
+test('page navigation warns for unfinished family or new event drafts but not for empty forms', () => {
+  const {get,dispatchBeforeUnload,snapshot}=app();
+  const clean=dispatchBeforeUnload();
+  assert.equal(clean.defaultPrevented,false);
+  assert.equal(clean.returnValue,undefined);
+  const before=snapshot();
+  get('familyRole').value='ペット';
+  const familyWarning=dispatchBeforeUnload();
+  assert.equal(familyWarning.defaultPrevented,true);
+  assert.equal(familyWarning.returnValue,'');
+  assert.deepEqual(snapshot(),before);
+  get('familyRole').value='';
+  get('eventNote').value='まだ書きかけの思い出';
+  const eventWarning=dispatchBeforeUnload();
+  assert.equal(eventWarning.defaultPrevented,true);
+  assert.equal(eventWarning.returnValue,'');
+  assert.equal(get('eventNote').value,'まだ書きかけの思い出');
+  get('eventNote').value='';
+  assert.equal(dispatchBeforeUnload().defaultPrevented,false);
+});
+
+test('page navigation warns only for changed event edits and clears after save', () => {
+  const {get,restore,snapshot,dispatchBeforeUnload}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-05-03',title:'大切な思い出',type:'future',amount:0,repeat:'once',note:'原文'}];
+  restore(backup);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  assert.equal(dispatchBeforeUnload().defaultPrevented,false);
+  get('eventNote').value='未保存の追記';
+  assert.equal(dispatchBeforeUnload().defaultPrevented,true);
+  assert.equal(snapshot().events[0].note,'原文');
+  get('addEvent').onclick();
+  assert.equal(snapshot().events[0].note,'未保存の追記');
+  assert.equal(dispatchBeforeUnload().defaultPrevented,false);
 });

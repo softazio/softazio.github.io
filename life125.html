@@ -292,6 +292,17 @@ function hasUnsavedEventEdit(){
   $('eventPerson').value!==(e.personId||'')||$('eventPerson2').value!==(e.secondPersonId||'')
  ));
 }
+// ブラウザを閉じたり別ページへ移動する際、snapshotに含まれない入力途中の記録を守る。
+// ブラウザ側の制限により、特にスマホの強制終了では警告が表示されない場合がある。
+function hasUnfinishedInput(){
+ return ['familyName','familyRole','familyBirth'].some(id=>$(id).value.trim())||
+  (editingEventIndex>=0?hasUnsavedEventEdit():hasNewEventDraft());
+}
+window.addEventListener('beforeunload',event=>{
+ if(!hasUnfinishedInput())return;
+ event.preventDefault();
+ event.returnValue='';
+});
 $('cancelEventEdit').onclick=()=>{
  if(hasUnsavedEventEdit()&&!confirm('編集中のイベントには未保存の変更があります。変更を破棄して編集をやめますか？')){
   msg('編集中の変更を保持しました');$('eventTitle').focus?.();return;
