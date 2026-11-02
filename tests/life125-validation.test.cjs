@@ -2853,7 +2853,7 @@ test('deleting another event is blocked while editing, then works after cancella
   get('eventRows').onclick({target:{dataset:{event:'1'}}});
   assert.equal(snapshot().events.length,1);
   assert.equal(snapshot().events[0].title,'残す予定');
-  assert.equal(confirmMessages.length,confirms+1);
+  assert.equal(confirmMessages.length,confirms+2); // 変更破棄の確認 + イベント削除の確認
 });
 
 test('deleting a linked family member while editing keeps the event draft and associations intact', () => {
