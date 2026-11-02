@@ -257,6 +257,9 @@ test('event creation preserves valid zero and negative amounts', () => {
   get('eventRepeat').value='once';
   get('addEvent').onclick();
   assert.deepEqual(snapshot().events[0],{date:'2030-04-01',title:'進学',type:'future',amount:0,repeat:'once'});
+  // 登録成功後は入力欄が空になるため、次の予定を明示して追加する。
+  get('eventDate').value='2030-04-02';
+  get('eventTitle').value='進学費用';
   get('eventAmount').value='-12.5';
   get('addEvent').onclick();
   assert.equal(snapshot().events[1].amount,-12.5);
@@ -2047,7 +2050,10 @@ test('deleting a linked primary person promotes the surviving persistent ID', ()
   assert.equal(get('eventPerson2').value,'');
   assert.equal(snapshot().events[0].personId,'f2');
   assert.equal(snapshot().events[0].secondPersonId,undefined);
+  // 新規登録フォームは成功時に初期化されるため日付を改めて入力する。
+  get('eventDate').value='2026-12-02';
   get('eventTitle').value='残る人の新しい予定';
+  get('eventAmount').value='0';
   get('addEvent').onclick();
   assert.equal(snapshot().events.at(-1).personId,'f2');
   assert.equal(alerts.length,0);
