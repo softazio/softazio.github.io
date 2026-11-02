@@ -348,6 +348,14 @@ $('addEvent').onclick=()=>{
    msg('イベントを編集中です。先に「変更を保存」または「編集をやめる」を選んでください');
    $('eventTitle').focus?.();return;
   }
+  // 新規イベントの未保存下書きを、既存イベントの編集開始で上書きしない。
+  const hasNewDraft=Boolean($('eventDate').value||$('eventTitle').value.trim()||$('eventNote').value.trim()||
+   $('eventPerson').value||$('eventPerson2').value||$('eventAmount').value!=='0'||
+   $('eventType').value!=='future'||$('eventRepeat').value!=='once');
+  if(hasNewDraft&&!confirm('新しいイベントの入力途中です。入力内容を破棄して既存イベントを編集しますか？')){
+   msg('新しいイベントの入力内容を保持しました');
+   $('eventTitle').focus?.();return;
+  }
   const item=events[index];editingEventIndex=index;
   $('eventDate').value=item.date;$('eventTitle').value=item.title;$('eventType').value=item.type;
   $('eventAmount').value=String(item.amount);$('eventRepeat').value=item.repeat;$('eventNote').value=item.note||'';

@@ -2898,3 +2898,45 @@ test('deleting an unrelated family member is blocked during edit and works after
   assert.equal(snapshot().events[0].personId,'f1');
   assert.equal(confirmMessages.length,confirms+1);
 });
+
+test('new event draft survives a cancelled switch to editing an existing event', () => {
+  const {get,restore,snapshot,setCanClear,confirmMessages}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-01-01',title:'保存済み',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  get('eventDate').value='2031-02-03';
+  get('eventTitle').value='新しい思い出';
+  get('eventNote').value='まだ書きかけの気持ち';
+  get('eventAmount').value='-5';
+  const before=snapshot();
+  setCanClear(false);
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  assert.deepEqual(snapshot(),before);
+  assert.equal(get('eventDate').value,'2031-02-03');
+  assert.equal(get('eventTitle').value,'新しい思い出');
+  assert.equal(get('eventNote').value,'まだ書きかけの気持ち');
+  assert.equal(get('eventAmount').value,'-5');
+  assert.notEqual(get('addEvent').textContent,'変更を保存');
+  assert.match(confirmMessages.at(-1),/新しいイベントの入力途中/);
+  assert.match(get('message').textContent,/入力内容を保持/);
+  get('addEvent').onclick();
+  assert.equal(snapshot().events.length,2);
+  assert.equal(snapshot().events[1].note,'まだ書きかけの気持ち');
+});
+
+test('accepting draft discard starts existing-event edit; empty draft needs no confirmation', () => {
+  const {get,restore,snapshot,confirmMessages}=app();
+  const backup=snapshot();
+  backup.events=[{date:'2030-04-01',title:'保存済み',type:'future',amount:0,repeat:'once'}];
+  restore(backup);
+  get('eventTitle').value='新しい下書き';
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  assert.match(confirmMessages.at(-1),/入力内容を破棄/);
+  assert.equal(get('eventTitle').value,'保存済み');
+  assert.equal(get('addEvent').textContent,'変更を保存');
+  get('cancelEventEdit').onclick();
+  const count=confirmMessages.length;
+  get('eventRows').onclick({target:{dataset:{eventEdit:'0'}}});
+  assert.equal(confirmMessages.length,count);
+  assert.equal(get('eventTitle').value,'保存済み');
+});
