@@ -1,0 +1,440 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LIFE 125 試作版 | SOFTAZIO</title><style>:root{font-family:system-ui,'Noto Sans JP',sans-serif;color:#142534;background:#f5f7fa}*{box-sizing:border-box}body{margin:0}header{background:#fff;border-bottom:1px solid #d9e1e9;padding:20px max(16px,calc((100vw - 1100px)/2))}main{max-width:1100px;margin:auto;padding:24px 16px 80px}h1{margin:0;font-size:clamp(26px,5vw,42px)}h2{font-size:20px;margin:0 0 16px}.muted{color:#546577}nav a{color:#155a8a}section{background:white;border:1px solid #dbe2e9;border-radius:14px;padding:20px;margin:18px 0}label{display:flex;flex-direction:column;font-size:13px;font-weight:650;gap:5px}input,select,textarea{width:100%;padding:10px;border:1px solid #9aabb9;border-radius:7px;background:white;color:#142534;font:inherit;min-height:43px}button,.button{padding:10px 15px;background:#173e65;color:white;border:0;border-radius:8px;cursor:pointer;font:inherit;min-height:44px}button.secondary{background:#e8eff6;color:#173e65}button.danger{background:#8a3030}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.stat{padding:14px;border-radius:10px;background:#f0f5fa}.stat strong{display:block;font-size:24px}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;min-width:580px}th,td{text-align:left;padding:10px;border-bottom:1px solid #dbe2e9;font-size:13px}svg{max-width:100%;height:auto}.note{background:#fff9e8;padding:12px;border-radius:8px;font-size:13px}#message{min-height:24px;color:#155a8a}details{margin:12px 0}summary{cursor:pointer;font-weight:700} @media(max-width:600px){section{padding:15px}header{padding:16px}}#timelineTrails{overflow:hidden;background:#101c37;border-radius:12px;padding:10px;margin:12px 0}#timelineTrails svg{display:block;width:100%;height:auto}.life-trail{stroke-dasharray:900;stroke-dashoffset:900;animation:life-trace .8s ease-out forwards}@keyframes life-trace{to{stroke-dashoffset:0}}:where(a,button,input,select,textarea,summary,.scroll):focus-visible{outline:3px solid #145a8d;outline-offset:3px;box-shadow:0 0 0 5px #fff}@media(prefers-reduced-motion:reduce){.life-trail{animation:none;stroke-dashoffset:0}}</style></head><body><header><nav><a href="index.html">SOFTAZIO</a> / LIFE 125（開発プレビュー）</nav><h1>LIFE 125</h1><p class="muted">家族の時間と未来のお金を、ひとつの年表に。</p></header><main><p class="note">試作版です。金額はすべて入力による仮定で、税・社会保険料・NISA制度上の上限は自動計算しません。端末内保存はこのブラウザに限られます。共用端末では保存を避けてください。「保存データを削除」は端末内の保存分だけを消し、画面に表示中の入力内容やダウンロード済みバックアップは消しません。バックアップファイルは暗号化されず、呼び名・生年月日・思い出・資産情報を含みます。共有や保存先にご注意ください。</p><section><h2>1. 本人と計画期間</h2><div class="fields"><label>本人の呼び名<input id="name" maxlength="60" value="本人"></label><label>生年月日<input id="birth" type="date" value="1990-01-01"></label><label>何歳まで計画する？<input id="endAge" type="number" min="1" max="125" value="95"></label></div><details><summary>家族を登録</summary><div class="fields"><label>呼び名<input id="familyName" maxlength="60" placeholder="例：配偶者"></label><label>続柄<input id="familyRole" maxlength="40" placeholder="例：配偶者"></label><label>生年月日<input id="familyBirth" type="date"></label></div><div class="actions"><button id="addFamily">家族を追加</button></div><div id="familyList"></div></details></section><section><h2>家族の未来年表</h2><p class="muted">生まれた年や過去の出来事まで戻れます。年を動かすと、本人と家族の年齢・登録した出来事が変わります。スマホでは「前年」「翌年」ボタンで1年ずつ調整できます。年齢はその年の12月末時点です。人生の終わりを予測するものではありません。 毎年2月29日のイベントは、平年には2月の月次試算に含め、年表では「2月末」と表示します。</p><label for="timelineYear">表示する年 <strong id="timelineYearLabel"></strong></label><input id="timelineYear" type="range" min="2026" max="2115" step="1" value="2026" aria-label="家族年表の表示年"><div class="actions"><button type="button" class="secondary" id="timelinePrev" aria-controls="timelineYear">← 前年</button><button type="button" class="secondary" id="timelineNext" aria-controls="timelineYear">翌年 →</button></div><label for="timelineJump">表示年を直接指定（年）</label><input id="timelineJump" type="number" step="1" inputmode="numeric" aria-controls="timelineYear"><h3>家族の光の軌跡（試作）</h3><p class="muted">誕生年から選択した年までを光で描きます。12人まで表示し、出会い・死亡時期・生存状況を推定するものではありません。動きを抑える端末設定に対応します。</p><div id="timelineTrails" aria-hidden="true"></div><h3>この年の家族</h3><ul id="timelineAges" aria-live="polite"></ul><h3>この年の出来事</h3><ul id="timelineEvents"></ul></section><section><h2>2. 収支と資産（万円）</h2><div class="fields"><label>現在の現預金<input id="cash" type="number" value="300" step="1"></label><label>月の手取り給与<input id="salary" type="number" min="0" value="20" step="0.1"></label><label>月の生活費<input id="expense" type="number" min="0" value="18" step="0.1"></label><label>退職年齢<input id="retireAge" type="number" value="65" min="0" max="125" step="1"></label><label>年金開始年齢<input id="pensionAge" type="number" value="65" min="0" max="125" step="1"></label><label>月の年金手取り想定<input id="pension" type="number" min="0" value="12" step="0.1"></label><label>NISA等の運用資産残高<input id="invest" type="number" min="0" value="0" step="1"></label><label>月の投資積立<input id="contribution" type="number" min="0" value="2" step="0.1"></label><label>月の投資取崩し<input id="withdraw" type="number" min="0" value="0" step="0.1"></label><label>年間運用利回り（%）<input id="returnRate" type="number" value="3" step="0.1"></label><label>年間物価上昇率（%）<input id="inflation" type="number" value="2" step="0.1"></label><label>年間給与上昇率（%）<input id="wageGrowth" type="number" value="0" step="0.1"></label><label>現在の借入残高<input id="debt" type="number" min="0" value="0" step="1"></label><label>借入金利（年%）<input id="debtRate" type="number" value="0" step="0.1"></label><label>毎月の返済額<input id="repayment" type="number" min="0" value="0" step="0.1"></label></div></section><section><h2>3. 家族イベントと過去のクロニクル</h2><div class="fields"><label>日付<input id="eventDate" type="date"></label><label>イベント名<input id="eventTitle" maxlength="100" placeholder="例：卒業式"></label><label>種類<select id="eventType"><option value="future">将来の予定・支出</option><option value="past">過去のクロニクル</option></select></label><label>収支額（万円・支出はマイナス）<input id="eventAmount" type="number" step="any" value="0"></label><label>繰り返し<select id="eventRepeat"><option value="once">1回のみ</option><option value="annual">毎年</option></select></label><label>関連する人・ペット（任意）<select id="eventPerson"><option value="">関連付けない</option><option value="self">本人</option></select></label><label>もう一人の相手（出会い・交差、任意）<select id="eventPerson2"><option value="">選択しない</option><option value="self">本人</option></select></label><label>その時の気持ち・思い出（任意）<textarea id="eventNote" maxlength="500" rows="2" placeholder="例：ロッキーと出会った日。うれしかった。"></textarea></label></div><div class="actions"><button id="addEvent">イベントを追加</button><button type="button" class="secondary" id="cancelEventEdit" hidden>編集をやめる</button></div><div class="scroll" tabindex="0" role="region" aria-label="イベント一覧（横スクロール可能）"><table><thead><tr><th>日付</th><th>出来事</th><th>収支（万円）</th><th>区分</th><th>操作</th></tr></thead><tbody id="eventRows"></tbody></table></div></section><section><h2>4. 将来シミュレーション</h2><p class="note">試算上の注意：現預金がマイナスになっても、設定した毎月の投資積立は自動停止せず、運用資産に加算されます。現預金不足を借入で自動補填することもありません。NISAの投資枠や拠出可能額の上限判定も行いません。現預金不足の時期と積立設定を必ず確認してください。</p><p class="muted">復元すると、現在画面で入力・編集している内容が置き換わります。必要な内容は先に保存してください。</p><div class="actions"><button id="calculate">再計算する</button><button class="secondary" id="save">この端末に保存</button><button class="secondary" id="load">端末の保存を復元</button><button class="secondary" id="export">バックアップを保存</button><button type="button" class="secondary" id="importButton" aria-controls="import">バックアップから復元</button><input type="file" id="import" accept="application/json,.json" style="display:none" aria-label="復元するJSONバックアップを選択"><button class="danger" id="clear">保存データを削除</button></div><p id="message" role="status" aria-live="polite"></p><div class="stats" id="stats"></div><div id="chart" role="img" aria-label="年齢別純資産の推移"></div><p class="muted">グラフの数値は下表でも確認できます。実質価値は開始年を基準に物価上昇率で調整しています。</p><div class="scroll" tabindex="0" role="region" aria-label="年次資産推移表（横スクロール可能）"><table><thead><tr><th>年</th><th>年齢</th><th>現預金</th><th>運用資産</th><th>借入</th><th>純資産</th><th>実質純資産</th></tr></thead><tbody id="yearRows"></tbody></table></div></section></main><script>
+'use strict';
+const fields=['name','birth','endAge','cash','salary','expense','retireAge','pensionAge','pension','invest','contribution','withdraw','returnRate','inflation','wageGrowth','debt','debtRate','repayment'];
+let families=[],events=[],backupExportSerial=0,backupImportRequestId=0,needsDeviceSaveWarning=false;const $=id=>document.getElementById(id);const num=id=>Number($(id).value);const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const msg=s=>$('message').textContent=s;
+function ageAt(birth,year,month){const b=new Date(birth+'T00:00:00');return year-b.getFullYear()-(month<b.getMonth()+1?1:0)}
+function snapshot(){return {version:1,fields:Object.fromEntries(fields.map(k=>[k,$(k).value])),families,events}}
+function validBackupDate(value){
+ if(typeof value!=='string'||!/^\d{4}-\d\d-\d\d$/.test(value))return false;
+ const d=new Date(value+'T00:00:00');
+ return Number.isFinite(d.getTime())&&d.getFullYear()===Number(value.slice(0,4))&&d.getMonth()+1===Number(value.slice(5,7))&&d.getDate()===Number(value.slice(8,10));
+}
+function restore(s){
+ if(!s||typeof s!=='object'||Array.isArray(s)||s.version!==1||!s.fields||typeof s.fields!=='object'||Array.isArray(s.fields)||!Array.isArray(s.families)||!Array.isArray(s.events))throw Error('対応していないデータ形式です');
+ if(s.families.length>100||s.events.length>2000)throw Error('登録件数が多すぎます');
+ const nextFields={};
+ for(const k of fields){
+  const value=s.fields[k];
+  if(!Object.hasOwn(s.fields,k)||typeof value!=='string'||value.length>100)throw Error('設定項目が不正です');
+  if(k==='name'&&value.length>60)throw Error('本人の呼び名が不正です');
+  if(k==='birth'){if(!validBackupDate(value)||new Date(value+'T00:00:00')>new Date())throw Error('生年月日が不正です')}
+  else if(k!=='name'&&(!value.trim()||!Number.isFinite(Number(value))))throw Error('数値項目が不正です');
+  nextFields[k]=value;
+ }
+ const age=ageAt(nextFields.birth,new Date().getFullYear(),new Date().getMonth()+1);
+ const endAge=Number(nextFields.endAge);
+ if(!Number.isInteger(endAge)||endAge<age||endAge>125||Number(nextFields.inflation)<=-100||Number(nextFields.returnRate)<=-100||Number(nextFields.debtRate)<0)throw Error('試算条件が不正です');
+ if(!['retireAge','pensionAge'].every(k=>Number.isInteger(Number(nextFields[k]))&&Number(nextFields[k])>=0&&Number(nextFields[k])<=125))throw Error('退職・年金開始年齢は0〜125歳の整数で指定してください');
+ const nextFamilies=s.families.map(f=>{
+  if(!f||typeof f!=='object'||typeof f.name!=='string'||!f.name.trim()||f.name.length>60||typeof f.role!=='string'||f.role.length>40||(!validBackupDate(f.birth)||new Date(f.birth+'T00:00:00')>new Date())||('id' in f&&(typeof f.id!=='string'||!/^f[1-9]\d{0,5}$/.test(f.id))))throw Error('家族データが不正です');
+  return {name:f.name,role:f.role,birth:f.birth,...('id' in f?{id:f.id}:{})};
+ });
+ const ids=nextFamilies.map(f=>f.id).filter(Boolean);
+ if(new Set(ids).size!==ids.length)throw Error('家族IDが重複しています');
+ const validPeople=new Set(['self',...ids]);
+ const nextEvents=s.events.map(e=>{
+  if(!e||typeof e!=='object'||typeof e.title!=='string'||!e.title.trim()||e.title.length>100||!validBackupDate(e.date)||(e.type==='past'&&new Date(e.date+'T00:00:00')>new Date())||!['future','past'].includes(e.type)||!['once','annual'].includes(e.repeat)||typeof e.amount!=='number'||!Number.isFinite(e.amount)||('note' in e&&(typeof e.note!=='string'||e.note.length>500))||('personId' in e&&(typeof e.personId!=='string'||!validPeople.has(e.personId)))||('secondPersonId' in e&&(!e.personId||typeof e.secondPersonId!=='string'||!validPeople.has(e.secondPersonId)||e.secondPersonId===e.personId)))throw Error('イベントデータが不正です');
+  return {date:e.date,title:e.title,type:e.type,amount:e.amount,repeat:e.repeat,...('note' in e?{note:e.note}:{}),...('personId' in e?{personId:e.personId}:{}),...('secondPersonId' in e?{secondPersonId:e.secondPersonId}:{})};
+ });
+ // 入力形式の検証に加え、計算が成立する場合だけ復元を確定する。
+ // 計算が失敗した場合は、元の入力・登録データ・表示を戻す。
+ const previous=snapshot(),previousTimelineYear=$('timelineYear').value;
+ // 復元に失敗した場合は、未再計算の状態も含めて表示をそのまま保つ。
+ const previousProjection={stats:$('stats').innerHTML,yearRows:$('yearRows').innerHTML,chart:$('chart').innerHTML,message:$('message').textContent};
+ const previousEventPeople={first:$('eventPerson').value,second:$('eventPerson2').value};
+ try{
+  for(const k of fields)$(k).value=nextFields[k];
+  families=nextFamilies;events=nextEvents;renderLists();
+  if(!calculate())throw Error('復元データの試算条件が不正です');
+  // 復元前の家族登録下書きも消去し、別の家族構成へ誤登録しないようにする。
+  $('familyName').value='';$('familyRole').value='';$('familyBirth').value='';
+  // 復元後に古い編集中の内容を残すと、別のデータとして誤登録し得るため入力欄を消去する。
+  stopEventEditing(true);
+ }catch(error){
+  for(const k of fields)$(k).value=previous.fields[k];
+  families=previous.families;events=previous.events;renderLists();
+  // 失敗した復元で、編集中イベントの人物選択を失わない。
+  $('eventPerson').value=previousEventPeople.first;
+  $('eventPerson2').value=previousEventPeople.second;
+  $('timelineYear').value=previousTimelineYear;renderTimeline();
+  $('stats').innerHTML=previousProjection.stats;
+  $('yearRows').innerHTML=previousProjection.yearRows;
+  $('chart').innerHTML=previousProjection.chart;
+  msg(previousProjection.message);
+  throw error;
+ }
+}
+// バックアップ内の文字列やJSONパーサーの詳細は画面に出さず、既知の検証理由だけ案内する。
+function backupErrorHint(error){
+ const known=['対応していないデータ形式です','登録件数が多すぎます','設定項目が不正です','本人の呼び名が不正です','生年月日が不正です','数値項目が不正です','試算条件が不正です','退職・年金開始年齢は0〜125歳の整数で指定してください','家族データが不正です','家族IDが重複しています','イベントデータが不正です','復元データの試算条件が不正です'];
+ return '（'+(known.includes(error?.message)?error.message:'JSON形式を確認してください')+'）';
+}
+// 毎年2月29日の記念日は、平年には2月28日に発生したものとして扱う。
+function effectiveEventDate(e,year){
+ const occurrence=String(year).padStart(4,'0')+e.date.slice(4);
+ return occurrence.endsWith('-02-29')&&!validBackupDate(occurrence)?occurrence.slice(0,8)+'28':occurrence;
+}
+// 過去クロニクルの毎年の記録は、まだ到来していない発生日を「思い出」にしない。
+function isFutureChronicleOccurrence(e,year){
+ if(e.type!=='past')return false;
+ const effective=effectiveEventDate(e,year);
+ const now=new Date();
+ const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+ return effective>today;
+}
+// 20個の表示枠を同じ毎年イベントだけで埋めず、異なる思い出を最低1回ずつ優先する。
+function selectTrailOccurrences(items){
+ const ordered=items.sort((a,b)=>b.eventYear-a.eventYear),selected=[],seen=new Set();
+ for(const item of ordered){
+  if(seen.has(item.eventIndex))continue;
+  seen.add(item.eventIndex);selected.push(item);
+  if(selected.length===20)return selected;
+ }
+ for(const item of ordered){
+  if(selected.includes(item))continue;
+  selected.push(item);
+  if(selected.length===20)break;
+ }
+ return selected;
+}
+// 軌跡上の毎年イベントは選択年までの発生年を表示する（1件につき直近20年まで）。
+function trailEventYears(e,year,birthDate){
+ const born=Number(birthDate.slice(0,4)),first=Number(e.date.slice(0,4));
+ if(first>year)return [];
+ const years=e.repeat!=='annual'?(first>=born?[first]:[]):Array.from({length:Math.max(0,year-Math.max(first,born,year-19)+1)},(_,i)=>Math.max(first,born,year-19)+i);
+ // 誕生年でも誕生日前の出来事を本人の光点・2人の交差線に描かない。
+ return years.filter(y=>effectiveEventDate(e,y)>=birthDate&&!isFutureChronicleOccurrence(e,y));
+}
+function renderTrails(people,year,start,end){
+ // 視覚的な補助表示。氏名・年齢は下のテキスト一覧で確認できる。
+ const visible=people.filter(p=>validBackupDate(p.birth)&&Number(p.birth.slice(0,4))<=year).slice(0,12);
+ const colors=['#f8ce78','#8fd5ff','#f2a8ce','#b3f3bc','#c5b2ff','#ffb997'];
+ const range=Math.max(1,end-start),xAt=y=>125+(y-start)/range*580;
+ const height=Math.max(80,visible.length*36+28);
+ const paths=visible.map((p,i)=>{
+  const born=Number(p.birth.slice(0,4)),from=xAt(born),to=xAt(year),y=30+i*36;
+  const middle=(from+to)/2,curve=y-10+(i%3)*8,color=colors[i%colors.length];
+  const d='M'+from.toFixed(1)+' '+y+' Q'+middle.toFixed(1)+' '+curve+' '+to.toFixed(1)+' '+y;
+  const markers=selectTrailOccurrences(events.filter(e=>e.personId&&(e.personId===p.id||e.secondPersonId===p.id))
+   .flatMap((e,eventIndex)=>trailEventYears(e,year,p.birth).map(eventYear=>({eventYear,title:e.title,eventIndex}))))
+   .map(({eventYear,title})=>{
+    const ex=xAt(eventYear).toFixed(1);
+    return '<circle class="life-event-marker" cx="'+ex+'" cy="'+y+'" r="4" fill="#fff" stroke="'+color+'" stroke-width="2"><title>'+safe(title)+'</title></circle>';
+   }).join('');
+  return '<text x="8" y="'+(y+5)+'" fill="#f5f7ff" font-size="13">'+safe(p.name)+'</text>'+
+   '<path class="life-trail" d="'+d+'" fill="none" stroke="'+color+'" stroke-width="3" stroke-linecap="round"/>'+
+   '<circle cx="'+to.toFixed(1)+'" cy="'+y+'" r="5" fill="'+color+'"/>'+markers;
+ }).join('');
+ // 明示的に2人を関連付けた出来事だけ、同じ年の軌跡間をつなぐ。
+ const connections=selectTrailOccurrences(events.filter(e=>e.personId&&e.secondPersonId).flatMap((e,eventIndex)=>{
+  const a=visible.findIndex(p=>p.id===e.personId),b=visible.findIndex(p=>p.id===e.secondPersonId);
+  if(a<0||b<0)return [];
+  const laterBirth=visible[a].birth>visible[b].birth?visible[a].birth:visible[b].birth;
+  return trailEventYears(e,year,laterBirth).map(eventYear=>({a,b,eventYear,title:e.title,eventIndex}));
+ })).map(({a,b,eventYear,title})=>{
+  const x=xAt(eventYear).toFixed(1),y1=30+a*36,y2=30+b*36,mid=(y1+y2)/2;
+  return '<path class="life-connection" d="M'+x+' '+y1+' Q'+(Number(x)+16).toFixed(1)+' '+mid+' '+x+' '+y2+'" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-dasharray="3 3"><title>'+safe(title)+'</title></path>';
+ }).join('');
+ $('timelineTrails').innerHTML='<svg viewBox="0 0 760 '+height+'" aria-hidden="true" focusable="false">'+paths+connections+'</svg>';
+}
+// 同名・同続柄の人物は生年月日、完全一致なら登録順で区別する。保存データは不変。
+function personRole(p){return p.role||(p.id==='self'?'本人':'家族')}
+function personDisplayName(p,people,alwaysRole=false){
+ const sameName=people.filter(other=>other.name===p.name);
+ if(!alwaysRole&&sameName.length===1)return p.name;
+ const role=personRole(p);
+ const sameRole=sameName.filter(other=>personRole(other)===role);
+ if(sameRole.length===1)return p.name+'（'+role+'）';
+ const sameBirth=sameRole.filter(other=>other.birth===p.birth);
+ if(sameBirth.length===1)return p.name+'（'+role+'・'+p.birth+'）';
+ return p.name+'（'+role+'・'+p.birth+'・登録'+(sameBirth.indexOf(p)+1)+'）';
+}
+function eventPeopleNames(e,people){
+ return [e.personId,e.secondPersonId].filter(Boolean).map(id=>{
+  const person=people.find(p=>p.id===id);
+  return person?personDisplayName(person,people):'未登録';
+ }).join('・');
+}
+// 出来事は消さず、関連人物の誕生前の日付だけ年表上で注意を促す。
+function hasPreBirthLinkedPerson(e,year,people){
+ const occurrence=effectiveEventDate(e,year);
+ return [e.personId,e.secondPersonId].filter(Boolean).some(id=>{
+  const person=people.find(p=>p.id===id);
+  return person&&validBackupDate(person.birth)&&occurrence<person.birth;
+ });
+}
+function renderTimeline(){
+ const now=new Date(),currentYear=now.getFullYear(),birth=$('birth').value;
+ // 過去クロニクルを表示できるよう、本人・家族の誕生年とイベント年まで遡る。
+ const knownYears=[currentYear,birth,...families.map(f=>f.birth),...events.map(e=>e.date)]
+  .filter(validBackupDate).map(date=>Number(date.slice(0,4)));
+ const start=Math.min(currentYear,...knownYears);
+ const requested=Number($('endAge').value);
+ const candidate=validBackupDate(birth)&&Number.isInteger(requested)&&requested>=0&&requested<=125?Number(birth.slice(0,4))+requested:start;
+ const end=Math.max(currentYear,candidate);
+ const slider=$('timelineYear');
+ slider.min=String(start);slider.max=String(end);slider.step='1';
+ const selected=Number(slider.value),year=Number.isInteger(selected)?Math.min(end,Math.max(start,selected)):start;
+ slider.value=String(year);
+ const jump=$('timelineJump');jump.min=String(start);jump.max=String(end);jump.value=String(year);
+ $('timelineYearLabel').textContent=year+'年';
+ $('timelinePrev').disabled=year<=start;
+ $('timelineNext').disabled=year>=end;
+ const people=[{id:'self',name:$('name').value.trim()||'本人',birth},...families];
+ $('timelineAges').innerHTML=people.map(p=>{
+  const age=validBackupDate(p.birth)?ageAt(p.birth,year,12):null;
+  return '<li>'+safe(p.name)+'：'+(age===null?'生年月日を確認':age<0?'誕生前':age+'歳')+(p.role?'（'+safe(p.role)+'）':'')+'</li>';
+ }).join('');
+ renderTrails(people,year,start,end);
+ const yearEvents=events.filter(e=>{
+  const eventYear=Number(e.date.slice(0,4));
+  return (eventYear===year||(e.repeat==='annual'&&year>=eventYear))&&!isFutureChronicleOccurrence(e,year);
+ }).sort((a,b)=>a.date.slice(5).localeCompare(b.date.slice(5))||a.date.localeCompare(b.date));
+ $('timelineEvents').innerHTML=yearEvents.length?yearEvents.map(e=>{
+  const cashFlow=e.type==='future'&&e.amount!==0?'（'+(e.amount<0?'支出 ':'収入 ')+Math.abs(e.amount).toLocaleString('ja-JP')+'万円）':'';
+  return '<li>'+occurrenceDateLabel(e,year)+'：'+safe(e.title)+(e.repeat==='annual'?'（毎年）':'')+' — '+(e.type==='past'?'記録（試算対象外）':(isExcludedPastMonthEvent(e)||isPastAnnualTimelineOccurrence(e,year))?'予定'+cashFlow+'（過去月・試算対象外）':isBeyondPlanEndMonth(e,year)?'予定'+cashFlow+'（計画期間外・試算対象外）':'予定'+cashFlow)+(e.personId?'（関連：'+safe(eventPeopleNames(e,people))+'）':'')+(hasPreBirthLinkedPerson(e,year,people)?'（関連人物の誕生前：日付を確認）':'')+(e.note?' — '+safe(e.note):'')+'</li>';
+ }).join(''):'<li>この年の登録イベントはありません</li>';
+}
+function moveTimelineYear(delta){
+ const slider=$('timelineYear'),min=Number(slider.min),max=Number(slider.max),selected=Number(slider.value);
+ if(!Number.isInteger(min)||!Number.isInteger(max)||!Number.isInteger(selected)||min>max)return;
+ slider.value=String(Math.max(min,Math.min(max,selected+delta)));
+ renderTimeline();
+}
+$('timelineYear').oninput=renderTimeline;
+$('timelinePrev').onclick=()=>moveTimelineYear(-1);
+$('timelineNext').onclick=()=>moveTimelineYear(1);
+$('timelineJump').onchange=()=>{
+ const jump=$('timelineJump'),raw=String(jump.value).trim(),year=Number(raw),slider=$('timelineYear');
+ if(!raw||!Number.isInteger(year)){jump.value=slider.value;msg('年は整数で指定してください');return}
+ const adjusted=Math.max(Number(slider.min),Math.min(Number(slider.max),year));
+ slider.value=String(adjusted);
+ renderTimeline();
+ if(adjusted!==year)msg('指定年は表示範囲外のため、'+slider.min+'〜'+slider.max+'年に調整しました');
+};
+// 計画期間を変えたときは年表だけでなくイベント一覧の対象区分も更新する。
+// 入力値だけが変わって以前の資産試算が残ると、古い金額を現在の条件と誤認する。
+function markProjectionStale(){invalidate('試算条件が変更されました。「再計算する」で更新してください')}
+$('birth').onchange=()=>{renderLists();markProjectionStale()};
+$('birth').oninput=()=>{renderLists();markProjectionStale()};
+$('endAge').oninput=()=>{renderLists();markProjectionStale()};
+for(const k of fields.filter(k=>!['name','birth','endAge'].includes(k)))$(k).oninput=markProjectionStale;
+$('name').oninput=renderLists;
+function nextFamilyId(){let i=1;while(families.some(f=>f.id==='f'+i))i++;return 'f'+i}
+function renderEventPersonOptions(){
+ const select=$('eventPerson'),chosen=select.value,second=$('eventPerson2'),chosen2=second.value;
+ const people=[{id:'self',name:$('name').value.trim()||'本人',birth:$('birth').value},...families];
+ select.innerHTML='<option value="">関連付けない</option><option value="self">本人</option>'+families.map((f,i)=>'<option value="'+safe(f.id||'legacy:'+i)+'">'+safe(personDisplayName(f,people,true))+'</option>').join('');
+ const allowed=['','self',...families.map((f,i)=>f.id||'legacy:'+i)];
+ select.value=allowed.includes(chosen)?chosen:'';
+ second.innerHTML=select.innerHTML.replace('関連付けない','選択しない');
+ second.value=allowed.includes(chosen2)?chosen2:'';
+}
+function isBeyondPlanEndMonth(e,year){
+ if(e.type!=='future'||!['once','annual'].includes(e.repeat))return false;
+ const birth=$('birth').value,endAge=Number($('endAge').value);
+ if(!validBackupDate(birth)||!Number.isInteger(endAge)||endAge<0||endAge>125)return false;
+ const endYear=Number(birth.slice(0,4))+endAge;
+ const endMonth=birth.slice(5,7);
+ // 年表の毎年イベントは選択年の発生月で判定し、一覧は初回発生月で判定する。
+ const occurrenceMonth=e.repeat==='annual'&&Number.isInteger(year)
+  ?String(year).padStart(4,'0')+'-'+e.date.slice(5,7):e.date.slice(0,7);
+ return occurrenceMonth>String(endYear).padStart(4,'0')+'-'+endMonth;
+}
+function isExcludedPastMonthEvent(e){const now=new Date(),month=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');return e.type==='future'&&e.repeat==='once'&&e.date.slice(0,7)<month}
+function isPastAnnualTimelineOccurrence(e,year){if(e.type!=='future'||e.repeat!=='annual')return false;const now=new Date();return year<now.getFullYear()||(year===now.getFullYear()&&Number(e.date.slice(5,7))<now.getMonth()+1)}
+// 2月29日の毎年イベントは平年にも2月の月次試算に含むため、存在しない日付を年表に表示しない。
+function occurrenceDateLabel(e,year){
+ if(e.repeat==='annual'&&e.date.slice(5)==='02-29'&&!validBackupDate(String(year).padStart(4,'0')+'-02-29'))return year+'年02月末（2月29日がない年）';
+ return year+'年'+e.date.slice(5,7)+'月'+e.date.slice(8,10)+'日';
+}
+let editingEventIndex=-1;
+function ensureEventEditFinished(){
+ if(editingEventIndex<0)return true;
+ msg('イベントを編集中です。先に「変更を保存」または「編集をやめる」を選んでから、端末保存・バックアップを実行してください');
+ $('eventTitle').focus?.();
+ return false;
+}
+// 家族登録欄の下書きはsnapshotに含まれないため、保存前に登録を促す。
+function ensureFamilyDraftFinished(){
+ if(!['familyName','familyRole','familyBirth'].some(id=>$(id).value.trim()))return true;
+ msg('家族の入力途中です。先に「家族を追加」するか入力欄を空にしてから、端末保存・バックアップを実行してください');
+ $('familyName').focus?.();
+ return false;
+}
+// 新規イベントの入力欄はsnapshotに含まれないため、保存前に登録を促す。
+function hasNewEventDraft(){
+ return Boolean($('eventDate').value||$('eventTitle').value.trim()||$('eventNote').value.trim()||
+  $('eventPerson').value||$('eventPerson2').value||$('eventAmount').value!=='0'||
+  $('eventType').value!=='future'||$('eventRepeat').value!=='once');
+}
+function ensureEventDraftFinished(){
+ if(editingEventIndex>=0||!hasNewEventDraft())return true;
+ msg('新しいイベントの入力途中です。先に「イベントを追加」するか入力欄を空にしてから、端末保存・バックアップを実行してください');
+ $('eventTitle').focus?.();
+ return false;
+}
+function stopEventEditing(clearForm=false){
+ editingEventIndex=-1;$('addEvent').textContent='イベントを追加';$('cancelEventEdit').hidden=true;
+ if(clearForm){
+  $('eventDate').value='';$('eventTitle').value='';$('eventType').value='future';
+  $('eventAmount').value='0';$('eventRepeat').value='once';$('eventNote').value='';
+  $('eventPerson').value='';$('eventPerson2').value='';
+ }
+}
+$('cancelEventEdit').hidden=true;
+function hasUnsavedEventEdit(){
+ const e=events[editingEventIndex];
+ return Boolean(e&&(
+  $('eventDate').value!==e.date||$('eventTitle').value!==e.title||
+  $('eventType').value!==e.type||$('eventAmount').value!==String(e.amount)||
+  $('eventRepeat').value!==e.repeat||$('eventNote').value!==(e.note||'')||
+  $('eventPerson').value!==(e.personId||'')||$('eventPerson2').value!==(e.secondPersonId||'')
+ ));
+}
+// ブラウザを閉じたり別ページへ移動する際、snapshotに含まれない入力途中の記録を守る。
+// ブラウザ側の制限により、特にスマホの強制終了では警告が表示されない場合がある。
+function hasUnfinishedInput(){
+ return ['familyName','familyRole','familyBirth'].some(id=>$(id).value.trim())||
+  (editingEventIndex>=0?hasUnsavedEventEdit():hasNewEventDraft());
+}
+window.addEventListener('beforeunload',event=>{
+ if(!hasUnfinishedInput()&&!needsDeviceSaveWarning)return;
+ event.preventDefault();
+ event.returnValue='';
+});
+// 復元前に、snapshotに含まれない家族・イベントの下書きも失うことを明示する。
+function confirmDataReplacement(source){
+ const draftWarning=hasUnfinishedInput()?'\n家族・イベントの入力途中、または未保存のイベント編集があります。先に登録・保存するか、復元を取り消してください。':'';
+ return confirm(source+'から復元すると、現在画面に入力している内容が上書きされます。未保存の変更は戻せません。'+draftWarning+'復元しますか？');
+}
+$('cancelEventEdit').onclick=()=>{
+ if(hasUnsavedEventEdit()&&!confirm('編集中のイベントには未保存の変更があります。変更を破棄して編集をやめますか？')){
+  msg('編集中の変更を保持しました');$('eventTitle').focus?.();return;
+ }
+ stopEventEditing(true);msg('イベントの編集を取り消しました');
+};
+function renderLists(){renderEventPersonOptions();const people=[{id:'self',name:$('name').value.trim()||'本人',birth:$('birth').value},...families];$('familyList').innerHTML=families.map((f,i)=>`<p>${safe(f.name)}（${safe(f.role)}・${safe(f.birth)}） <button type="button" class="secondary" data-family="${i}" aria-label="「${safe(f.name)}」を削除">削除</button></p>`).join('');$('eventRows').innerHTML=events.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(e=>`<tr><td>${safe(e.date)}</td><td>${safe(e.title)}${e.repeat==='annual'?'（毎年）':''}${e.note?'<div class="muted">'+safe(e.note)+'</div>':''}${hasPreBirthLinkedPerson(e,Number(e.date.slice(0,4)),people)?'<div class="muted">登録開始日が関連人物の誕生前：日付を確認</div>':''}${e.personId?'<div class="muted">関連：'+safe(eventPeopleNames(e,people))+'</div>':''}</td><td>${Number(e.amount).toLocaleString('ja-JP',{maximumFractionDigits:10})}</td><td>${e.type==='past'?'過去（試算対象外）':isExcludedPastMonthEvent(e)?'予定（過去月・試算対象外）':isBeyondPlanEndMonth(e)?'予定（計画期間外・試算対象外）':'将来'}</td><td><button type="button" class="secondary" data-event-edit="${events.indexOf(e)}" aria-label="「${safe(e.title)}」（${safe(e.date)}）を編集">編集</button> <button type="button" class="secondary" data-event="${events.indexOf(e)}" aria-label="「${safe(e.title)}」（${safe(e.date)}${e.personId?'、関連：'+safe(eventPeopleNames(e,people)):''}）を削除">削除</button></td></tr>`).join('')||'<tr><td colspan="5" class="muted">イベントはまだ登録されていません。上の入力欄から追加できます。</td></tr>';renderTimeline()}
+$('addFamily').onclick=()=>{
+ const name=$('familyName').value.trim(),role=$('familyRole').value.trim(),birth=$('familyBirth').value;
+ if(!name||name.length>60||role.length>40)return alert('呼び名（60文字以内）と続柄（40文字以内）を確認してください');
+ if(!validBackupDate(birth)||new Date(birth+'T00:00:00')>new Date())return alert('生年月日は今日以前の正しい日付を入力してください');
+ if(families.length>=100)return alert('家族は100人まで登録できます');
+ families.push({name,role,birth});
+  // 登録済みの家族を再度追加しないよう、成功時だけ下書きを消去する。
+  $('familyName').value='';$('familyRole').value='';$('familyBirth').value='';
+  renderLists()
+};$('familyList').onclick=e=>{if(e.target.dataset.family!==undefined){const index=Number(e.target.dataset.family);if(!Number.isInteger(index)||index<0||index>=families.length)return;
+ // 編集中に家族を削除すると関連付けや選択欄が変わるため、先に編集を確定・取消する。
+ if(editingEventIndex>=0){
+  msg('イベントを編集中です。先に「変更を保存」または「編集をやめる」を選んでから家族を削除してください');
+  $('eventTitle').focus?.();return;
+ }
+ // 新規イベントに日付・題名・気持ち等が入力済みなら、家族削除で人物関係を変えない。
+ // 人物選択だけの状態は従来の選択補正を維持する。
+ if($('eventDate').value||$('eventTitle').value.trim()||$('eventNote').value.trim()||
+    $('eventAmount').value!=='0'||$('eventType').value!=='future'||$('eventRepeat').value!=='once'){
+  msg('新しいイベントの入力途中です。先に「イベントを追加」するか入力を消してから家族を削除してください');
+  $('eventTitle').focus?.();return;
+ }
+ const target=families[index],linkedCount=target.id?events.filter(ev=>ev.personId===target.id||ev.secondPersonId===target.id).length:0;
+ const identity=target.name+'（'+(target.role||'続柄未登録')+'・'+target.birth+'）';
+ // 人物だけを選択した未登録イベントでは従来の補正を維持し、削除前に影響を明示する。
+ const pendingSelectionWarning=($('eventPerson').value||$('eventPerson2').value)
+  ?'\n入力途中のイベントで選択した人物も変更される可能性があります。関連付けを残すには先にイベントを登録してください。':'';
+ if(!confirm('「'+identity+'」を削除しますか？\n関連する出来事：'+linkedCount+'件\n思い出の本文は残りますが、この人との関連付けは変更・解除され、元に戻せません。'+pendingSelectionWarning))return;// 旧形式の legacy:N は家族配列の位置を表す。削除時に別人へずれないよう補正する。
+ const pendingPersonIds=['eventPerson','eventPerson2'];
+ const previousSelections=pendingPersonIds.map(id=>$(id).value);
+ const removed=families.splice(index,1)[0];
+ pendingPersonIds.forEach((id,i)=>{
+  const selected=previousSelections[i];
+  if(!/^legacy:\d+$/.test(selected))return;
+  const position=Number(selected.slice(7));
+  $(id).value=position===index?'':position>index?'legacy:'+(position-1):selected;
+ });if(removed?.id)events=events.map(event=>{
+ if(event.personId===removed.id){const {personId,secondPersonId,...rest}=event;return {...rest,...(secondPersonId&&secondPersonId!==removed.id?{personId:secondPersonId}:{})}}
+ if(event.secondPersonId===removed.id){const {secondPersonId,...rest}=event;return rest}
+ return event;
+});renderLists();
+ // 主人物が削除されても残った相手を選択可能な状態に保つ（相手だけの選択は登録不可）。
+ if(!$('eventPerson').value&&$('eventPerson2').value){
+  $('eventPerson').value=$('eventPerson2').value;
+  $('eventPerson2').value='';
+ }
+ if(removed?.id)msg('人物を削除しました。関連する思い出は残し、人物との関連付けのみ解除しました')}};
+$('addEvent').onclick=()=>{
+ const date=$('eventDate').value,title=$('eventTitle').value.trim(),amountRaw=$('eventAmount').value;
+ const type=$('eventType').value,repeat=$('eventRepeat').value,note=$('eventNote').value.trim();
+ if(!validBackupDate(date)||!title||title.length>100)return alert('正しい日付とイベント名を入力してください');
+ if(!amountRaw.trim()||!Number.isFinite(Number(amountRaw)))return alert('収支額には有限の数値を入力してください');
+ if(!['future','past'].includes(type)||!['once','annual'].includes(repeat))return alert('イベントの種類と繰り返しを確認してください');
+  if(type==='past'&&new Date(date+'T00:00:00')>new Date())return alert('過去のクロニクルには今日以前の日付を指定してください');
+ if(editingEventIndex<0&&events.length>=2000)return alert('イベントは2000件まで登録できます');
+ if(note.length>500)return alert('思い出・気持ちは500文字以内で入力してください');
+ const first=$('eventPerson').value,second=$('eventPerson2').value;
+ if(second&&!first)return alert('交差する相手を登録するには、関連する人も選んでください');
+ if(first&&second&&first===second)return alert('異なる2人を選んでください');
+ function resolvePersonId(value){
+  if(!value)return '';
+  if(value.startsWith('legacy:')){
+   const index=Number(value.slice(7));
+   if(!Number.isInteger(index)||!families[index])return null;
+   if(!families[index].id)families[index].id=nextFamilyId();
+   return families[index].id;
+  }
+  return value==='self'||families.some(f=>f.id===value)?value:null;
+ }
+ // 入力検証後にだけIDを発行し、未登録の相手を勝手に作らない。
+ for(const value of [first,second]){
+  if(value.startsWith('legacy:')){
+   const index=Number(value.slice(7));
+   if(!Number.isInteger(index)||!families[index])return alert('関連する人を選び直してください');
+  }else if(value&&value!=='self'&&!families.some(f=>f.id===value))return alert('関連する人を選び直してください');
+ }
+ const personId=resolvePersonId(first),secondPersonId=resolvePersonId(second);
+ if(personId&&secondPersonId&&personId===secondPersonId)return alert('異なる2人を選んでください');
+ const updated={date,title,type,amount:Number(amountRaw),repeat,...(note?{note}:{}),...(personId?{personId}:{}),...(secondPersonId?{secondPersonId}:{})};
+ const wasEditing=editingEventIndex>=0;
+ if(wasEditing){if(editingEventIndex>=events.length)return alert('編集対象が見つかりません。編集をやり直してください');events[editingEventIndex]=updated;stopEventEditing(true)}
+ else {events.push(updated);stopEventEditing(true)}
+ renderLists();const valid=calculate();if(wasEditing&&valid)msg('イベントの変更を保存し、試算を更新しました')
+};$('eventRows').onclick=e=>{
+ if(e.target.dataset.eventEdit!==undefined){
+  const index=Number(e.target.dataset.eventEdit);
+  if(!Number.isInteger(index)||index<0||index>=events.length)return;
+  // 編集中に別の「編集」を押しても、未保存の思い出を上書きしない。
+  if(editingEventIndex>=0){
+   msg('イベントを編集中です。先に「変更を保存」または「編集をやめる」を選んでください');
+   $('eventTitle').focus?.();return;
+  }
+  // 新規イベントの未保存下書きを、既存イベントの編集開始で上書きしない。
+  if(hasNewEventDraft()&&!confirm('新しいイベントの入力途中です。入力内容を破棄して既存イベントを編集しますか？')){
+   msg('新しいイベントの入力内容を保持しました');
+   $('eventTitle').focus?.();return;
+  }
+  const item=events[index];editingEventIndex=index;
+  $('eventDate').value=item.date;$('eventTitle').value=item.title;$('eventType').value=item.type;
+  $('eventAmount').value=String(item.amount);$('eventRepeat').value=item.repeat;$('eventNote').value=item.note||'';
+  $('eventPerson').value=item.personId||'';$('eventPerson2').value=item.secondPersonId||'';
+  $('addEvent').textContent='変更を保存';$('cancelEventEdit').hidden=false;
+  msg('イベントを編集中です。変更を保存するか、編集をやめてください');
+  // スマホで一覧の編集を押した後、画面上部の入力欄に戻れるようにする。
+  $('eventTitle').focus?.();return;
+ }
+ if(e.target.dataset.event!==undefined){const index=Number(e.target.dataset.event);if(!Number.isInteger(index)||index<0||index>=events.length)return;
+ // 編集中の削除は下書きや編集対象の位置を変えるため、保存か取消を先に求める。
+ if(editingEventIndex>=0){
+  msg('イベントを編集中です。先に「変更を保存」または「編集をやめる」を選んでから削除してください');
+  $('eventTitle').focus?.();return;
+ }
+ const target=events[index],people=[{id:'self',name:$('name').value.trim()||'本人',birth:$('birth').value},...families];
+ const related=target.personId?' / 関連：'+eventPeopleNames(target,people):'';
+ const details=target.date+' / '+target.title+' / '+(target.type==='past'?'過去の記録':'予定')+' / '+Number(target.amount).toLocaleString('ja-JP',{maximumFractionDigits:10})+'万円'+related;
+ if(!confirm('次の出来事を削除しますか？\n'+details+'\n思い出・気持ちのメモも削除され、元に戻せません。'))return;
+ events.splice(index,1);
+ if(editingEventIndex===index)stopEventEditing(true);else if(editingEventIndex>index)editingEventIndex--;
+ renderLists();calculate()}};
+function invalidate(s){$('stats').innerHTML='';$('yearRows').innerHTML='';$('chart').innerHTML='';msg(s);return false}
+function calculate(){const birth=$('birth').value;if(!/^\d{4}-\d\d-\d\d$/.test(birth))return invalidate('生年月日を確認してください');const b=new Date(birth+'T00:00:00');const now=new Date();if(!Number.isFinite(b.getTime())||b.getFullYear()!==Number(birth.slice(0,4))||b.getMonth()+1!==Number(birth.slice(5,7))||b.getDate()!==Number(birth.slice(8,10))||b>now)return invalidate('生年月日は今日以前の正しい日付を入力してください');const startY=now.getFullYear(),startM=now.getMonth()+1;const endAge=num('endAge');if(!Number.isInteger(endAge)||endAge<0||endAge>125||endAge<ageAt(birth,startY,startM))return invalidate('終了年齢は現在の年齢以上、125歳以下にしてください');for(const k of fields.filter(x=>!['name','birth'].includes(x)))if(!$(k).value.trim()||!Number.isFinite(num(k)))return invalidate('数値入力を確認してください');if(num('inflation')<=-100||num('returnRate')<=-100||num('debtRate')<0)return invalidate('物価・運用・金利の設定を確認してください');if(num('contribution')<0||num('withdraw')<0)return invalidate('投資積立と取崩しは0以上で入力してください');if(num('debt')<0||num('repayment')<0)return invalidate('借入残高と毎月の返済額は0以上で入力してください');if(num('invest')<0)return invalidate('運用資産残高は0以上で入力してください');if(num('expense')<0)return invalidate('月の生活費は0以上で入力してください');if(num('salary')<0||num('pension')<0)return invalidate('月の手取り給与と年金手取り想定は0以上で入力してください');if(!['retireAge','pensionAge'].every(k=>Number.isInteger(num(k))&&num(k)>=0&&num(k)<=125))return invalidate('退職・年金開始年齢は0〜125歳の整数で入力してください');let cash=num('cash'),inv=num('invest'),debt=Math.max(0,num('debt')),rows=[],shortage=null;const endY=b.getFullYear()+endAge;const endM=b.getMonth()+1;if(endY<startY||(endY===startY&&endM<startM))return invalidate('終了年齢の到達月は既に過ぎています。終了年齢を引き上げてください');const annualInflation=Math.pow(1+num('inflation')/100,1/12),annualReturn=Math.pow(1+num('returnRate')/100,1/12),annualWage=Math.pow(1+num('wageGrowth')/100,1/12),debtGrowth=Math.pow(1+num('debtRate')/100,1/12);let t=0;if(![cash,inv,debt,annualInflation,annualReturn,annualWage,debtGrowth].every(Number.isFinite)||annualInflation<=0||annualReturn<=0||annualWage<=0||debtGrowth<=0)return invalidate('成長率または資産額が計算可能な範囲を超えています');for(let y=startY;y<=endY;y++){for(let m=y===startY?startM:1;m<=(y===endY?endM:12);m++){let age=ageAt(birth,y,m),wage=age<num('retireAge')?num('salary')*Math.pow(annualWage,t):0,pension=age>=num('pensionAge')?num('pension'):0,spend=num('expense')*Math.pow(annualInflation,t);cash+=wage+pension-spend;for(const e of events){if(e.type==='past')continue;const [ey,em]=e.date.split('-').map(Number);if((e.repeat==='annual'&&em===m&&y>=ey)||(e.repeat!=='annual'&&ey===y&&em===m))cash+=Number(e.amount)||0}const c=Math.max(0,num('contribution'));cash-=c;inv=(inv+c)*annualReturn;const w=Math.max(0,Math.min(inv,num('withdraw')));inv-=w;cash+=w;if(debt>0){debt*=debtGrowth;const payment=Math.min(debt,Math.max(0,num('repayment')));debt-=payment;cash-=payment}if(![cash,inv,debt].every(Number.isFinite))return invalidate('試算中に数値が計算可能な範囲を超えました');if(cash<0&&!shortage)shortage=`${y}年${m}月`;t++}const age=ageAt(birth,y,y===endY?endM:12),net=cash+inv-debt,real=net/Math.pow(annualInflation,t);if(![net,real].every(Number.isFinite))return invalidate('純資産の計算結果が許容範囲を超えました');rows.push({y,age,cash,inv,debt,net,real})}const last=rows.at(-1),fmt=x=>Math.round(x).toLocaleString('ja-JP')+'万円';$('stats').innerHTML=`<div class="stat">最終純資産<strong>${fmt(last.net)}</strong></div><div class="stat">物価調整後<strong>${fmt(last.real)}</strong></div><div class="stat">現預金がマイナスになる時期<strong>${shortage||'期間内になし'}</strong></div>`;$('yearRows').innerHTML=rows.map(r=>`<tr><td>${r.y}</td><td>${r.age}</td><td>${fmt(r.cash)}</td><td>${fmt(r.inv)}</td><td>${fmt(r.debt)}</td><td>${fmt(r.net)}</td><td>${fmt(r.real)}</td></tr>`).join('');const values=rows.map(r=>r.net),min=Math.min(...values,0),max=Math.max(...values,0),span=max-min||1;const points=rows.map((r,i)=>`${45+i*680/Math.max(1,rows.length-1)},${220-(r.net-min)/span*185}`).join(' ');const zero=220-(0-min)/span*185;$('chart').innerHTML=`<svg viewBox="0 0 760 250" aria-hidden="true"><line x1="45" x2="725" y1="${zero}" y2="${zero}" stroke="#9aabb9" stroke-dasharray="4 4"/><polyline fill="none" stroke="#1769a1" stroke-width="3" points="${points}"/><text x="45" y="242" font-size="12">${startY}年</text><text x="650" y="242" font-size="12">${endY}年</text><text x="45" y="20" font-size="12">純資産（万円）</text></svg>`;msg('試算を更新しました（概算）');return true}
+$('calculate').onclick=calculate;$('save').onclick=()=>{if(!ensureEventEditFinished()||!ensureFamilyDraftFinished()||!ensureEventDraftFinished()||!calculate())return;let existing;try{existing=localStorage.getItem('softazio-life125-v1')}catch(e){return msg('端末内の保存領域を確認できません。ブラウザの保存設定をご確認ください')}if(existing!==null){if(!confirm('この端末に家族の呼び名・生年月日・思い出・資産情報を保存します。既存の端末保存データを上書きし、以前の内容には戻せません。必要なら先にバックアップを保存してください。共用端末では保存を避けてください。上書きしますか？'))return msg('端末内への保存を取り消しました')}else if(!confirm('この端末に家族の呼び名・生年月日・思い出・資産情報を保存します。共用端末では保存を避けてください。保存しますか？'))return msg('端末内への保存を取り消しました');try{localStorage.setItem('softazio-life125-v1',JSON.stringify(snapshot()));needsDeviceSaveWarning=false;msg('この端末内に保存しました')}catch(e){msg('この端末に保存できませんでした。バックアップの保存をお試しください')}};$('load').onclick=()=>{let stored;try{stored=localStorage.getItem('softazio-life125-v1')}catch(e){return msg('端末内の保存領域を読み取れません。ブラウザの保存設定をご確認ください')}if(stored===null)return msg('保存データはありません');if(!confirmDataReplacement('端末の保存データ'))return msg('端末の保存データの復元を取り消しました');backupImportRequestId++;try{restore(JSON.parse(stored));needsDeviceSaveWarning=false;msg('端末の保存を復元しました')}catch(e){msg('保存データを読み込めませんでした'+backupErrorHint(e)+'。端末内の保存データは削除していません。バックアップファイルがあれば復元してください')}};$('clear').onclick=()=>{if(!confirm('この端末に保存したLIFE 125のデータを削除しますか？画面の入力内容とダウンロード済みバックアップは残ります。'))return;try{localStorage.removeItem('softazio-life125-v1');needsDeviceSaveWarning=true;msg('端末内の保存データを削除しました。画面の入力内容とダウンロード済みバックアップは残っています。')}catch(e){msg('保存データを削除できませんでした。ブラウザの保存設定をご確認ください')}};$('export').onclick=()=>{if(!ensureEventEditFinished()||!ensureFamilyDraftFinished()||!ensureEventDraftFinished()||!calculate())return;if(!confirm('バックアップには名前・生年月日・思い出・資産情報が含まれ、暗号化されません。安全な場所に保存しますか？'))return msg('バックアップの保存を取り消しました');let url;try{const blob=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;const stamp=new Date(),pad=n=>String(n).padStart(2,'0');a.download='life125-backup-'+stamp.getFullYear()+pad(stamp.getMonth()+1)+pad(stamp.getDate())+'-'+pad(stamp.getHours())+pad(stamp.getMinutes())+pad(stamp.getSeconds())+'-'+String(stamp.getMilliseconds()).padStart(3,'0')+'-'+String(++backupExportSerial).padStart(3,'0')+'.json';a.click();msg('バックアップのダウンロードを開始しました')}catch(e){msg('バックアップを保存できませんでした。ブラウザのダウンロード設定をご確認ください')}finally{if(url)setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(e){}},1000)}};$('importButton').onclick=()=>{backupImportRequestId++;$('import').click()};$('import').oncancel=()=>{backupImportRequestId++};$('import').onchange=async e=>{const input=e.target,f=input.files?.[0],requestId=++backupImportRequestId;input.value='';if(!f)return;if(f.size>5000000)return msg('5MB以下のバックアップファイルを指定してください');try{const data=JSON.parse(await f.text());if(requestId!==backupImportRequestId)return;if(!confirmDataReplacement('バックアップ'))return msg('バックアップからの復元を取り消しました');restore(data);needsDeviceSaveWarning=true;msg('バックアップから復元しました。端末内の保存データは更新されていません。必要なら「この端末に保存」を押してください')}catch(err){if(requestId===backupImportRequestId)msg('読み込みに失敗しました'+backupErrorHint(err))}};renderLists();calculate();
+</script></body></html>
