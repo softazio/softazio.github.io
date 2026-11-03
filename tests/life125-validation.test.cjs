@@ -3534,3 +3534,57 @@ test('restored JSON can be explicitly saved to the device afterward', async () =
   assert.equal(saved.data.fields.salary,'49');
   assert.match(get('message').textContent,/この端末内に保存しました/);
 });
+
+
+test('successful JSON restore warns before leaving until explicitly saved on device', async () => {
+  const {get,importFile,snapshot,dispatchBeforeUnload}=app();
+  const backup=snapshot();
+  backup.fields.salary='48';
+  assert.equal(dispatchBeforeUnload().defaultPrevented,false);
+  await importFile({size:500,text:async()=>JSON.stringify(backup)});
+  assert.equal(snapshot().fields.salary,'48');
+  assert.equal(dispatchBeforeUnload().defaultPrevented,true);
+  get('save').onclick();
+  assert.equal(dispatchBeforeUnload().defaultPrevented,false);
+});
+
+test('cancelled or invalid JSON import does not create a false unsaved restore warning', async () => {
+  const {importFile,snapshot,dispatchBeforeUnload,setCanRestore}=app();
+  const backup=snapshot();
+  backup.fields.salary='42';
+  setCanRestore(false);
+  await importFile({size:500,text:async()=>JSON.stringify(backup)});
+  assert.equal(dispatchBeforeUnload().defaultPrevented,false);
+  setCanRestore(true);
+  await importFile({size:100,text:async()=>'{invalid json'});
+  assert.equal(dispatchBeforeUnload().defaultPrevented,false);
+  assert.equal(snapshot().fields.salary,'20');
+});
+
+test('device data deletion warns before leaving but cancellation does not', () => {
+  const current=app();
+  let deletions=0;
+  current.storage.removeItem=()=>{deletions++};
+  current.setCanClear(false);
+  current.clear();
+  assert.equal(deletions,0);
+  assert.equal(current.dispatchBeforeUnload().defaultPrevented,false);
+  current.setCanClear(true);
+  current.clear();
+  assert.equal(deletions,1);
+  assert.equal(current.dispatchBeforeUnload().defaultPrevented,true);
+  current.get('save').onclick();
+  assert.equal(current.dispatchBeforeUnload().defaultPrevented,false);
+});
+
+test('restoring saved device data clears a prior JSON unsaved warning', async () => {
+  const {get,storage,importFile,snapshot,dispatchBeforeUnload}=app();
+  const saved=snapshot(),backup=snapshot();
+  saved.fields.salary='33';backup.fields.salary='49';
+  storage.getItem=()=>JSON.stringify(saved);
+  await importFile({size:500,text:async()=>JSON.stringify(backup)});
+  assert.equal(dispatchBeforeUnload().defaultPrevented,true);
+  get('load').onclick();
+  assert.equal(snapshot().fields.salary,'33');
+  assert.equal(dispatchBeforeUnload().defaultPrevented,false);
+});
