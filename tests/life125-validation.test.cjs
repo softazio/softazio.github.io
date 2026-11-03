@@ -3537,7 +3537,8 @@ test('restored JSON can be explicitly saved to the device afterward', async () =
 
 
 test('successful JSON restore warns before leaving until explicitly saved on device', async () => {
-  const {get,importFile,snapshot,dispatchBeforeUnload}=app();
+  const {get,storage,importFile,snapshot,dispatchBeforeUnload}=app();
+  storage.setItem=()=>{};
   const backup=snapshot();
   backup.fields.salary='48';
   assert.equal(dispatchBeforeUnload().defaultPrevented,false);
@@ -3565,6 +3566,7 @@ test('device data deletion warns before leaving but cancellation does not', () =
   const current=app();
   let deletions=0;
   current.storage.removeItem=()=>{deletions++};
+  current.storage.setItem=()=>{};
   current.setCanClear(false);
   current.clear();
   assert.equal(deletions,0);
