@@ -3590,3 +3590,29 @@ test('restoring saved device data clears a prior JSON unsaved warning', async ()
   assert.equal(snapshot().fields.salary,'33');
   assert.equal(dispatchBeforeUnload().defaultPrevented,false);
 });
+
+
+test('failed device save after JSON import keeps the unsaved-data leave warning', async () => {
+  const a=app();
+  const backup=a.snapshot();
+  backup.fields.name='復元後の記録';
+  await a.importFile({size:100,text:async()=>JSON.stringify(backup)});
+  assert.equal(a.snapshot().fields.name,'復元後の記録');
+  assert.equal(a.dispatchBeforeUnload().defaultPrevented,true);
+  a.storage.setItem=()=>{throw Error('quota exceeded')};
+  a.get('save').onclick();
+  assert.match(a.get('message').textContent,/保存できませんでした/);
+  assert.equal(a.dispatchBeforeUnload().defaultPrevented,true);
+});
+
+test('successful retry after failed device save clears the leave warning', async () => {
+  const a=app();
+  await a.importFile({size:100,text:async()=>JSON.stringify(a.snapshot())});
+  a.storage.setItem=()=>{throw Error('quota exceeded')};
+  a.get('save').onclick();
+  assert.equal(a.dispatchBeforeUnload().defaultPrevented,true);
+  a.storage.setItem=()=>{};
+  a.get('save').onclick();
+  assert.match(a.get('message').textContent,/保存しました/);
+  assert.equal(a.dispatchBeforeUnload().defaultPrevented,false);
+});
